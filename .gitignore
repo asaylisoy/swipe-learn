@@ -3,3 +3,4 @@ index.html
 _site/
 .DS_Store
 __pycache__/
+.claude/
