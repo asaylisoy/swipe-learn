@@ -1,0 +1,183 @@
+@@ cyber | Başlangıç | 🛡️ Bu bölüm nasıl çalışıyor?
+A: Kaynaklar: LuNiZz'in **siber-guvenlik-sss** reposu, reponun önerdiği TCM video serisi ve **roadmap.sh/cyber-security**.
+Bu ilk sürümde temel kavram, savunma ve kariyer kartları var. Video transkriptlerinden üretilecek kartları Ayarlar → **Kart içe aktar** ile ekleyeceksin (CLAUDE.md'de tarif var).
+EX: Repo yazarının ana mesajı: kendi kendine araştır, bol pratik yap (TryHackMe/HackTheBox gibi yasal lab ortamlarında), İngilizceni geliştir, topluluğa katıl.
+
+@@ cyber | Temel Prensipler | CIA Triad
+A: Bilgi güvenliğinin 3 temel hedefi:
+- **Confidentiality (Gizlilik):** sadece yetkililer görebilir → şifreleme, erişim kontrolü.
+- **Integrity (Bütünlük):** veri yetkisiz değiştirilmez → hash, dijital imza.
+- **Availability (Erişilebilirlik):** sistem ihtiyaç anında çalışır → yedekleme, yedeklilik, DDoS koruması.
+EX: Tedarik zinciri yazılımında: rakip firma sipariş hacimlerini görmemeli (C), teslim tarihleri değiştirilmemeli (I), sistem ay sonunda çökmemeli (A).
+SAY: Die drei Schutzziele der Informationssicherheit sind Vertraulichkeit, Integrität und Verfügbarkeit.
+
+@@ cyber | Temel Prensipler | Authentication vs Authorization (AAA)
+A: **Authentication** (kimlik doğrulama): “Sen kimsin?” → şifre, MFA, sertifika. **Authorization** (yetkilendirme): “Ne yapmaya iznin var?” → roller, izinler. **Accounting/Auditing**: “Ne yaptın?” → loglar.
+**MFA**: bildiğin (şifre) + sahip olduğun (telefon/anahtar) + olduğun (biyometri) faktörlerinden en az ikisi.
+EX: Depo çalışanı sisteme girebilir (authn) ama tedarikçi sözleşmelerini göremez (authz).
+
+@@ cyber | Temel Prensipler | Least Privilege, Defense in Depth, Zero Trust
+A:
+- **Least Privilege**: her kullanıcı/servis sadece işi için gereken minimum yetkiye sahip olsun.
+- **Defense in Depth**: tek savunmaya güvenme; katman katman (firewall + MFA + şifreleme + loglama + yedek).
+- **Zero Trust**: “ağın içindesin, o yüzden güveniyorum” yok; her istek doğrulanır: “never trust, always verify”.
+EX: Uygulamanın DB kullanıcısı tablo silme yetkisine sahip değilse, bir hata ya da saldırı olsa bile hasar sınırlı kalır.
+
+@@ cyber | Temel Prensipler | Threat, Vulnerability, Risk
+A: **Vulnerability (zafiyet)**: sistemdeki zayıflık (ör. yamalanmamış yazılım). **Threat (tehdit)**: bu zayıflığı kullanabilecek aktör/olay. **Risk** = olasılık × etki.
+**CVE**: bilinen zafiyetlerin kimlik numarası; **CVSS**: 0–10 arası ciddiyet skoru. **Patch management**: yamaları düzenli ve önceliklendirerek uygulamak.
+EX: İlandaki firma **Risikomanagement** yapıyor — tedarik zinciri riski ile siber risk aynı mantık: olasılık × etki, önlem, izleme. Mülakatta bu bağlantıyı kurabilirsin!
+
+@@ cyber | Kriptografi | Hashing vs Encryption vs Encoding
+A:
+- **Encoding** (Base64): sadece format dönüşümü, güvenlik sağlamaz.
+- **Encryption**: anahtarla geri çözülebilir. **Simetrik** (AES): tek anahtar, hızlı. **Asimetrik** (RSA, ECC): public/private anahtar çifti; anahtar değişimi ve dijital imza için.
+- **Hashing** (SHA-256): tek yönlü, geri çevrilemez; bütünlük kontrolü.
+**Şifre saklama**: asla düz metin ya da hızlı hash değil → **bcrypt / Argon2** + salt.
+CODE:
+// Spring Security
+PasswordEncoder enc = new BCryptPasswordEncoder();
+String hash = enc.encode(rawPassword);
+boolean ok = enc.matches(rawPassword, hash);
+SAY: Passwörter speichere ich nie im Klartext, sondern als gesalzenen Hash mit bcrypt oder Argon2.
+
+@@ cyber | Kriptografi | HTTPS / TLS nasıl korur?
+A: TLS, istemci-sunucu arasındaki trafiği şifreler ve sunucunun kimliğini **sertifika** ile doğrular. El sıkışmada asimetrik kripto ile oturum anahtarı kurulur, veri sonra simetrik (AES) ile şifrelenir.
+Sertifikalar bir **CA** (Certificate Authority) tarafından imzalanır; tarayıcı bu zinciri kontrol eder. Güncel sürümler: TLS 1.2 ve 1.3.
+EX: Halka açık Wi-Fi'da HTTP ile giriş yapılan bir sitede şifre ağdaki herkes tarafından okunabilir; HTTPS bunu engeller.
+
+@@ cyber | Web Güvenliği | OWASP Top 10 nedir?
+A: Web uygulamalarındaki en kritik risklerin listesi (son büyük sürüm 2021, yenisi 2025'te yayınlandı). Öne çıkanlar:
+- **Broken Access Control** (en üst sırada): kullanıcı başkasının verisine erişebiliyor
+- **Cryptographic Failures**: hassas verinin korunmaması
+- **Injection** (SQL injection, XSS dahil)
+- **Security Misconfiguration**, **Vulnerable/Outdated Components**
+- **Identification & Authentication Failures**, **Logging & Monitoring Failures**
+Repo da web güvenliği için OWASP Top 10 ve PortSwigger Web Security Academy'yi öneriyor.
+SAY: Die OWASP Top 10 sind für mich eine gute Checkliste, um beim Entwickeln an die häufigsten Sicherheitsrisiken zu denken.
+
+@@ cyber | Web Güvenliği | SQL Injection'dan nasıl korunursun? (Java dev için)
+A: Sebep: kullanıcı girdisini SQL metnine **string birleştirme** ile eklemek. Çözüm: **PreparedStatement / parametreli sorgu** (JPA, Spring Data bunu varsayılan yapar), girdi doğrulama, least privilege DB kullanıcısı.
+CODE:
+// KÖTÜ: girdi doğrudan sorgunun parçası oluyor
+String sql = "SELECT * FROM supplier WHERE name = '" + name + "'";
+
+// DOĞRU: parametre, veri olarak gönderilir
+PreparedStatement ps = conn.prepareStatement(
+    "SELECT * FROM supplier WHERE name = ?");
+ps.setString(1, name);
+EX: Mülakatta “Güvenlik hakkında ne biliyorsun?” sorusuna bu kart en iyi cevaptır: hem siber ilgini hem Java bilgini gösterir.
+SAY: Gegen SQL-Injection verwende ich immer Prepared Statements, damit Benutzereingaben nie als SQL-Code interpretiert werden.
+
+@@ cyber | Web Güvenliği | XSS ve CSRF'ye karşı savunma
+A: **XSS**: kullanıcı girdisinin sayfada kod olarak çalışması. Savunma: çıktıyı bağlama göre **escape et** (modern framework'ler — React, Angular, Thymeleaf — varsayılan yapar), `innerHTML` yerine `textContent`, **Content-Security-Policy** header'ı.
+**CSRF**: kullanıcının oturumu kullanılarak istemediği bir isteğin gönderilmesi. Savunma: CSRF token, `SameSite` cookie, kritik işlemlerde yeniden doğrulama.
+EX: Bu uygulamanın kodunda da kart metni ekrana basılmadan önce escape ediliyor (`esc()` fonksiyonu) — içe aktarılan JSON'a kimse script gömemesin diye.
+
+@@ cyber | Web Güvenliği | Broken Access Control ve IDOR
+A: Kullanıcının sadece URL'deki ID'yi değiştirerek başkasının verisine ulaşabilmesi (**IDOR**). Savunma: her istekte **sunucu tarafında** “bu kullanıcı bu kaynağa sahip mi?” kontrolü; frontend'de butonu gizlemek güvenlik değildir.
+CODE:
+@GetMapping("/api/orders/{id}")
+OrderDto get(@PathVariable long id, Principal user) {
+    Order o = repo.findById(id).orElseThrow();
+    if (!o.ownerId().equals(user.getName())) throw new AccessDeniedException("forbidden");
+    return OrderDto.from(o);
+}
+EX: Çok müşterili (multi-tenant) B2B yazılımda en kritik kural: müşteri A, müşteri B'nin tedarikçi verisini asla görmemeli.
+
+@@ cyber | Güvenli Geliştirme | DevSecOps ve güvenli kod alışkanlıkları
+A: Güvenliği sona değil geliştirme sürecinin içine koymak (“shift left”):
+- Şifre/API anahtarını **koda ve Git'e koyma** → environment variable, secret manager
+- Bağımlılık taraması (Dependabot, OWASP Dependency-Check) — Log4Shell (2021) bunun önemini gösterdi
+- Statik kod analizi (SAST: SonarQube, Semgrep), code review
+- Girdi doğrulama, hata mesajlarında iç detay sızdırmama
+EX: Yazılımcı kökenliysen siber güvenliğe en doğal giriş kapısı **AppSec / DevSecOps**: hem bu Werkstudent işinde hem ileride işine yarar.
+
+@@ cyber | Blue Team | Loglama, izleme ve SOC
+A: **SOC** (Security Operations Center) sistemleri 7/24 izler. **SIEM** (Splunk, Microsoft Sentinel, Elastic) farklı kaynaklardan logları toplar, korelasyon kurar ve alarm üretir. **EDR** uç noktaları (laptop, sunucu) izler.
+İyi log: kim, ne zaman, ne yaptı, sonuç ne oldu — ama şifre/kişisel veri içermez.
+EX: Gece 03:00'te yurt dışından 50 başarısız giriş denemesi + ardından başarılı giriş → SIEM alarmı → analist hesabı kilitler.
+
+@@ cyber | Blue Team | Incident Response (Olay Müdahalesi) aşamaları
+A: NIST modeline göre:
+- **Preparation**: plan, araçlar, eğitim
+- **Detection & Analysis**: olayı tespit ve kapsamını anlama
+- **Containment, Eradication & Recovery**: yayılmayı durdur, temizle, sistemleri geri getir
+- **Post-Incident Activity**: “lessons learned”, süreçleri iyileştir
+EX: Fidye yazılımı vakasında en kritik şey çevrimdışı (offline) ve test edilmiş yedeklerin olmasıdır — Availability'nin pratikteki karşılığı.
+
+@@ cyber | İnsan Faktörü | Phishing ve sosyal mühendislik
+A: Saldırıların büyük kısmı teknik değil **insan** odaklı başlar: sahte e-posta, sahte giriş sayfası, telefonla kendini IT destek gibi tanıtma.
+Belirtiler: aciliyet baskısı, beklenmeyen ek/link, gönderen adresindeki küçük farklar.
+Savunma: MFA (tercihen phishing'e dayanıklı FIDO2/passkey), farkındalık eğitimi, e-posta filtreleme, şüpheli durumu bildirme kültürü.
+EX: Repo'nun “kendini koruma” tavsiyeleri: iki faktörlü doğrulamayı aç, tanımadığın linklere tıklama, Personal Security Checklist'i uygula.
+
+@@ cyber | Networking | OSI modeli (7 katman)
+A: Yukarıdan aşağı: **7 Application** (HTTP, DNS), **6 Presentation** (format, şifreleme), **5 Session**, **4 Transport** (TCP/UDP, portlar), **3 Network** (IP, router), **2 Data Link** (MAC, switch), **1 Physical** (kablo, sinyal).
+Ezber (aşağıdan yukarı): “**P**lease **D**o **N**ot **T**hrow **S**ausage **P**izza **A**way”.
+Pratikte daha çok kullanılan **TCP/IP modeli** 4 katmanlıdır: Link, Internet, Transport, Application.
+EX: Firewall'lar klasik olarak L3/L4'te (IP + port), WAF (Web Application Firewall) ise L7'de (HTTP içeriği) çalışır.
+
+@@ cyber | Networking | TCP vs UDP ve 3-way handshake
+A: **TCP**: bağlantı odaklı, güvenilir, sıralı (web, e-posta, SSH). **UDP**: bağlantısız, hızlı, teslim garantisi yok (DNS, video, oyun, VoIP).
+TCP bağlantı kurulumu: `SYN` → `SYN-ACK` → `ACK`.
+EX: Canlı yayında bir paketin kaybolması önemsiz, gecikme önemli → UDP. Banka işleminde her bayt önemli → TCP.
+
+@@ cyber | Networking | Bilinmesi gereken portlar
+A: `22 SSH, 25 SMTP, 53 DNS, 80 HTTP, 443 HTTPS, 445 SMB, 3389 RDP, 3306 MySQL, 5432 PostgreSQL, 8080 HTTP-alt`. Eski ve şifresiz: `21 FTP, 23 Telnet`.
+Savunma kuralı: internete sadece gerçekten gereken portları aç; SMB ve RDP gibi yönetim servislerini doğrudan internete açma (VPN arkasına koy).
+EX: Birçok fidye yazılımı vakası internete açık bırakılmış RDP ile başlamıştır.
+
+@@ cyber | Networking | IP, subnetting, DNS, NAT kısaca
+A: **IPv4** 32 bit (`192.168.1.10`); **CIDR** `/24` = 256 adres (254 kullanılabilir host). Özel aralıklar: `10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16`. **MAC**: ağ kartının donanım adresi (L2). **DNS**: isim → IP. **DHCP**: otomatik IP dağıtımı. **NAT**: özel IP'leri tek genel IP arkasında toplar.
+**Segmentasyon**: ağı bölümlere ayırmak (ör. üretim ağı ≠ ofis ağı) bir saldırının yayılmasını sınırlar.
+EX: Fabrikalarda OT (makine) ağının ofis ağından ayrılması, lojistik ve üretim firmalarında temel güvenlik önlemidir.
+
+@@ cyber | Kariyer | Siber güvenlik dalları (repodan)
+A: Repodaki SiberGuvenlik.md dokümanına göre başlıca yollar:
+- **Güvenlik Yönetimi**: denetim, uyumluluk (compliance)
+- **Güvenlik Mimarisi**: çözümlerin kurumsal ortama güvenli entegrasyonu
+- **Risk Analisti**: risk kaydı, saldırı yüzeyi, varlık envanteri
+- **Blue Team / SOC Analisti**: izleme, threat hunting, forensics, olay incelemesi
+- **Red Team / Pentester**: izinli zafiyet taraması ve sızma testi
+- **Security Engineer**: vendor ürünlerinin kurulumu, POC, destek (pre-/post-sales)
+EX: Yazılımcı kökenli biri için doğal köprü **AppSec / DevSecOps**: güvenli kod, kod analizi, CI/CD'ye güvenlik kontrolleri eklemek.
+
+@@ cyber | Kariyer | Sertifikalar: hangisi ne zaman?
+A: Repodaki listeye göre (sıralama benim çıkarımım, repo kesin sıra vermiyor):
+- **Giriş**: CompTIA **Security+** (çoğu dal için ortak temel), CEH, Pentest+, CySA+ (blue team), ITIL
+- **İleri – Red Team**: **OSCP**, OSWE, OSCE, OSEE, GXPN
+- **İleri – Blue Team**: GCIH, GCIA, GSEC
+- **Yönetim/Mimari/Risk**: **CISSP**, CISA, CRISC, TOGAF, SABSA
+CISSP birkaç yıllık iş deneyimi şartı ister; öğrenciyken hedef değildir.
+EX: Öğrenci için mantıklı yol: önce ücretsiz/ucuz platformlar (TryHackMe öğrenme yolları) → Security+ → ilgi alanına göre OSCP (red) veya CySA+ (blue).
+
+@@ cyber | Kariyer | Roadmap.sh siber güvenlik yol haritası özeti
+A: Önerilen sıra kabaca:
+- **IT temelleri**: donanım, işletim sistemleri (Windows + **Linux**), komut satırı
+- **Networking**: OSI, TCP/IP, DNS, DHCP, subnetting, portlar
+- **Güvenlik kavramları**: CIA, kriptografi, kimlik doğrulama, tehdit türleri
+- **Script**: Python, Bash, PowerShell
+- **Cloud** temelleri, sonra bir uzmanlık (SOC, AppSec, cloud security, pentest)
+- Pratik: CTF'ler ve yasal lab platformları
+Repo'nun önerisi de aynı yönde: Linux (Linux Journey), web güvenliği (PortSwigger Academy, OWASP Top 10), networking (CCNA seviyesi).
+
+@@ cyber | Kariyer | TCM video serisi: bu bölümde nasıl kullanılacak?
+A: Repo, başlangıç için The Cyber Mentor'ın ücretsiz uzun video serisini öneriyor (11 uzun canlı yayın). Seri uygulamalı bir ağ sızma testi kursu.
+Bu uygulamada serinin transkriptlerinden **kavram ve savunma odaklı** kartlar üretilecek: “bu konu nedir, neden önemli, savunma tarafı nasıl önler, mülakatta nasıl anlatılır”. Uygulamalı kısımlarını videodan ve kendi izole lab'ından takip et.
+EX: Videolar 2019 tarihli; kavramlar geçerli ama bazı araç sürümleri eskimiş olabilir. TCM'nin güncel ücretli kursları da var.
+
+@@ cyber | Hukuk & Etik | İzin olmadan test = suç (Almanya: §202a–c StGB)
+A: Sızma testi sadece **yazılı izin** ve net kapsam (scope, Rules of Engagement) ile yapılır. Almanya'da yetkisiz erişim ve veri dinleme Ceza Kanunu'nun §202a–§202c maddeleri kapsamında suçtur; Türkiye'de de TCK'da benzer hükümler var.
+Pratik için sadece **kendi lab'ın** (sanal makineler) ve yasal platformlar: TryHackMe, HackTheBox, PortSwigger Academy, bug bounty programlarının izin verdiği kapsam.
+EX: Üniversite ağını ya da yurdun Wi-Fi'ını “deneme amaçlı” taramak bile ciddi sorun yaratabilir — kariyer başlamadan biter.
+SAY: Sicherheitstests führe ich nur mit schriftlicher Erlaubnis und in einem klar definierten Scope durch.
+
+@@ cyber | Pratik | Güvenli bir ev lab'ı nasıl kurulur?
+A: Repo'nun donanım önerisi: en az **16 GB RAM** (sanal makineler için), SSD, güncel i5/i7, Ryzen 5/7 veya Apple M-serisi.
+- Sanallaştırma: VirtualBox / VMware / UTM (Mac)
+- Sanal makineleri **izole bir ağda** (host-only / internal network) çalıştır
+- Kali Linux (repo: Kali ya da Parrot kişisel tercih; Windows'ta WSL2 de olur)
+- Bilerek zafiyetli bırakılmış eğitim makineleri sadece bu izole ağda
+- Snapshot al, bozulunca geri dön
+EX: Lab'ı bir Werkstudent mülakatında anlatmak bile “Eigeninitiative” kanıtıdır: “Ich habe mir ein isoliertes Heimlabor mit virtuellen Maschinen aufgebaut.”

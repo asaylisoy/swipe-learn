@@ -1,0 +1,178 @@
+@@ arch | SOLID | SOLID nedir? (genel bakış)
+A: Robert C. Martin'in (“Uncle Bob”) popülerleştirdiği 5 nesne yönelimli tasarım prensibi. Amaç: değişime dayanıklı, test edilebilir, anlaşılır kod.
+- **S**ingle Responsibility
+- **O**pen/Closed
+- **L**iskov Substitution
+- **I**nterface Segregation
+- **D**ependency Inversion
+SAY: SOLID sind fünf Prinzipien für wartbaren und erweiterbaren objektorientierten Code.
+
+@@ arch | SOLID | S – Single Responsibility Principle
+A: Bir sınıfın **değişmek için tek bir sebebi** olmalı, yani tek bir sorumluluğu.
+CODE:
+// KÖTÜ: hesap + PDF + mail tek sınıfta
+class RiskReport { calc(); toPdf(); sendMail(); }
+
+// İYİ
+class RiskCalculator { RiskScore calc(Supplier s) {...} }
+class PdfRenderer    { byte[] render(RiskScore r) {...} }
+class MailService    { void send(byte[] pdf) {...} }
+EX: Müşteri PDF tasarımını değiştirmek istediğinde risk hesaplama koduna dokunmak zorunda kalmamalısın.
+
+@@ arch | SOLID | O – Open/Closed Principle
+A: Kod **genişlemeye açık, değişikliğe kapalı** olmalı. Yeni davranış eklemek için çalışan kodu değiştirmek yerine yeni bir sınıf eklersin (interface + polymorphism).
+CODE:
+interface RiskRule { double score(Supplier s); }
+class DelayRule implements RiskRule { ... }
+class SingleSourceRule implements RiskRule { ... }
+// yeni kural = yeni sınıf; hesaplayıcı değişmez:
+double total = rules.stream().mapToDouble(r -> r.score(s)).sum();
+EX: Yeni bir “jeopolitik risk” kuralı eklemek için devasa bir `if-else` zincirini düzenlemek yerine `GeoRiskRule` sınıfı eklenir.
+
+@@ arch | SOLID | L – Liskov Substitution Principle
+A: Alt sınıf, üst sınıfın yerine konduğunda programın doğruluğu bozulmamalı. Alt sınıf üst sınıfın sözleşmesini daraltamaz, beklenmedik exception fırlatamaz.
+Klasik örnek: `Square extends Rectangle` — `setWidth` yüksekliği de değiştirir, Rectangle bekleyen kod bozulur.
+EX: `ReadOnlyWarehouse extends Warehouse` yazıp `store()` içinde `UnsupportedOperationException` fırlatmak LSP ihlalidir; okuma ve yazma ayrı interface olmalı.
+
+@@ arch | SOLID | I – Interface Segregation Principle
+A: Kimse kullanmadığı metotlara bağımlı olmaya zorlanmamalı. Şişman interface yerine küçük, odaklı interface'ler.
+CODE:
+// KÖTÜ
+interface Device { void print(); void scan(); void fax(); }
+// İYİ
+interface Printer { void print(Doc d); }
+interface Scanner { Doc scan(); }
+class SimplePrinter implements Printer { ... }
+
+@@ arch | SOLID | D – Dependency Inversion Principle
+A: Üst seviye modüller alt seviye detaylara değil **soyutlamalara** (interface) bağımlı olmalı. Spring'deki Dependency Injection bunun pratik uygulamasıdır.
+CODE:
+interface SupplierRepository { Optional<Supplier> findById(String id); }
+
+class RiskService {
+    private final SupplierRepository repo;     // interface!
+    RiskService(SupplierRepository repo) { this.repo = repo; }
+}
+// Prod: JpaSupplierRepository, Test: InMemorySupplierRepository
+EX: Unit testte gerçek veritabanı yerine sahte (in-memory) repository verebilmek DIP sayesinde.
+SAY: Durch Dependency Inversion hängt die Geschäftslogik nur von Interfaces ab, nicht von konkreten Implementierungen wie der Datenbank.
+
+@@ arch | Prensipler | DRY, KISS, YAGNI
+A:
+- **DRY** (Don't Repeat Yourself): aynı bilgi/mantık tek yerde olmalı.
+- **KISS** (Keep It Simple, Stupid): en basit çalışan çözüm.
+- **YAGNI** (You Aren't Gonna Need It): “ileride lazım olur” diye şimdi yazma.
+EX: KDV oranı 7 farklı yerde `0.19` olarak yazılıysa, oran değişince birini mutlaka unutursun (DRY ihlali).
+
+@@ arch | Prensipler | Coupling & Cohesion
+A: **Low coupling** (gevşek bağlılık): modüller birbirinin iç detayını bilmez. **High cohesion** (yüksek uyum): bir modülün içindekiler aynı amaca hizmet eder. İyi tasarım = düşük coupling + yüksek cohesion.
+EX: Rota hesaplama modülü stok tablosunun kolon isimlerini biliyorsa, DB değişince rota da bozulur → yüksek coupling.
+
+@@ arch | Prensipler | Composition over Inheritance
+A: Davranışı kalıtımla değil, nesneleri birleştirerek (has-a) kazan. Kalıtım katı ve derin hiyerarşiler yaratır; composition esnektir, çalışma zamanında değiştirilebilir.
+CODE:
+class Truck {
+    private final Engine engine;         // has-a
+    private final RoutingStrategy route; // değiştirilebilir
+}
+
+@@ arch | Design Patterns | Design pattern nedir? Grupları
+A: Tekrar eden tasarım problemlerine kanıtlanmış çözüm şablonları (“Gang of Four” kitabı, 1994).
+- **Creational**: Singleton, Factory, Builder
+- **Structural**: Adapter, Decorator, Facade
+- **Behavioral**: Strategy, Observer, Command
+Mülakatta 3–4 tanesini örnekle anlatabilmek yeterli.
+
+@@ arch | Design Patterns | Singleton
+A: Bir sınıftan **tek bir nesne** olmasını garanti eder ve global erişim sağlar. Dikkat: global state test etmeyi zorlaştırır; çoğu zaman DI container daha iyi (Spring bean'leri varsayılan olarak singleton).
+CODE:
+public enum Config {      // en güvenli Java singleton'ı
+    INSTANCE;
+    public String dbUrl() { return "..."; }
+}
+
+@@ arch | Design Patterns | Factory ve Builder
+A: **Factory**: hangi somut sınıfın oluşturulacağı kararını tek bir yere toplar. **Builder**: çok parametreli nesneleri adım adım, okunur şekilde oluşturur.
+CODE:
+Importer imp = ImporterFactory.forFile("data.xlsx"); // CsvImporter / ExcelImporter
+
+Shipment s = Shipment.builder()
+    .from("Dortmund").to("Rotterdam")
+    .qty(40).express(true)
+    .build();
+
+@@ arch | Design Patterns | Strategy
+A: Bir algoritma ailesini tanımla, her birini ayrı sınıfa koy, çalışma zamanında değiştirilebilir yap. Open/Closed'un en tipik uygulaması.
+CODE:
+interface ForecastStrategy { double predict(List<Double> history); }
+class MovingAverage implements ForecastStrategy { ... }
+class MlModel       implements ForecastStrategy { ... }
+planner.setStrategy(new MlModel());
+EX: Müşteri A basit hareketli ortalama ister, müşteri B KI modeli — aynı yazılım, farklı strateji.
+
+@@ arch | Design Patterns | Observer (Publish/Subscribe)
+A: Bir nesnenin durumu değişince ona abone olan tüm nesneler otomatik haberdar edilir. Event-driven sistemlerin ve UI event listener'larının temeli.
+EX: Tedarikçinin risk skoru eşiği aşınca → e-posta servisi, dashboard ve satın alma modülü haberdar olur; risk modülü bunların hiçbirini doğrudan tanımaz.
+
+@@ arch | Design Patterns | Adapter, Facade, Repository
+A:
+- **Adapter**: uyumsuz bir arayüzü beklenen arayüze çevirir (müşterinin eski ERP API'si → bizim `OrderSource` interface'imiz).
+- **Facade**: karmaşık bir alt sistemi tek, basit bir arayüzün arkasına gizler.
+- **Repository**: veri erişimini koleksiyon gibi soyutlar (`findById, save`); iş mantığı SQL bilmez.
+EX: Lojistik yazılımlarında Adapter her yerdedir: her müşterinin sistemi (SAP, Oracle, Excel dosyası…) farklı formatta veri verir.
+
+@@ arch | Mimari | Monolith (ve Modular Monolith)
+A: Tüm uygulama tek bir deploy birimi. Artıları: basit geliştirme, test, deploy; transaction kolay. Eksileri: büyüdükçe karmaşıklaşır, tek parça ölçeklenir, bir hata herkesi etkileyebilir.
+**Modular monolith**: tek deploy ama içeride net sınırlı modüller — çoğu küçük/orta ekip için en mantıklı başlangıç.
+EX: Küçük ekipli bir B2B firmasında ürünün çekirdeği büyük ihtimalle (modüler) bir monolith'tir; bu kötü bir şey değildir.
+
+@@ arch | Mimari | Microservices
+A: Uygulama, her biri kendi verisine sahip, bağımsız deploy edilen küçük servislere bölünür; HTTP/REST veya mesajlaşma ile konuşurlar.
+Artı: bağımsız ölçekleme ve deploy, takım özerkliği. Eksi: dağıtık sistem karmaşıklığı (ağ hataları, veri tutarlılığı, izleme, DevOps yükü).
+EX: Netflix ve Amazon bilinen örnekler. 5 kişilik ekip için ise mikroservis çoğu zaman gereksiz karmaşıklıktır.
+SAY: Microservices lohnen sich vor allem bei großen Teams und unterschiedlichen Skalierungsanforderungen; für kleine Teams ist ein modularer Monolith oft sinnvoller.
+
+@@ arch | Mimari | Layered (N-Tier) Architecture
+A: En yaygın mimari. Katmanlar: **Presentation** (UI/Controller) → **Business/Service** → **Persistence/Data Access** → Database. Her katman sadece altındakini çağırır.
+Spring Boot projelerinin klasik `controller / service / repository` paketleri bunun ta kendisi.
+EX: Risk raporu isteği: Controller isteği alır → Service skoru hesaplar → Repository verileri DB'den çeker.
+
+@@ arch | Mimari | MVC (Model-View-Controller)
+A: UI uygulamaları için ayrım: **Model** (veri + iş kuralları), **View** (görüntü), **Controller** (kullanıcı girdisini alır, modeli günceller, view'ı seçer). Varyantları: MVP, MVVM (Angular, WPF).
+
+@@ arch | Mimari | Hexagonal / Clean Architecture
+A: İş mantığı (domain) **merkezde** ve hiçbir framework'e/DB'ye bağımlı değil. Dış dünya (REST, DB, mesaj kuyruğu) **port** (interface) ve **adapter**'lar üzerinden bağlanır. Bağımlılıklar hep içe doğru (Dependency Inversion'ın mimari hali).
+Artı: test edilebilirlik, teknoloji değiştirme kolaylığı. Eksi: daha fazla kod/soyutlama.
+EX: Risk hesaplama çekirdeği, veri ister Excel'den ister SAP'tan ister REST'ten gelsin aynı kalır; sadece adapter değişir.
+
+@@ arch | Mimari | Event-Driven Architecture ve Message Queue
+A: Servisler birbirini doğrudan çağırmak yerine **event** yayınlar (“OrderShipped”), ilgilenenler dinler. Araçlar: **Kafka**, RabbitMQ.
+Artı: gevşek bağlılık, asenkron, yük dalgalanmalarını tamponlar. Eksi: akışı takip etmek zor, **eventual consistency**.
+EX: Liman gecikmesi verisi Kafka'ya düşer → risk servisi skoru günceller → planlama servisi alternatif rota önerir.
+
+@@ arch | Mimari | Client-Server, Serverless, API Gateway
+A:
+- **Client-Server**: istemci istek atar, sunucu cevaplar (web'in temeli).
+- **Serverless** (AWS Lambda): sunucuyu sen yönetmezsin, fonksiyon olay gelince çalışır, kullandığın kadar ödersin.
+- **API Gateway**: mikroservislerin önünde tek giriş kapısı: routing, auth, rate limiting.
+
+@@ arch | Sistem Tasarımı | Ölçekleme: vertical vs horizontal, load balancer, cache
+A: **Vertical scaling**: daha güçlü makine (sınırı var). **Horizontal**: daha çok makine + **load balancer** (stateless servis gerekir).
+**Cache** (Redis): sık okunan veriyi bellekte tut; zorluk: cache invalidation (eski veri).
+**Replication** (okuma kopyaları), **sharding** (veriyi parçalara bölmek).
+EX: Ay sonunda tüm müşteriler aynı anda rapor çekiyorsa: rapor sonuçlarını cache'le, ağır hesapları kuyruğa at.
+
+@@ arch | Sistem Tasarımı | CAP teoremi
+A: Dağıtık bir sistemde ağ bölünmesi (**P**artition) olduğunda ya **C**onsistency (herkes aynı güncel veriyi görür) ya da **A**vailability (her istek cevap alır) seçilir; ikisi birden garanti edilemez.
+EX: Banka bakiyesi → tutarlılık önemli (CP). Sosyal medya beğeni sayısı → erişilebilirlik önemli, birkaç saniyelik eski veri sorun değil (AP).
+
+@@ arch | Kalite | Test piramidi ve CI/CD
+A: **Test piramidi**: çok sayıda hızlı **unit test**, daha az **integration test**, en az (yavaş, kırılgan) **E2E/UI test**.
+**CI**: her push'ta otomatik build + test. **CD**: otomatik olarak test/prod ortamına çıkış. Araçlar: GitHub Actions, GitLab CI, Jenkins.
+**TDD**: önce test, sonra kod (Red → Green → Refactor).
+EX: PR açtın, CI kırmızı yandı: merge etmeden önce düzeltirsin; böylece main dalı her zaman çalışır durumda kalır.
+
+@@ arch | Kalite | Clean Code ve Refactoring
+A: Anlamlı isimler (`d` değil `deliveryDelayDays`), kısa fonksiyonlar (tek iş), yorum yerine açıklayıcı kod, sihirli sayı yok, erken return. **Refactoring**: davranışı değiştirmeden yapıyı iyileştirme — testler güvence verir.
+**Code smell** örnekleri: uzun metot, god class, duplicate code, uzun parametre listesi.
+SAY: Lesbarer Code ist wichtiger als cleverer Code, denn Code wird viel öfter gelesen als geschrieben.

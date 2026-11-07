@@ -1,0 +1,561 @@
+@@ job | Plan | 🚀 Buradan başla: 14 günlük Werkstudent planı
+A: Bu ilan için seni en çok **Java temelleri + Collections (Map!) + Exceptions + basit kodlama** kurtarır. Arkadaşına sorulanlar tam bunlar.
+- Gün 1–3: Java temel + OOP kartları (her gün 15 dk kaydır)
+- Gün 4–6: Collections, Map, Exceptions, NullPointerException
+- Gün 7–9: Python + SQL + Git + REST kartları
+- Gün 10–12: Kodlama mülakatı kartları + her gün 2 LeetCode Easy (Java ile, IDE'siz yaz)
+- Gün 13–14: Şirket/domain kartları + Almanca “kendini tanıt” cümlelerini sesli prova
+Başvuruyu **bugün** at, plan mülakat gününe kadar yetişir.
+EX: Werkstudent mülakatlarında senden uzman olman beklenmez. “Bilmiyorum ama şöyle düşünürdüm…” deyip mantık yürütmek, ezber cevaptan daha çok puan getirir.
+SAY: Ich habe noch wenig Praxiserfahrung, aber ich lerne schnell und strukturiert – genau deshalb möchte ich bei Ihnen als Werkstudent einsteigen.
+
+@@ job | Java · Temel | JDK, JRE ve JVM farkı nedir?
+A: **JVM** (Java Virtual Machine) bytecode'u çalıştıran sanal makinedir. **JRE** = JVM + standart kütüphaneler (çalıştırmak için). **JDK** = JRE + derleyici (`javac`), debugger vb. (geliştirmek için).
+Akış: `.java` → `javac` → `.class` (bytecode) → JVM → (JIT ile) makine kodu.
+EX: “Write once, run anywhere”: Aynı .jar dosyası Windows sunucuda da Linux container'da da çalışır, çünkü her platformun kendi JVM'i var.
+SAY: Der Compiler übersetzt Java-Code in Bytecode, und die JVM führt diesen Bytecode plattformunabhängig aus.
+
+@@ job | Java · Temel | Primitive tipler vs Wrapper (int vs Integer)
+A: Java'da 8 primitive tip var: `byte, short, int, long, float, double, char, boolean`. Değeri direkt tutar, `null` olamaz.
+Wrapper sınıflar (`Integer`, `Double`…) nesnedir, `null` olabilir ve Collections'da kullanılır (`List<int>` yazamazsın, `List<Integer>` yazarsın). Otomatik dönüşüme **autoboxing/unboxing** denir.
+**Tuzak:** `Integer` null iken unboxing → NullPointerException.
+CODE:
+Map<String, Integer> stock = new HashMap<>();
+int n = stock.get("Schraube"); // key yoksa get() null döner -> NPE!
+int ok = stock.getOrDefault("Schraube", 0); // güvenli
+EX: Stok yönetiminde “bilgi yok” ile “stok 0” farklı şeyler: `Integer` null = veri yok, 0 = gerçekten stok bitti.
+
+@@ job | Java · Temel | == ile equals() farkı
+A: `==` primitive'lerde değeri, nesnelerde **referansı** (aynı nesne mi?) karşılaştırır. `equals()` nesnelerin **içeriğini** karşılaştırır (sınıf doğru override ettiyse).
+String'leri her zaman `equals()` ile karşılaştır.
+CODE:
+String a = new String("IML");
+String b = new String("IML");
+a == b        // false (farklı nesneler)
+a.equals(b)   // true  (aynı içerik)
+"IML".equals(input) // input null olsa bile NPE atmaz
+EX: Sipariş durumunu `status == "SHIPPED"` ile kontrol eden kod bazen çalışır bazen çalışmaz (String pool yüzünden) — klasik production bug'ı.
+SAY: Mit == vergleiche ich Referenzen, mit equals() den Inhalt der Objekte.
+
+@@ job | Java · Temel | equals() ve hashCode() sözleşmesi
+A: Kural: iki nesne `equals()` ile eşitse `hashCode()` değerleri de **aynı olmak zorunda**. Tersi gerekmez (farklı nesneler aynı hash'e sahip olabilir = collision).
+Birini override edip diğerini etmezsen `HashMap`/`HashSet` bozulur: nesneyi koyarsın ama geri bulamazsın.
+CODE:
+record Part(String id, String supplier) {} // record ikisini de otomatik yazar
+
+@Override public boolean equals(Object o) {
+  if (this == o) return true;
+  if (!(o instanceof Part p)) return false;
+  return id.equals(p.id);
+}
+@Override public int hashCode() { return Objects.hash(id); }
+EX: Tedarikçi listesinde aynı parçayı iki kez görmemek için `HashSet<Part>` kullanıyorsun; hashCode yoksa duplikatlar sessizce girer.
+
+@@ job | Java · Temel | String neden immutable? StringBuilder ne zaman?
+A: `String` değiştirilemez: her `+` yeni bir nesne üretir. Avantajları: thread-safe, String pool'da paylaşılabilir, HashMap key'i olarak güvenli.
+Döngü içinde metin birleştiriyorsan `StringBuilder` kullan (tek buffer, çok daha hızlı).
+CODE:
+StringBuilder sb = new StringBuilder();
+for (String line : lines) {
+    sb.append(line).append(";");
+}
+String csv = sb.toString();
+EX: 100.000 satırlık CSV raporu üretirken `+=` kullanmak çok yavaşlar, `StringBuilder` hızlıdır.
+
+@@ job | Java · Collections | Map nedir? (Arkadaşına sorulan soru!)
+A: `Map`, **key → value** çiftleri tutan bir veri yapısıdır. Her key benzersizdir; aynı key'e tekrar `put` yaparsan eski değerin üstüne yazar. `Collection` arayüzünden türemez, ayrı bir arayüzdür.
+Önemli metotlar: `put, get, getOrDefault, containsKey, remove, putIfAbsent, merge, entrySet, keySet, values`.
+Implementasyonlar: `HashMap` (sırasız, O(1)), `LinkedHashMap` (ekleme sırası), `TreeMap` (sıralı, O(log n)).
+CODE:
+Map<String, Integer> demand = new HashMap<>();
+demand.put("Berlin", 120);
+demand.put("Dortmund", 80);
+demand.merge("Dortmund", 20, Integer::sum); // 100
+for (Map.Entry<String, Integer> e : demand.entrySet()) {
+    System.out.println(e.getKey() + " -> " + e.getValue());
+}
+EX: Bedarfsmanagement: şehir → talep miktarı; ya da Lieferant-ID → Lieferant nesnesi. ID ile anında (O(1)) tedarikçiyi bulursun, listeyi baştan sona taramazsın.
+SAY: Eine Map speichert Schlüssel-Wert-Paare; jeder Schlüssel ist eindeutig. Die HashMap bietet im Durchschnitt Zugriff in O(1).
+
+@@ job | Java · Collections | HashMap içeride nasıl çalışır?
+A: 1) Key'in `hashCode()` değeri alınır. 2) Bundan bir **bucket** (dizi indeksi) hesaplanır. 3) Değer o bucket'a konur.
+İki key aynı bucket'a düşerse (**collision**) bucket içinde liste tutulur; Java 8'den beri bir bucket çok dolarsa (8+) **dengeli ağaca (red-black tree)** çevrilir.
+Doluluk **load factor** (varsayılan 0.75) aşılınca dizi 2 katına çıkar ve elemanlar yeniden dağıtılır (**rehashing**).
+`HashMap` thread-safe değildir, bir tane `null` key kabul eder.
+EX: Kötü bir hashCode (ör. hep `return 1;`) yazarsan tüm elemanlar tek bucket'a düşer, HashMap yavaş bir yapıya dönüşür.
+SAY: Bei einer Kollision landen mehrere Einträge im selben Bucket; seit Java 8 wird ein voller Bucket in einen Baum umgewandelt.
+
+@@ job | Java · Collections | HashMap vs TreeMap vs LinkedHashMap vs ConcurrentHashMap
+A:
+- `HashMap`: sıra garantisi yok, ortalama O(1). Varsayılan seçim.
+- `LinkedHashMap`: ekleme sırasını korur (LRU cache yapmak için de kullanılır).
+- `TreeMap`: key'lere göre sıralı, O(log n), `firstKey()`, `headMap()` gibi aralık sorguları.
+- `ConcurrentHashMap`: çok thread'li ortamlarda güvenli ve hızlı (eski `Hashtable` yerine).
+EX: Tarihe göre sıralı teslimat planı → `TreeMap<LocalDate, List<Order>>`. Birden fazla thread'in güncellediği canlı stok sayacı → `ConcurrentHashMap`.
+
+@@ job | Java · Collections | ArrayList vs LinkedList
+A: `ArrayList` arkada dinamik bir dizi kullanır: indeksle erişim O(1), sona ekleme amortize O(1), ortadan silme O(n).
+`LinkedList` çift yönlü bağlı listedir: indeksle erişim O(n), baştan/sondan ekleme-silme O(1).
+Pratikte neredeyse hep **ArrayList** kullanılır (cache-dostu, hızlı). Kuyruk lazımsa `ArrayDeque` tercih edilir.
+EX: Gelen sensör ölçümlerini listeleyip rapor çıkarmak → ArrayList. FIFO iş kuyruğu → ArrayDeque.
+SAY: In der Praxis nutze ich meistens ArrayList, weil der Zugriff per Index in O(1) erfolgt.
+
+@@ job | Java · Collections | List, Set, Queue – Collection hiyerarşisi
+A: `Collection` arayüzünün altında:
+- `List`: sıralı, duplikat olabilir (ArrayList)
+- `Set`: duplikat yok (HashSet, LinkedHashSet, TreeSet)
+- `Queue/Deque`: kuyruk/yığın (ArrayDeque, PriorityQueue)
+`Map` bu ağacın içinde değildir. **Collection** (arayüz) ile **Collections** (yardımcı sınıf: `sort`, `unmodifiableList`…) farklıdır.
+EX: Bir siparişteki benzersiz tedarikçiler → `Set`. Öncelikli acil siparişler → `PriorityQueue`.
+
+@@ job | Java · Exceptions | NullPointerException olursa ne yaparsın? (Sorulan soru!)
+A: NPE, `null` olan bir referans üzerinde metot/alan çağırınca oluşur. Cevabın 3 parçalı olsun:
+- **1. Analiz:** Stack trace'e bak: hangi satır, hangi değişken null? (Java 14+ “helpful NPE” mesajı değişkeni direkt söyler.) Debugger ile değeri takip et.
+- **2. Kök nedeni düzelt:** Değer neden null? Eksik veri mi, başlatılmamış alan mı, `get()` boş mu döndü? NPE'yi `catch` ile yutmak çözüm değildir.
+- **3. Önle:** Girişte doğrula (`Objects.requireNonNull`), `Optional` döndür, null yerine boş koleksiyon döndür, `"sabit".equals(x)` yaz, unit test ekle.
+CODE:
+public Supplier find(String id) {
+    Objects.requireNonNull(id, "id must not be null");
+    return repo.findById(id)
+        .orElseThrow(() -> new SupplierNotFoundException(id));
+}
+EX: Müşteriden gelen CSV'de “Lieferant” sütunu boşsa ve kod direkt `supplier.getName()` çağırıyorsa gece batch işi çöker. Doğru çözüm: import sırasında satırı doğrula, hatalı satırı logla, işleme devam et.
+SAY: Ich schaue zuerst in den Stacktrace, finde heraus, warum der Wert null ist, und verhindere es dann durch Validierung oder Optional – nicht durch ein leeres catch.
+
+@@ job | Java · Exceptions | Exception hiyerarşisi: checked vs unchecked
+A: `Throwable` → `Error` (ör. OutOfMemoryError, normalde yakalanmaz) ve `Exception`.
+- **Checked** (`Exception` altı, ör. `IOException`, `SQLException`): derleyici zorlar → ya `try/catch` ya `throws`.
+- **Unchecked** (`RuntimeException` altı, ör. `NullPointerException`, `IllegalArgumentException`, `IndexOutOfBoundsException`): genelde programlama hatası, derleyici zorlamaz.
+EX: Dosya okumak her zaman başarısız olabilir (dosya yok) → checked. Negatif sipariş miktarı göndermek çağıranın hatası → `IllegalArgumentException` (unchecked).
+SAY: Checked Exceptions muss ich behandeln oder deklarieren, Unchecked Exceptions sind meistens Programmierfehler.
+
+@@ job | Java · Exceptions | try-catch-finally ve try-with-resources
+A: `finally` bloğu exception olsa da olmasa da çalışır. Modern yol: **try-with-resources** — `AutoCloseable` olan kaynaklar otomatik kapanır.
+Kurallar: spesifik exception'ı yakala (`catch (Exception e)` değil), boş catch yazma, logla veya anlamlı bir exception'a sar.
+CODE:
+try (BufferedReader br = Files.newBufferedReader(path)) {
+    return br.lines().toList();
+} catch (IOException e) {
+    log.error("Datei konnte nicht gelesen werden: {}", path, e);
+    throw new ImportException("Import failed", e);
+}
+EX: DB bağlantısını kapatmayı unutmak → connection pool tükenir, uygulama birkaç saat sonra donar. try-with-resources bunu engeller.
+
+@@ job | Java · Exceptions | throw vs throws, custom exception
+A: `throw` bir exception **fırlatır** (metot içinde). `throws` metot imzasında hangi checked exception'ların fırlatılabileceğini **bildirir**.
+Domain'e özel exception yazmak kodu okunur yapar.
+CODE:
+public class SupplierNotFoundException extends RuntimeException {
+    public SupplierNotFoundException(String id) {
+        super("Supplier not found: " + id);
+    }
+}
+void load(Path p) throws IOException { ... }
+EX: REST API'de `SupplierNotFoundException` → HTTP 404'e çevrilir (Spring'de `@ExceptionHandler` ile).
+
+@@ job | Java · Exceptions | final, finally, finalize farkı
+A: `final`: değişken tekrar atanamaz / metot override edilemez / sınıftan türetilemez. `finally`: try bloğundan sonra her zaman çalışan blok. `finalize()`: GC öncesi çağrılan eski metot — **deprecated**, kullanma.
+EX: `final` alanlar immutable nesne yazmanın temelidir: `private final List<Order> orders;`
+
+@@ job | Java · OOP | OOP'nin 4 temel prensibi
+A:
+- **Encapsulation (Kapsülleme):** veri `private`, erişim metotlarla; nesne kendi durumunu korur.
+- **Inheritance (Kalıtım):** `extends` ile ortak davranışı üst sınıftan alma.
+- **Polymorphism (Çok biçimlilik):** aynı arayüz, farklı davranış (`Transport t = new Truck(); t.cost(km);`).
+- **Abstraction (Soyutlama):** detayı gizle, sadece ne yaptığını göster (interface/abstract class).
+EX: `Transport` arayüzü: `Truck`, `Ship`, `Train` farklı maliyet hesaplar. Rota planlayan kod sadece `transport.cost(distance)` çağırır, hangi araç olduğunu umursamaz.
+SAY: Polymorphie bedeutet, dass ich über ein gemeinsames Interface unterschiedliche Implementierungen aufrufen kann.
+
+@@ job | Java · OOP | Abstract class vs Interface
+A: **Interface**: “ne yapabilir” sözleşmesi; bir sınıf birden çok interface implemente edebilir; Java 8'den beri `default` ve `static` metot içerebilir, instance alanı tutamaz.
+**Abstract class**: ortak kod + durum paylaşan kısmi implementasyon; sadece bir sınıftan `extends` edilebilir; constructor'ı olabilir.
+Kural: önce interface düşün; ortak state/kod gerekiyorsa abstract class.
+EX: `RiskCalculator` interface'i (farklı risk modelleri), `AbstractImporter` abstract class'ı (CSV/Excel importer'ların ortak dosya açma + loglama kodu).
+
+@@ job | Java · OOP | Overloading vs Overriding
+A: **Overloading**: aynı sınıfta aynı isim, farklı parametreler (derleme zamanında seçilir). **Overriding**: alt sınıf üst sınıfın metodunu aynı imzayla yeniden yazar (çalışma zamanında seçilir = polymorphism). `@Override` anotasyonunu her zaman yaz.
+CODE:
+int add(int a, int b)           // overloading
+double add(double a, double b)
+
+class Ship extends Transport {
+  @Override double cost(double km) { return km * 0.02; } // overriding
+}
+
+@@ job | Java · OOP | static ne demek?
+A: `static` üye nesneye değil **sınıfa** aittir; nesne oluşturmadan `ClassName.method()` ile çağrılır. Static metot instance alanlarına doğrudan erişemez.
+Kullanım: yardımcı metotlar (`Math.max`), sabitler (`static final`), factory metotlar.
+Dikkat: değiştirilebilir static durum (global state) test etmeyi zorlaştırır, thread-safety sorunu yaratır.
+CODE:
+public static final double VAT = 0.19;
+
+@@ job | Java · OOP | Access modifiers (public, protected, default, private)
+A: `private`: sadece sınıf içi. *default* (hiçbir şey yazmamak): aynı paket. `protected`: aynı paket + alt sınıflar. `public`: herkes.
+Kural: en kısıtlı olandan başla (alanlar `private`).
+
+@@ job | Java · Temel | Java pass-by-value mı pass-by-reference mı?
+A: Java **her zaman pass-by-value**. Nesnelerde kopyalanan şey referansın değeridir: metot içinde nesnenin içeriğini değiştirebilirsin, ama parametreyi başka nesneye yönlendirirsen çağıranı etkilemez.
+CODE:
+void change(List<String> l) {
+    l.add("x");            // çağıranın listesi değişir
+    l = new ArrayList<>(); // çağıranı ETKİLEMEZ
+}
+SAY: Java ist immer pass-by-value; bei Objekten wird der Wert der Referenz kopiert.
+
+@@ job | Java · Temel | Stack vs Heap, Garbage Collector
+A: **Stack**: her thread'in metot çağrıları, lokal değişkenler, referanslar; hızlı, otomatik temizlenir. **Heap**: tüm nesneler (`new`); **Garbage Collector** artık referansı kalmayan nesneleri temizler.
+Hatalar: sonsuz recursion → `StackOverflowError`; bellek dolarsa → `OutOfMemoryError`.
+EX: Static bir `List`'e sürekli cache kaydı ekleyip hiç silmemek = memory leak. GC bunları temizleyemez çünkü hâlâ referans var.
+
+@@ job | Java · Modern | Generics ve type erasure
+A: Generics tipleri parametre olarak alır: `List<String>`, `Map<K,V>`. Faydası: derleme zamanında tip güvenliği, cast yok.
+**Type erasure:** generic bilgisi çalışma zamanında silinir (`List<String>` ve `List<Integer>` runtime'da aynı `List`).
+Wildcard: `? extends T` (okuma), `? super T` (yazma).
+CODE:
+public <T> T firstOrNull(List<T> list) {
+    return list.isEmpty() ? null : list.get(0);
+}
+
+@@ job | Java · Modern | Lambda ve Functional Interface
+A: Lambda, tek soyut metodu olan bir arayüzün (**functional interface**) kısa yazımıdır. Hazır olanlar: `Function<T,R>`, `Predicate<T>`, `Consumer<T>`, `Supplier<T>`.
+Method reference: `String::toUpperCase`.
+CODE:
+Predicate<Order> isLate = o -> o.dueDate().isBefore(LocalDate.now());
+orders.removeIf(isLate);
+orders.sort(Comparator.comparing(Order::dueDate));
+
+@@ job | Java · Modern | Stream API
+A: Koleksiyonlar üzerinde bildirimsel (declarative) işlem zinciri: `filter`, `map`, `sorted`, `collect`, `groupingBy`… Streams lazy'dir; terminal operasyon (`collect`, `count`, `toList`) gelene kadar çalışmaz. Kaynak koleksiyonu değiştirmez.
+CODE:
+Map<String, Long> lateBySupplier = orders.stream()
+    .filter(Order::isLate)
+    .collect(Collectors.groupingBy(Order::supplier, Collectors.counting()));
+EX: “Hangi tedarikçi en çok geç teslim yapıyor?” sorusu tek bir stream ile cevaplanır — risk yönetimi raporunun ta kendisi.
+SAY: Mit Streams kann ich Daten deklarativ filtern, transformieren und gruppieren.
+
+@@ job | Java · Modern | Optional nedir?
+A: `Optional<T>` “değer olabilir de olmayabilir de” demenin açık yoludur; null döndürmek yerine kullanılır (özellikle dönüş tiplerinde). Alan veya parametre olarak kullanılması önerilmez.
+CODE:
+Optional<Supplier> s = repo.findById(id);
+String name = s.map(Supplier::name).orElse("unbekannt");
+s.ifPresent(x -> notify(x));
+// KÖTÜ: s.get() -> boşsa NoSuchElementException
+
+@@ job | Java · Modern | Record ve modern Java sürümleri
+A: Güncel LTS sürümler: **Java 17, 21 ve 25**. Bilinmesi güzel olanlar:
+- `record` (16+): immutable veri sınıfı; constructor, getter, equals, hashCode, toString otomatik.
+- `var` (10+): lokal tip çıkarımı.
+- `instanceof` pattern matching, switch expressions, text blocks.
+- **Virtual threads** (21): çok sayıda hafif thread, I/O yoğun servisler için.
+CODE:
+record Shipment(String id, String from, String to, int qty) {}
+var s = new Shipment("S1", "Dortmund", "Hamburg", 40);
+
+@@ job | Java · Concurrency | Thread, race condition, synchronized
+A: **Thread**: paralel çalışan iş parçacığı. **Race condition**: iki thread aynı veriyi aynı anda değiştirince sonuç bozulur (`count++` atomik değildir!).
+Çözümler: `synchronized`, `AtomicInteger`, `ConcurrentHashMap`, immutable nesneler. Thread'leri elle değil `ExecutorService` ile yönet.
+CODE:
+ExecutorService pool = Executors.newFixedThreadPool(4);
+AtomicInteger processed = new AtomicInteger();
+for (Path f : files) pool.submit(() -> { importFile(f); processed.incrementAndGet(); });
+pool.shutdown();
+EX: 4 thread aynı anda stok düşerse, korumasız sayaç fazla satış (overselling) yaratır.
+
+@@ job | Java · Ökosistem | Spring Boot temel
+A: Spring Boot, Java ile hızlıca REST API/servis yazmak için en yaygın framework. Anahtar kavram **Dependency Injection**: nesneleri sen `new`'lemezsin, Spring verir (constructor injection).
+Katmanlar: `@RestController` (HTTP) → `@Service` (iş mantığı) → `@Repository` (DB, Spring Data JPA).
+CODE:
+@RestController
+@RequestMapping("/api/suppliers")
+class SupplierController {
+  private final SupplierService service;
+  SupplierController(SupplierService service) { this.service = service; }
+
+  @GetMapping("/{id}")
+  SupplierDto get(@PathVariable String id) { return service.find(id); }
+}
+EX: Bu tarz B2B yazılım firmalarında sık görülen yığın: Java + Spring Boot backend, TypeScript (Angular/React) frontend.
+SAY: Dependency Injection sorgt für lose Kopplung und macht den Code leichter testbar.
+
+@@ job | Java · Ökosistem | Maven / Gradle ve JUnit
+A: **Maven/Gradle**: build araçları; bağımlılıkları (`pom.xml` / `build.gradle`) indirir, derler, test eder, paketler (`mvn clean package`).
+**JUnit 5**: unit test framework'ü. `@Test`, `assertEquals`, `assertThrows`. Mock için **Mockito**.
+CODE:
+@Test
+void lateOrderIsDetected() {
+    Order o = new Order("A1", LocalDate.now().minusDays(1));
+    assertTrue(o.isLate());
+}
+@Test
+void negativeQtyThrows() {
+    assertThrows(IllegalArgumentException.class, () -> new Order("A2", -5));
+}
+
+@@ job | Python | list, tuple, dict, set farkı
+A:
+- `list` `[1,2]`: sıralı, değiştirilebilir (Java ArrayList)
+- `tuple` `(1,2)`: sıralı, **değiştirilemez**; dict key'i olabilir
+- `dict` `{"a":1}`: key-value (Java HashMap); 3.7'den beri ekleme sırasını korur
+- `set` `{1,2}`: benzersiz elemanlar (Java HashSet)
+CODE:
+stock = {"Schraube": 120, "Mutter": 0}
+stock.get("Bolzen", 0)        # yoksa 0, KeyError yok
+suppliers = {o["supplier"] for o in orders}
+EX: Koordinatlar `(lat, lon)` tuple olarak tutulup dict key'i yapılabilir: `distances[("Dortmund", "Hamburg")] = 350`.
+
+@@ job | Python | Mutable default argument tuzağı
+A: Default parametre değeri **bir kez**, fonksiyon tanımlanırken oluşturulur. Mutable (list/dict) verirsen tüm çağrılar aynı listeyi paylaşır.
+CODE:
+def add_item(item, basket=[]):   # HATA
+    basket.append(item); return basket
+
+def add_item(item, basket=None): # DOĞRU
+    if basket is None: basket = []
+    basket.append(item); return basket
+SAY: Mutable Default-Argumente werden nur einmal erzeugt, deshalb verwende ich None als Default.
+
+@@ job | Python | List comprehension, generator
+A: Kısa ve okunur dönüşüm: `[f(x) for x in data if cond]`. Büyük veri için **generator** `( ... )`: elemanları tek tek üretir, hepsini belleğe yüklemez.
+CODE:
+late = [o["id"] for o in orders if o["delay_days"] > 0]
+total = sum(o["qty"] for o in orders)   # generator, bellek dostu
+by_city = {c: 0 for c in cities}
+
+@@ job | Python | Python'da exception handling
+A: `try / except / else / finally`. Python kültürü **EAFP** (“izin isteme, özür dile”): önce dene, hata olursa yakala. Spesifik exception yakala.
+Java NPE'nin karşılığı: `AttributeError: 'NoneType' object has no attribute ...`
+CODE:
+try:
+    qty = int(row["qty"])
+except (KeyError, ValueError) as e:
+    log.warning("Bad row %s: %s", row, e)
+else:
+    process(qty)
+finally:
+    stats.rows += 1
+
+@@ job | Python | Java vs Python farkları
+A:
+- Java statik tipli + bytecode'a derlenir; Python dinamik tipli + yorumlanır.
+- Python girintiyle blok, Java `{}` ile.
+- Python'da her şey nesne; Java'da primitive'ler var.
+- Python veri bilimi/KI'da hakim (pandas, numpy, scikit-learn, PyTorch); Java kurumsal backend'de.
+- Python'da (klasik CPython'da) **GIL** yüzünden CPU yoğun işte thread'ler paralel çalışmaz → `multiprocessing`.
+EX: Bu firmada olası tablo: Java/TypeScript ürün kodu, Python ise KI/Data-Analytics prototipleri.
+SAY: Java ist statisch typisiert und eignet sich gut für große Backend-Systeme, Python ist dynamisch typisiert und stark im Bereich Data Science und KI.
+
+@@ job | Python | Decorator nedir?
+A: Bir fonksiyonu alıp davranışını genişleten fonksiyon. `@` ile uygulanır. Loglama, zaman ölçme, yetki kontrolü, cache (`@functools.lru_cache`).
+CODE:
+import time, functools
+def timed(fn):
+    @functools.wraps(fn)
+    def wrapper(*a, **kw):
+        t = time.perf_counter(); r = fn(*a, **kw)
+        print(f"{fn.__name__}: {time.perf_counter()-t:.3f}s"); return r
+    return wrapper
+
+@timed
+def forecast(): ...
+
+@@ job | Python | pandas ile veri analizi (Data Analytics)
+A: `pandas` tablo verisi (DataFrame) için standart kütüphane: CSV/Excel oku, filtrele, grupla, birleştir. Eksik değer `NaN` olarak gelir (`isna()`, `fillna()`).
+CODE:
+import pandas as pd
+df = pd.read_csv("orders.csv", parse_dates=["due", "delivered"])
+df["delay"] = (df["delivered"] - df["due"]).dt.days
+risk = (df.groupby("supplier")["delay"]
+          .agg(["mean", "max", "count"])
+          .sort_values("mean", ascending=False))
+EX: Tedarikçi risk skoru: ortalama gecikme + gecikme dalgalanması + tek kaynağa bağımlılık. İlk prototip çoğu zaman böyle bir pandas notebook'udur.
+
+@@ job | TypeScript | TypeScript nedir, JavaScript'ten farkı?
+A: TypeScript = JavaScript + **statik tipler**. Derlenince düz JavaScript'e dönüşür; hataları çalışmadan önce, editörde yakalar. `interface`, `type`, union tipler (`"OPEN" | "CLOSED"`), generics.
+`any` kullanmaktan kaçın; `unknown` daha güvenli. `strictNullChecks` açıkken null hataları derlemede çıkar.
+CODE:
+interface Supplier { id: string; name: string; riskScore?: number }
+type Status = "OPEN" | "SHIPPED" | "DELIVERED";
+function label(s: Supplier): string {
+  return `${s.name} (${s.riskScore ?? "n/a"})`;
+}
+SAY: TypeScript erweitert JavaScript um statische Typen, dadurch finde ich viele Fehler schon beim Kompilieren.
+
+@@ job | Araçlar | Git temelleri
+A: `git clone, status, add, commit, push, pull, branch, switch, merge`.
+- **merge**: iki dalı birleştirir, merge commit oluşturur (geçmiş korunur).
+- **rebase**: commit'lerini hedef dalın üstüne taşır (düz geçmiş). Paylaşılan dalda rebase yapma!
+- **Pull Request**: kodu ana dala almadan önce code review.
+- **Merge conflict**: aynı satırlar değişmiş; elle çöz, test et, commit et.
+CODE:
+git switch -c feature/supplier-risk
+git add . && git commit -m "Add supplier risk score"
+git push -u origin feature/supplier-risk
+EX: Küçük ekiplerde tipik akış: her iş için feature branch → PR → review → CI testleri yeşil → main'e merge.
+
+@@ job | SQL | SELECT, JOIN türleri, GROUP BY
+A: `INNER JOIN`: iki tabloda da eşleşenler. `LEFT JOIN`: soldakilerin hepsi + eşleşen sağdakiler (yoksa NULL). `RIGHT`, `FULL OUTER` daha nadir.
+`WHERE` gruplamadan önce satırları, `HAVING` gruplamadan sonra grupları filtreler.
+CODE:
+SELECT s.name, COUNT(o.id) AS late_orders
+FROM supplier s
+LEFT JOIN orders o ON o.supplier_id = s.id AND o.delivered > o.due
+GROUP BY s.name
+HAVING COUNT(o.id) > 3
+ORDER BY late_orders DESC;
+SAY: WHERE filtert Zeilen vor der Gruppierung, HAVING filtert die Gruppen danach.
+
+@@ job | SQL | Index, Primary/Foreign Key, ACID, SQL vs NoSQL
+A: **Primary key**: satırın benzersiz kimliği. **Foreign key**: başka tabloya referans (bütünlük). **Index**: arama için (genelde B-tree); okumayı hızlandırır, yazmayı biraz yavaşlatır.
+**ACID**: Atomicity (hepsi ya da hiçbiri), Consistency, Isolation, Durability → transaction garantileri.
+**SQL vs NoSQL**: SQL şemalı ve ilişkisel (PostgreSQL); NoSQL esnek şema, yatay ölçekleme (MongoDB, Redis).
+EX: “Stoktan düş + siparişi kaydet” tek transaction olmalı; biri başarısızsa ikisi de geri alınır (rollback).
+
+@@ job | Web | REST API, HTTP metotları ve status kodları
+A: REST: kaynak (resource) odaklı, stateless HTTP API. Metotlar: `GET` (oku), `POST` (oluştur), `PUT` (tamamen değiştir), `PATCH` (kısmi), `DELETE`. GET/PUT/DELETE **idempotent**tir.
+Kodlar: `200 OK, 201 Created, 204 No Content, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 409 Conflict, 500 Internal Server Error`.
+CODE:
+GET    /api/suppliers/42
+POST   /api/orders   {"supplierId":42,"qty":100}  -> 201
+DELETE /api/orders/7 -> 204
+SAY: 401 bedeutet nicht authentifiziert, 403 bedeutet authentifiziert, aber keine Berechtigung.
+
+@@ job | Araçlar | Docker temel
+A: **Image**: uygulama + bağımlılıkların paketlenmiş şablonu. **Container**: image'ın çalışan örneği (izole, hafif, VM değil). `Dockerfile` ile tarif edilir. `docker compose` birden çok servisi (app + DB) birlikte ayağa kaldırır.
+CODE:
+FROM eclipse-temurin:21-jre
+COPY target/app.jar /app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+EX: İlandaki “Betrieb ihrer Systeme” = müşterinin sistemlerini işletmek; bugün bu çoğu zaman container + CI/CD demek.
+
+@@ job | Süreç | Agile / Scrum kısaca
+A: Scrum: 1–4 haftalık **Sprint**'ler. Roller: Product Owner (ne?), Scrum Master (süreç), Developers. Etkinlikler: Sprint Planning, **Daily Standup**, Review, Retrospective. İşler backlog'da **User Story** olarak durur.
+EX: Daily'de tek cümle yeter.
+SAY: Gestern habe ich den CSV-Import getestet, heute schreibe ich Unit-Tests, und ich hänge gerade bei der Datenbankverbindung.
+
+@@ job | Şirket & Domain | Lieferkette: Risiko-, Bedarfs-, Kapazitätsmanagement
+A:
+- **Risikomanagement**: tedarik zincirindeki riskleri (tedarikçi iflası, tek kaynak bağımlılığı, gecikme, doğal afet, jeopolitik) tespit, ölçme (olasılık × etki) ve önlem.
+- **Bedarfsmanagement**: talebin tahmini (forecast) ve planlanması — ne kadar, ne zaman lazım?
+- **Kapazitätsmanagement**: üretim/lojistik kapasitesinin (makine, depo, kamyon, personel) talebe göre planlanması; darboğaz (Engpass) tespiti.
+EX: Çip krizi (2021): otomobil üreticileri tek kaynaklı tedarikçiler yüzünden üretimi durdurdu. **Bullwhip effect**: son müşterideki küçük talep dalgalanması zincir boyunca yukarı doğru büyüyerek yansır.
+SAY: Mich reizt, dass Ihre Software Lieferketten resilienter macht – wie wichtig das ist, hat man in der Chipkrise deutlich gesehen.
+
+@@ job | Şirket & Domain | Fraunhofer IML ve “KI in der Lieferkette”
+A: **Fraunhofer IML** (Institut für Materialfluss und Logistik) Dortmund'da, lojistik alanında önde gelen araştırma enstitülerinden. Firma onunla kooperasyon partneri: araştırma sonuçlarını ürüne çeviriyor.
+KI/Data Analytics kullanım alanları: talep tahmini (time series forecasting), anomali tespiti (beklenmeyen gecikme), tedarikçi risk skorlaması, haber/olay verisinden erken uyarı.
+EX: Mülakattan önce Fraunhofer IML ve firmanın web sitesine 10 dakika göz at; bir projeyi adıyla anmak “Eigeninitiative” puanı kazandırır.
+SAY: Besonders spannend finde ich die Verbindung von Forschung und Praxis durch die Kooperation mit dem Fraunhofer IML.
+
+@@ job | Mülakat Soruları | „Erzählen Sie etwas über sich“ şablonu
+A: 60–90 saniye, 3 parça: **Şimdi** (ne okuyorsun, kaçıncı dönem) → **İlgi/öğrendiklerin** (dersler, projeler) → **Gelecek** (neden bu iş). Pratik deneyimin yoksa kendi küçük projelerini (bu uygulama dahil!) anlat.
+SAY: Ich studiere Informatik im ___ Semester an der ___. Im Studium begeistern mich vor allem Softwareentwicklung und IT-Sicherheit. Privat habe ich zum Beispiel eine kleine Lern-App entwickelt, um mich auf technische Themen vorzubereiten. Jetzt möchte ich mein Wissen in echten Projekten anwenden – und Ihre Kombination aus Kundenprojekten und Forschung mit dem Fraunhofer IML passt perfekt dazu.
+EX: Bu uygulamayı GitHub'a koy ve CV'ye yaz: “Lern-App (HTML/JS, mobil), Inhalte teilweise automatisiert aus Video-Transkripten erstellt”. Bu bir proje!
+
+@@ job | Mülakat Soruları | „Warum wir?“ ve „Was sind Ihre Schwächen?“
+A: **Warum wir:** ilandan 2 somut şey seç (küçük ekip + erken sorumluluk, araştırma-pratik bağı, Lieferketten-Resilienz). **Zayıflık:** gerçek ama ölümcül olmayan bir şey + bununla ilgili ne yaptığın.
+SAY: Meine größte Schwäche ist im Moment die fehlende Praxiserfahrung. Deshalb arbeite ich aktiv an eigenen Projekten und löse regelmäßig Programmieraufgaben in Java.
+EX: “Mükemmeliyetçiyim” gibi klişe cevaplar işe yaramaz; dürüstlük + aksiyon kazandırır.
+
+@@ job | Mülakat Soruları | Mülakatçıya sorulacak sorular
+A: Sonda “Haben Sie noch Fragen?” mutlaka gelir. “Hayır” deme. 2–3 soru hazırla:
+- Wie sieht ein typischer Arbeitstag für Werkstudierende bei Ihnen aus?
+- Mit welchem Tech-Stack arbeitet das Team aktuell?
+- Wie werden neue Werkstudierende eingearbeitet?
+- An welchen Projekten mit dem Fraunhofer IML könnte ich mitarbeiten?
+- Wie viele Stunden pro Woche wünschen Sie sich, und ist Homeoffice möglich?
+
+@@ job | Kodlama Mülakatı | Canlı kodlamada izlenecek 6 adım
+A: Mülakatçı sonucu değil **düşünme şeklini** puanlar. Sesli düşün.
+- 1. **Anla & sor:** Girdi ne? Null/boş olabilir mi? Büyüklük? Sıra önemli mi?
+- 2. **Örnek yaz:** küçük bir girdi + beklenen çıktı.
+- 3. **Brute force söyle:** “Önce basit O(n²) çözüm şöyle olur…”
+- 4. **Optimize et:** cevap çoğu zaman HashMap/HashSet, sıralama ya da iki işaretçi.
+- 5. **Kodla:** anlamlı isimler, küçük metotlar.
+- 6. **Test et:** örneği elle kodun üstünden geçir, kenar durumları (boş, tek eleman, null) söyle, Big-O'yu belirt.
+SAY: Darf ich kurz die Anforderungen klären? Kann die Eingabe leer oder null sein?
+EX: Takıldığında sessiz kalma: “Hier bin ich unsicher, ich würde es so versuchen…” demek ipucu almanı sağlar.
+
+@@ job | Kodlama Mülakatı | Big-O notasyonu
+A: Algoritmanın girdi büyüdükçe nasıl yavaşladığını anlatır.
+- O(1): HashMap get, dizi indeksi
+- O(log n): binary search, TreeMap
+- O(n): tek döngü
+- O(n log n): iyi sıralama (`Collections.sort`)
+- O(n²): iç içe döngü
+Bellek (space) karmaşıklığını da söyle.
+EX: 1 milyon sipariş: O(n²) ≈ 10¹² adım (saatler), O(n) ≈ 10⁶ adım (milisaniyeler). HashMap kullanmanın sebebi bu.
+
+@@ job | Kodlama Mülakatı | Klasik: Two Sum (HashMap ile)
+A: Bir dizide toplamı `target` olan iki elemanın indekslerini bul. Brute force iç içe döngü O(n²). Optimal: gezerken gördüklerini Map'te tut; her eleman için `target - x` daha önce görüldü mü bak → O(n).
+CODE:
+int[] twoSum(int[] nums, int target) {
+    Map<Integer, Integer> seen = new HashMap<>(); // değer -> indeks
+    for (int i = 0; i < nums.length; i++) {
+        int need = target - nums[i];
+        if (seen.containsKey(need)) return new int[]{seen.get(need), i};
+        seen.put(nums[i], i);
+    }
+    return new int[0];
+}
+
+@@ job | Kodlama Mülakatı | Klasik: Kelime/eleman frekansı saymak
+A: Map sorusunun pratik hali. Her eleman için sayacı artır: `merge` veya `getOrDefault`.
+CODE:
+Map<String, Integer> countWords(String text) {
+    Map<String, Integer> freq = new HashMap<>();
+    if (text == null || text.isBlank()) return freq;
+    for (String w : text.toLowerCase().split("\\s+")) {
+        freq.merge(w, 1, Integer::sum);
+    }
+    return freq;
+}
+// Python: collections.Counter(text.lower().split())
+EX: Hangi parça en çok iade ediliyor, hangi tedarikçi en çok gecikiyor — hepsi “frekans say” problemi.
+
+@@ job | Kodlama Mülakatı | Klasik: Palindrom / String ters çevirme
+A: İki işaretçi (two pointers): biri baştan, biri sondan, ortada buluşana kadar karşılaştır. O(n) zaman, O(1) bellek.
+CODE:
+boolean isPalindrome(String s) {
+    if (s == null) return false;
+    int l = 0, r = s.length() - 1;
+    while (l < r) {
+        if (s.charAt(l) != s.charAt(r)) return false;
+        l++; r--;
+    }
+    return true;
+}
+String reverse(String s) { return new StringBuilder(s).reverse().toString(); }
+
+@@ job | Kodlama Mülakatı | Klasik: FizzBuzz ve duplikat bulma
+A: FizzBuzz basit ama mülakatçı modulo, if sırası ve temiz kodu görür. Duplikat bulma: `Set.add()` false dönerse eleman zaten vardır.
+CODE:
+for (int i = 1; i <= 100; i++) {
+    if (i % 15 == 0) System.out.println("FizzBuzz");
+    else if (i % 3 == 0) System.out.println("Fizz");
+    else if (i % 5 == 0) System.out.println("Buzz");
+    else System.out.println(i);
+}
+
+boolean hasDuplicate(int[] a) {
+    Set<Integer> seen = new HashSet<>();
+    for (int x : a) if (!seen.add(x)) return true;
+    return false;
+}
+
+@@ job | Kodlama Mülakatı | En sık 5 desen (pattern)
+A:
+- **Hashing** (Map/Set): sayma, eşleme, “daha önce gördüm mü?”
+- **Two pointers**: sıralı dizi, palindrom, birleştirme
+- **Sliding window**: “ardışık k elemanın max toplamı”, en uzun alt-string
+- **Sıralama + tarama**: aralıkları birleştirme (merge intervals)
+- **BFS/DFS**: ağaç, graf, “A'dan B'ye yol var mı?” (rota planlama!)
+Pratik: NeetCode 150 listesinin “Arrays & Hashing” ve “Two Pointers” kısmı Werkstudent için fazlasıyla yeter.
+EX: Werkstudent kodlama mülakatları genelde LeetCode **Easy** seviyesindedir. Bazen de küçük bir görev verirler: bir CSV oku, filtrele, sonucu yazdır.
+
+@@ job | Kodlama Mülakatı | IDE'siz kod yazma pratiği
+A: Online mülakatlarda çoğu zaman autocomplete yoktur. Hazırlık:
+- Her gün 1–2 Easy soru, **düz bir editörde** (ya da kâğıtta) Java ile.
+- 25 dk süre tut; çözemezsen çözümü oku, ertesi gün sıfırdan tekrar yaz.
+- Yaygın API'leri ezbere bil: `HashMap, getOrDefault, merge, ArrayList, Arrays.sort, StringBuilder, charAt, substring, split, Integer.parseInt`.
+- Sesli düşünmeyi prova et (kendini kaydet).
+EX: Mülakatçılar küçük syntax hatalarını affeder; soru sormadan kodlamaya başlamayı ve hiç test etmemeyi affetmez.

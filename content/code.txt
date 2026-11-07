@@ -1,0 +1,552 @@
+@@ code | Nasıl çalışılır | 🧩 Kod pratiği bölümü nasıl kullanılır?
+A: Her kartta bir LeetCode Easy sorusu (ya da sektörden mini görev) var. Sıra hep aynı:
+- 1. Problemi oku, **örneği kafanda çöz**.
+- 2. Aşağıdaki kutuya yaklaşımını yaz: “HashMap tutarım, her eleman için…” Telefonda kod yazmak zorsa sözde kod yeter. Yazdığın kaydedilir.
+- 3. Takıldıysan **💡 İpucu**'yu aç, tekrar dene.
+- 4. Sonra **✅ Çözüm**'e bak, kendi yaklaşımınla karşılaştır.
+- 5. Bilgisayara geçince aynı soruyu LeetCode'da (numarası başlıkta) Java ile, IDE yardımı olmadan yaz ve gönder.
+Bilemediğin soruyu “↻ Tekrar”a at, 2–3 gün sonra sıfırdan çöz.
+EX: Mülakatta çözümü ezbere bilmen değil, **yaklaşımı sesli anlatman** puanlanır. Telefonda yaklaşım yazma pratiği tam olarak bunu çalıştırır.
+
+@@ code | Hashing | #1 Two Sum (LeetCode 1)
+A: Bir tam sayı dizisi `nums` ve bir `target` veriliyor. Toplamı `target` olan **iki elemanın indekslerini** döndür. Tam olarak bir çözüm var, aynı eleman iki kez kullanılamaz.
+Örnek: `nums = [2,7,11,15], target = 9` → `[0,1]`
+HINT: İç içe iki döngü O(n²) olur. Her `x` için aradığın şey `target - x`. Daha önce gördüğün değerleri ve indekslerini hızlı arayabileceğin bir yapıda tutarsan tek geçişte bulursun.
+SOL:
+int[] twoSum(int[] nums, int target) {
+    Map<Integer, Integer> seen = new HashMap<>(); // değer -> indeks
+    for (int i = 0; i < nums.length; i++) {
+        int need = target - nums[i];
+        if (seen.containsKey(need)) return new int[]{seen.get(need), i};
+        seen.put(nums[i], i);
+    }
+    return new int[0];
+}
+PY:
+def twoSum(nums, target):
+    seen = {}
+    for i, x in enumerate(nums):
+        if target - x in seen:
+            return [seen[target - x], i]
+        seen[x] = i
+EX: Zaman O(n), bellek O(n). “Toplamı X olan iki kaydı eşleştir” tipi her problemin temeli.
+
+@@ code | Hashing | #2 Contains Duplicate (LeetCode 217)
+A: Dizide herhangi bir değer **en az iki kez** geçiyorsa `true`, tüm elemanlar farklıysa `false` döndür.
+Örnek: `[1,2,3,1]` → `true`, `[1,2,3,4]` → `false`
+HINT: Gördüklerini bir `Set`'te tut. `Set.add()` eleman zaten varsa `false` döner.
+SOL:
+boolean containsDuplicate(int[] nums) {
+    Set<Integer> seen = new HashSet<>();
+    for (int x : nums) {
+        if (!seen.add(x)) return true;
+    }
+    return false;
+}
+PY:
+def containsDuplicate(nums):
+    return len(set(nums)) != len(nums)
+EX: O(n) zaman, O(n) bellek. Alternatif: sırala ve komşulara bak → O(n log n), O(1) ekstra bellek. Bu takası (trade-off) mülakatta söylemek artı puan.
+
+@@ code | Hashing | #3 Valid Anagram (LeetCode 242)
+A: İki string `s` ve `t` veriliyor. `t`, `s`'nin harflerinin yer değiştirmiş hali (anagram) mı? Sadece küçük İngilizce harfler.
+Örnek: `s = "anagram", t = "nagaram"` → `true`; `s = "rat", t = "car"` → `false`
+HINT: Uzunluklar farklıysa direkt false. 26 elemanlı bir sayaç dizisi kullan: `s`'deki harfler için artır, `t`'dekiler için azalt. Sonda hepsi 0 olmalı.
+SOL:
+boolean isAnagram(String s, String t) {
+    if (s.length() != t.length()) return false;
+    int[] count = new int[26];
+    for (int i = 0; i < s.length(); i++) {
+        count[s.charAt(i) - 'a']++;
+        count[t.charAt(i) - 'a']--;
+    }
+    for (int c : count) if (c != 0) return false;
+    return true;
+}
+PY:
+from collections import Counter
+def isAnagram(s, t):
+    return Counter(s) == Counter(t)
+EX: O(n). `c - 'a'` hilesi (harfi 0–25 indeksine çevirmek) birçok string sorusunda tekrar çıkar.
+
+@@ code | Two Pointers | #4 Valid Palindrome (LeetCode 125)
+A: Harf ve rakam dışındaki karakterler atılıp hepsi küçük harfe çevrildiğinde string tersten de aynı okunuyor mu?
+Örnek: `"A man, a plan, a canal: Panama"` → `true`; `"race a car"` → `false`
+HINT: Biri baştan biri sondan iki işaretçi. Harf/rakam olmayanları atla (`Character.isLetterOrDigit`), karşılaştırırken `Character.toLowerCase` kullan.
+SOL:
+boolean isPalindrome(String s) {
+    int l = 0, r = s.length() - 1;
+    while (l < r) {
+        while (l < r && !Character.isLetterOrDigit(s.charAt(l))) l++;
+        while (l < r && !Character.isLetterOrDigit(s.charAt(r))) r--;
+        if (Character.toLowerCase(s.charAt(l)) != Character.toLowerCase(s.charAt(r)))
+            return false;
+        l++; r--;
+    }
+    return true;
+}
+PY:
+def isPalindrome(s):
+    cleaned = [c.lower() for c in s if c.isalnum()]
+    return cleaned == cleaned[::-1]
+EX: Java çözümü O(n) zaman, O(1) bellek. Python çözümü kısa ama O(n) ekstra bellek kullanır.
+
+@@ code | Stack | #5 Valid Parentheses (LeetCode 20)
+A: Sadece `()[]{}` içeren bir string geçerli mi? Her açılan parantez aynı türle ve doğru sırayla kapanmalı.
+Örnek: `"()[]{}"` → `true`, `"(]"` → `false`, `"([)]"` → `false`, `"{[]}"` → `true`
+HINT: En son açılan, ilk kapanmalı → **stack** (LIFO). Açılanı push et; kapanan gelince stack boşsa ya da tepedeki eşleşmiyorsa false. Sonda stack boş olmalı.
+SOL:
+boolean isValid(String s) {
+    Deque<Character> stack = new ArrayDeque<>();
+    for (char c : s.toCharArray()) {
+        if (c == '(' || c == '[' || c == '{') {
+            stack.push(c);
+        } else {
+            if (stack.isEmpty()) return false;
+            char open = stack.pop();
+            if (c == ')' && open != '(' || c == ']' && open != '[' || c == '}' && open != '{')
+                return false;
+        }
+    }
+    return stack.isEmpty();
+}
+PY:
+def isValid(s):
+    pairs = {')': '(', ']': '[', '}': '{'}
+    stack = []
+    for c in s:
+        if c in pairs:
+            if not stack or stack.pop() != pairs[c]:
+                return False
+        else:
+            stack.append(c)
+    return not stack
+EX: Derleyiciler, JSON/XML doğrulayıcılar ve editörlerin parantez eşleştirmesi bu mantıkla çalışır. Java'da `Stack` sınıfı yerine `ArrayDeque` tercih edilir.
+
+@@ code | Dizi | #6 Best Time to Buy and Sell Stock (LeetCode 121)
+A: `prices[i]` i. günün hisse fiyatı. Bir gün al, **daha sonraki** bir gün sat. Elde edilebilecek maksimum karı döndür; kar yoksa 0.
+Örnek: `[7,1,5,3,6,4]` → `5` (1'den al, 6'dan sat)
+HINT: Gezerken o ana kadarki **en düşük fiyatı** tut. Her gün “bugün satsam kar = fiyat − minFiyat” hesapla, en büyüğünü sakla.
+SOL:
+int maxProfit(int[] prices) {
+    int minPrice = Integer.MAX_VALUE, best = 0;
+    for (int p : prices) {
+        minPrice = Math.min(minPrice, p);
+        best = Math.max(best, p - minPrice);
+    }
+    return best;
+}
+PY:
+def maxProfit(prices):
+    min_price, best = float("inf"), 0
+    for p in prices:
+        min_price = min(min_price, p)
+        best = max(best, p - min_price)
+    return best
+EX: O(n), O(1). Aynı desen: “tedarik fiyat geçmişinde en ucuz alım anı ile sonraki en yüksek satış fiyatı arasındaki fark”.
+
+@@ code | Binary Search | #7 Binary Search (LeetCode 704)
+A: **Sıralı** bir dizide `target`'ın indeksini bul, yoksa `-1`. O(log n) olmalı.
+Örnek: `nums = [-1,0,3,5,9,12], target = 9` → `4`
+HINT: `l` ve `r` sınırları tut. Ortadaki eleman hedeften küçükse sol yarıyı, büyükse sağ yarıyı at. Ortayı `l + (r - l) / 2` ile hesapla (taşmayı önler).
+SOL:
+int search(int[] nums, int target) {
+    int l = 0, r = nums.length - 1;
+    while (l <= r) {
+        int mid = l + (r - l) / 2;
+        if (nums[mid] == target) return mid;
+        if (nums[mid] < target) l = mid + 1;
+        else r = mid - 1;
+    }
+    return -1;
+}
+PY:
+def search(nums, target):
+    l, r = 0, len(nums) - 1
+    while l <= r:
+        mid = (l + r) // 2
+        if nums[mid] == target: return mid
+        if nums[mid] < target: l = mid + 1
+        else: r = mid - 1
+    return -1
+EX: 1 milyon elemanda en fazla ~20 adım. Mülakatçılar `while (l <= r)` ve `mid ± 1` sınırlarını doğru yazıp yazmadığına bakar.
+
+@@ code | Linked List | #8 Reverse Linked List (LeetCode 206)
+A: Tek yönlü bağlı listenin başı `head` veriliyor. Listeyi ters çevir, yeni başı döndür.
+Örnek: `1→2→3→4→5` → `5→4→3→2→1`
+HINT: Üç işaretçi: `prev` (başta null), `cur`, `next`. Her adımda `next`'i kaydet, `cur.next = prev` yap, sonra hepsini bir ileri kaydır.
+SOL:
+ListNode reverseList(ListNode head) {
+    ListNode prev = null, cur = head;
+    while (cur != null) {
+        ListNode next = cur.next;
+        cur.next = prev;
+        prev = cur;
+        cur = next;
+    }
+    return prev;
+}
+PY:
+def reverseList(head):
+    prev, cur = None, head
+    while cur:
+        cur.next, prev, cur = prev, cur, cur.next
+    return prev
+EX: O(n), O(1). Kâğıda kutu ve ok çizerek çöz; mülakatta da çizmen beklenir.
+
+@@ code | Linked List | #9 Merge Two Sorted Lists (LeetCode 21)
+A: İki **sıralı** bağlı liste veriliyor. Bunları tek bir sıralı liste olarak birleştir.
+Örnek: `1→2→4` ve `1→3→4` → `1→1→2→3→4→4`
+HINT: Sahte bir başlangıç düğümü (`dummy`) oluştur. İki listenin başındakilerden küçük olanı ekle, o listede ilerle. Biri bitince diğerinin kalanını olduğu gibi bağla.
+SOL:
+ListNode mergeTwoLists(ListNode a, ListNode b) {
+    ListNode dummy = new ListNode(0), cur = dummy;
+    while (a != null && b != null) {
+        if (a.val <= b.val) { cur.next = a; a = a.next; }
+        else                { cur.next = b; b = b.next; }
+        cur = cur.next;
+    }
+    cur.next = (a != null) ? a : b;
+    return dummy.next;
+}
+PY:
+def mergeTwoLists(a, b):
+    dummy = cur = ListNode(0)
+    while a and b:
+        if a.val <= b.val: cur.next, a = a, a.next
+        else: cur.next, b = b, b.next
+        cur = cur.next
+    cur.next = a or b
+    return dummy.next
+EX: O(n+m). Merge Sort'un “merge” adımı budur; iki sıralı teslimat listesini tarihe göre birleştirmek de aynı iş.
+
+@@ code | Dizi | #10 Merge Sorted Array (LeetCode 88)
+A: `nums1` (ilk `m` eleman geçerli, sonunda `n` tane boş yer var) ve `nums2` (`n` eleman) sıralı. `nums2`'yi `nums1`'in **içine** sıralı şekilde birleştir.
+Örnek: `nums1=[1,2,3,0,0,0], m=3, nums2=[2,5,6], n=3` → `[1,2,2,3,5,6]`
+HINT: Baştan yazarsan elemanları ezersin. **Sondan** doldur: iki dizinin en büyüğünü `nums1`'in son boş yerine koy.
+SOL:
+void merge(int[] nums1, int m, int[] nums2, int n) {
+    int i = m - 1, j = n - 1, k = m + n - 1;
+    while (j >= 0) {
+        if (i >= 0 && nums1[i] > nums2[j]) nums1[k--] = nums1[i--];
+        else                               nums1[k--] = nums2[j--];
+    }
+}
+PY:
+def merge(nums1, m, nums2, n):
+    i, j, k = m - 1, n - 1, m + n - 1
+    while j >= 0:
+        if i >= 0 and nums1[i] > nums2[j]:
+            nums1[k] = nums1[i]; i -= 1
+        else:
+            nums1[k] = nums2[j]; j -= 1
+        k -= 1
+EX: O(m+n), ekstra bellek yok. “Sondan doldurma” hilesi dizi sorularında sık çıkar.
+
+@@ code | Ağaç | #11 Maximum Depth of Binary Tree (LeetCode 104)
+A: Bir ikili ağacın maksimum derinliğini (kökten en uzak yaprağa kadar düğüm sayısı) bul.
+Örnek: `[3,9,20,null,null,15,7]` → `3`
+HINT: Recursion: boş ağacın derinliği 0. Değilse `1 + max(sol derinlik, sağ derinlik)`.
+SOL:
+int maxDepth(TreeNode root) {
+    if (root == null) return 0;
+    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+}
+PY:
+def maxDepth(root):
+    if not root:
+        return 0
+    return 1 + max(maxDepth(root.left), maxDepth(root.right))
+EX: O(n). Ağaç sorularının %80'i bu kalıptır: “boşsa taban durum, değilse sol ve sağ için kendini çağır, sonucu birleştir”.
+
+@@ code | Dinamik Programlama | #12 Climbing Stairs (LeetCode 70)
+A: `n` basamaklı merdiven. Her seferinde 1 ya da 2 basamak çıkabilirsin. Tepeye kaç farklı yolla çıkarsın?
+Örnek: `n = 2` → `2` (1+1, 2); `n = 3` → `3` (1+1+1, 1+2, 2+1)
+HINT: n. basamağa ya (n−1)'den ya (n−2)'den gelinir → `yol(n) = yol(n−1) + yol(n−2)`. Bu Fibonacci! Sadece son iki değeri tutman yeter.
+SOL:
+int climbStairs(int n) {
+    int a = 1, b = 1; // yol(0), yol(1)
+    for (int i = 2; i <= n; i++) {
+        int c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}
+PY:
+def climbStairs(n):
+    a, b = 1, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    return b
+EX: O(n), O(1). Düz recursion O(2ⁿ) olur; mülakatta önce onu söyleyip sonra “aynı alt problemleri tekrar hesaplıyorum, saklarım” demek dinamik programlamanın özüdür.
+
+@@ code | Dizi | #13 Majority Element (LeetCode 169)
+A: `n` elemanlı dizide `n/2`'den fazla geçen eleman (her zaman var) hangisi?
+Örnek: `[2,2,1,1,1,2,2]` → `2`
+HINT: Kolay yol: HashMap ile say (O(n) bellek). Şık yol (Boyer-Moore): bir aday ve sayaç tut; sayaç 0 ise mevcut elemanı aday yap; aynıysa +1, farklıysa −1.
+SOL:
+int majorityElement(int[] nums) {
+    int candidate = 0, count = 0;
+    for (int x : nums) {
+        if (count == 0) candidate = x;
+        count += (x == candidate) ? 1 : -1;
+    }
+    return candidate;
+}
+PY:
+def majorityElement(nums):
+    candidate, count = None, 0
+    for x in nums:
+        if count == 0:
+            candidate = x
+        count += 1 if x == candidate else -1
+    return candidate
+EX: Mülakatta önce HashMap çözümünü söyle; Boyer-Moore'u biliyorsan “O(1) bellekle de yapılabilir” diye ekle.
+
+@@ code | Matematik | #14 Missing Number (LeetCode 268)
+A: `[0, n]` aralığından `n` farklı sayı içeren dizide eksik olan sayı hangisi?
+Örnek: `[3,0,1]` → `2`
+HINT: 0'dan n'e kadar toplam `n*(n+1)/2`. Dizinin toplamını bundan çıkar.
+SOL:
+int missingNumber(int[] nums) {
+    int n = nums.length;
+    int expected = n * (n + 1) / 2;
+    int sum = 0;
+    for (int x : nums) sum += x;
+    return expected - sum;
+}
+PY:
+def missingNumber(nums):
+    n = len(nums)
+    return n * (n + 1) // 2 - sum(nums)
+EX: O(n), O(1). Çok büyük `n`'de `int` taşabilir; bunu söyleyip `long` kullanmayı ya da XOR çözümünü önermek iyi izlenim bırakır.
+
+@@ code | Two Pointers | #15 Move Zeroes (LeetCode 283)
+A: Dizideki tüm `0`'ları sona taşı; diğer elemanların sırası korunsun. Yeni dizi oluşturmadan, yerinde (in-place) yap.
+Örnek: `[0,1,0,3,12]` → `[1,3,12,0,0]`
+HINT: Bir “yazma” indeksi tut. Sıfır olmayanları sırayla bu indekse yaz, sonra kalan yerleri 0 ile doldur.
+SOL:
+void moveZeroes(int[] nums) {
+    int w = 0;
+    for (int x : nums) {
+        if (x != 0) nums[w++] = x;
+    }
+    while (w < nums.length) nums[w++] = 0;
+}
+PY:
+def moveZeroes(nums):
+    w = 0
+    for x in nums:
+        if x != 0:
+            nums[w] = x; w += 1
+    for i in range(w, len(nums)):
+        nums[i] = 0
+EX: O(n), O(1). Aynı “yazma işaretçisi” kalıbı #17 Remove Duplicates'te de var.
+
+@@ code | Bit | #16 Single Number (LeetCode 136)
+A: Dizide her eleman iki kez, sadece bir eleman bir kez geçiyor. O elemanı bul; O(n) zaman, O(1) bellek.
+Örnek: `[4,1,2,1,2]` → `4`
+HINT: XOR (`^`) özellikleri: `x ^ x = 0`, `x ^ 0 = x`, sıra önemsiz. Hepsini XOR'larsan çiftler birbirini siler.
+SOL:
+int singleNumber(int[] nums) {
+    int result = 0;
+    for (int x : nums) result ^= x;
+    return result;
+}
+PY:
+def singleNumber(nums):
+    result = 0
+    for x in nums:
+        result ^= x
+    return result
+EX: Bilmiyorsan HashMap/Set ile çöz (O(n) bellek), yine kabul edilir. XOR hilesi bonus.
+
+@@ code | Hashing | #17 First Unique Character in a String (LeetCode 387)
+A: Küçük harflerden oluşan bir stringde **tekrar etmeyen ilk karakterin** indeksini döndür; yoksa `-1`.
+Örnek: `"leetcode"` → `0`, `"loveleetcode"` → `2`, `"aabb"` → `-1`
+HINT: İki geçiş: önce her harfin sayısını say, sonra stringi baştan gez ve sayısı 1 olan ilk harfi döndür.
+SOL:
+int firstUniqChar(String s) {
+    int[] count = new int[26];
+    for (char c : s.toCharArray()) count[c - 'a']++;
+    for (int i = 0; i < s.length(); i++) {
+        if (count[s.charAt(i) - 'a'] == 1) return i;
+    }
+    return -1;
+}
+PY:
+from collections import Counter
+def firstUniqChar(s):
+    count = Counter(s)
+    for i, c in enumerate(s):
+        if count[c] == 1:
+            return i
+    return -1
+EX: O(n). “Önce say, sonra tara” kalıbı çok yaygın.
+
+@@ code | Two Pointers | #18 Remove Duplicates from Sorted Array (LeetCode 26)
+A: **Sıralı** dizideki tekrarları yerinde kaldır; benzersiz eleman sayısı `k`'yı döndür (ilk `k` eleman benzersizler olmalı).
+Örnek: `[0,0,1,1,1,2,2,3,3,4]` → `k = 5`, ilk 5 eleman `[0,1,2,3,4]`
+HINT: Dizi sıralı olduğu için tekrarlar yan yana. Yazma indeksi `k` tut; eleman son yazılandan farklıysa yaz.
+SOL:
+int removeDuplicates(int[] nums) {
+    if (nums.length == 0) return 0;
+    int k = 1;
+    for (int i = 1; i < nums.length; i++) {
+        if (nums[i] != nums[k - 1]) nums[k++] = nums[i];
+    }
+    return k;
+}
+PY:
+def removeDuplicates(nums):
+    if not nums:
+        return 0
+    k = 1
+    for i in range(1, len(nums)):
+        if nums[i] != nums[k - 1]:
+            nums[k] = nums[i]; k += 1
+    return k
+EX: O(n), O(1). Boş dizi kenar durumunu söylemeyi unutma.
+
+@@ code | String | #19 Longest Common Prefix (LeetCode 14)
+A: Bir string dizisindeki **en uzun ortak ön eki** bul; yoksa `""`.
+Örnek: `["flower","flow","flight"]` → `"fl"`; `["dog","racecar","car"]` → `""`
+HINT: İlk kelimeyi aday ön ek olarak al. Her kelime için, kelime bu ön ekle başlamadığı sürece ön ekin son harfini sil.
+SOL:
+String longestCommonPrefix(String[] strs) {
+    if (strs.length == 0) return "";
+    String prefix = strs[0];
+    for (String s : strs) {
+        while (!s.startsWith(prefix)) {
+            prefix = prefix.substring(0, prefix.length() - 1);
+        }
+    }
+    return prefix;
+}
+PY:
+def longestCommonPrefix(strs):
+    if not strs:
+        return ""
+    prefix = strs[0]
+    for s in strs:
+        while not s.startswith(prefix):
+            prefix = prefix[:-1]
+    return prefix
+EX: Döngü her zaman biter çünkü boş string her kelimenin ön ekidir. Otomatik tamamlama (autocomplete) ve dosya yolu karşılaştırma gibi yerlerde kullanılır.
+
+@@ code | Hashing | #20 Roman to Integer (LeetCode 13)
+A: Roma rakamını tam sayıya çevir. `I=1, V=5, X=10, L=50, C=100, D=500, M=1000`. Küçük değer büyüğün önündeyse çıkarılır (`IV=4`, `IX=9`, `XL=40`, `CM=900`).
+Örnek: `"MCMXCIV"` → `1994`
+HINT: Soldan sağa gez. Mevcut sembolün değeri bir sonrakinden küçükse çıkar, değilse topla.
+SOL:
+int romanToInt(String s) {
+    Map<Character, Integer> v = Map.of('I', 1, 'V', 5, 'X', 10, 'L', 50,
+                                       'C', 100, 'D', 500, 'M', 1000);
+    int total = 0;
+    for (int i = 0; i < s.length(); i++) {
+        int cur = v.get(s.charAt(i));
+        if (i + 1 < s.length() && cur < v.get(s.charAt(i + 1))) total -= cur;
+        else total += cur;
+    }
+    return total;
+}
+PY:
+def romanToInt(s):
+    v = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+    total = 0
+    for i, c in enumerate(s):
+        if i + 1 < len(s) and v[c] < v[s[i + 1]]:
+            total -= v[c]
+        else:
+            total += v[c]
+    return total
+EX: O(n). `Map.of(...)` ile sabit bir arama tablosu (lookup table) kurmak temiz bir Java alışkanlığı.
+
+@@ code | Hashing | #21 Ransom Note (LeetCode 383)
+A: `magazine` içindeki harflerle (her harf bir kez kullanılabilir) `ransomNote` yazılabilir mi? Küçük harfler.
+Örnek: `ransomNote = "aa", magazine = "aab"` → `true`; `"aa", "ab"` → `false`
+HINT: Dergideki harfleri say. Notun her harfi için sayacı azalt; bir sayaç eksiye düşerse false.
+SOL:
+boolean canConstruct(String ransomNote, String magazine) {
+    int[] count = new int[26];
+    for (char c : magazine.toCharArray()) count[c - 'a']++;
+    for (char c : ransomNote.toCharArray()) {
+        if (--count[c - 'a'] < 0) return false;
+    }
+    return true;
+}
+PY:
+from collections import Counter
+def canConstruct(ransomNote, magazine):
+    need, have = Counter(ransomNote), Counter(magazine)
+    return all(have[c] >= n for c, n in need.items())
+EX: Stoktaki parçalarla bir sipariş karşılanabilir mi? Aynı soru: “stok sayacı yeter mi?”
+
+@@ code | Sektörden Görev | #22 En çok geciken tedarikçi (mini görev)
+A: Bu ilandaki gibi firmalarda “LeetCode yerine küçük gerçek görev” verilebilir. Görev:
+`record Delivery(String supplier, LocalDate due, LocalDate delivered)` listesi veriliyor. `delivered == null` ise teslimat hâlâ açık. **En çok geç kalan tedarikçiyi** döndür. Gecikme: teslim tarihi (açıksa bugün) `due`'dan sonra.
+Örnek: A: 2 geç, B: 1 geç → `"A"`
+HINT: Önce soruları sor: liste boş olabilir mi? supplier null olabilir mi? Eşitlikte ne olacak? Sonra: `Map<String,Integer>` ile geç teslimatları say, en büyük değeri bul. Sonuç olmayabilir → `Optional`.
+SOL:
+Optional<String> worstSupplier(List<Delivery> list, LocalDate today) {
+    Map<String, Integer> late = new HashMap<>();
+    for (Delivery d : list) {
+        if (d == null || d.supplier() == null || d.due() == null) continue;
+        LocalDate actual = (d.delivered() != null) ? d.delivered() : today;
+        if (actual.isAfter(d.due())) late.merge(d.supplier(), 1, Integer::sum);
+    }
+    return late.entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey);
+}
+PY:
+from collections import Counter
+def worst_supplier(rows, today):
+    late = Counter()
+    for r in rows:
+        if not r.get("supplier") or not r.get("due"):
+            continue
+        actual = r.get("delivered") or today
+        if actual > r["due"]:
+            late[r["supplier"]] += 1
+    return late.most_common(1)[0][0] if late else None
+EX: Burada puanı getiren şey: Map kullanımı + null kontrolleri + `Optional` + kenar durumlarını sormak. Tam olarak arkadaşına sorulan Map ve null soruları, bir görevin içinde.
+
+@@ code | Sektörden Görev | #23 Hatalı CSV satırlarını atlayarak toplam hesapla
+A: `"artikelId;menge"` formatında satırlar (`List<String>`) geliyor. Her ürün için toplam miktarı döndür. Boş, eksik sütunlu ya da sayı olmayan satırlar **atlanmalı**, program çökmemeli.
+Örnek: `["A1;5", "B2;3", "A1;2", "bozuk", "C3;abc"]` → `{A1=7, B2=3}`
+HINT: Her satırı `split(";")` ile böl, uzunluğu kontrol et. `Integer.parseInt` sayı olmayan girdide `NumberFormatException` fırlatır; sadece onu yakala, logla, devam et.
+SOL:
+Map<String, Integer> sumQuantities(List<String> lines) {
+    Map<String, Integer> result = new HashMap<>();
+    for (String line : lines) {
+        if (line == null || line.isBlank()) continue;
+        String[] parts = line.split(";");
+        if (parts.length != 2) continue;
+        try {
+            int qty = Integer.parseInt(parts[1].trim());
+            result.merge(parts[0].trim(), qty, Integer::sum);
+        } catch (NumberFormatException e) {
+            // gerçek projede: log.warn("Ungültige Zeile: {}", line);
+        }
+    }
+    return result;
+}
+PY:
+def sum_quantities(lines):
+    result = {}
+    for line in lines:
+        if not line or not line.strip():
+            continue
+        parts = line.split(";")
+        if len(parts) != 2:
+            continue
+        try:
+            qty = int(parts[1].strip())
+        except ValueError:
+            continue
+        key = parts[0].strip()
+        result[key] = result.get(key, 0) + qty
+    return result
+EX: Gerçek projelerde müşteri verisi hep kirlidir. Bu görev Map, exception handling ve doğrulamayı tek seferde test eder.
