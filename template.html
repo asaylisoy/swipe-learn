@@ -92,6 +92,12 @@ textarea.mine{width:100%;min-height:96px;background:#0b0c10;color:#cfe3ff;border
 #sheet textarea{width:100%;height:140px;background:#0b0c10;color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:8px;font-family:var(--mono);font-size:12px}
 #sheet .row{margin-top:10px;flex-wrap:wrap}
 #msg{font-size:13px;color:var(--ok);margin-top:6px;min-height:18px}
+.lv{font-size:11px;color:var(--warn);border:1px solid rgba(255,180,84,.4);border-radius:999px;padding:1px 7px;white-space:nowrap}
+.lv:empty{display:none}
+#dueBar{display:none;width:100%;margin-top:8px;background:rgba(255,180,84,.12);border:1px solid rgba(255,180,84,.45);color:var(--warn);border-radius:10px;padding:7px 10px;font-size:13px;font-weight:700;text-align:left;cursor:pointer}
+#dueBar.on{display:block}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%);background:#262a35;color:var(--tx);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:8;white-space:nowrap}
+#toast.on{opacity:1}
 @media (min-width:700px){ .card{padding:18px max(18px, calc((100vw - 640px)/2))} }
 </style>
 </head>
@@ -115,6 +121,7 @@ textarea.mine{width:100%;min-height:96px;background:#0b0c10;color:#cfe3ff;border
     <select id="topic"></select>
     <select id="filt">
       <option value="all">Tümü</option>
+      <option value="due">📅 Bugün tekrar</option>
       <option value="new">Görmediklerim</option>
       <option value="rev">↻ Tekrar listem</option>
       <option value="known">✓ Bildiklerim</option>
@@ -122,14 +129,17 @@ textarea.mine{width:100%;min-height:96px;background:#0b0c10;color:#cfe3ff;border
     <div class="bar"><i id="prog"></i></div>
     <span id="progTx">0/0</span>
   </div>
+  <button id="dueBar"></button>
 </header>
 <main id="feed"></main>
+<div id="toast"></div>
 
 <div id="sheet">
   <div class="pan">
     <h3>Ayarlar</h3>
     <p><b>Telefona ekle:</b> Sayfayı telefonda aç, tarayıcı menüsünden “Ana ekrana ekle”. İlerlemen bu cihazda saklanır.</p>
     <p><b>Modlar:</b> 🎬 Reels = her şey açık, kaydır-oku. 📇 Kart = önce sadece soru; kendini test et, sonra cevabı aç. “↻ Tekrar” dediklerin “Tekrar listem” filtresinde toplanır.</p>
+    <p><b>📅 Aralıklı tekrar:</b> “↻ Tekrar” dediğin kart ertesi gün “Bugün tekrar”a düşer. O gün “✓ Biliyorum” dersen 3 gün, sonra 7 gün sonra tekrar gelir; üçünü de bilirsen “Bildiklerim”e geçer. Bilemezsen başa (1 gün) döner.</p>
     <p><b>Kart içe aktar:</b> Claude'un ürettiği JSON kart listesini (ör. video transkriptlerinden) yapıştır. Bölümler: job / code / arch / cyber. Format:<br><code>[{"s":"cyber","t":"Konu","q":"Başlık","A":"Açıklama","EX":"Örnek","CODE":"","SAY":""}]</code></p>
     <textarea id="imp" placeholder='[{"s":"cyber","t":"Konu","q":"...","A":"..."}]'></textarea>
     <div class="row">
@@ -168,7 +178,18 @@ let base = parse(document.getElementById("cards").textContent);
 let extra = store("ko-extra") || [];
 let notes = store("ko-notes") || {};
 let st = store("ko-state") || {known:{}, rev:{}, seen:{}, sec:"job", mode:"reels"};
-st.known = st.known||{}; st.rev = st.rev||{}; st.seen = st.seen||{};
+st.known = st.known||{}; st.rev = st.rev||{}; st.seen = st.seen||{}; st.box = st.box||{};
+// Leitner kutuları: Tekrar -> kutu 1 (1 gün), sonra Biliyorum -> kutu 2 (3 gün) -> kutu 3 (7 gün) -> öğrenildi
+const IV = [0, 1, 3, 7];
+function day(off){ const d = new Date(); d.setDate(d.getDate() + (off||0)); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
+function isDue(id){ const b = st.box[id]; return !!b && b.due <= day(0); }
+function dueTx(id){
+  const b = st.box[id]; if (!b) return "";
+  if (b.due <= day(0)) return "📅 Kutu " + b.b + "/3 · bugün";
+  const n = Math.round((new Date(b.due + "T12:00") - new Date(day(0) + "T12:00")) / 864e5);
+  return "📅 Kutu " + b.b + "/3 · " + (n === 1 ? "yarın" : n + " gün sonra");
+}
+Object.keys(st.rev).forEach(function(id){ if (!st.box[id]) st.box[id] = {b:1, due:day(0)}; });
 let all = [], shuffled = false, order = null;
 function rebuild(){
   all = base.concat(extra.filter(function(x){return x && x.s && x.q;}).map(function(x){
@@ -204,6 +225,7 @@ function list(){
   if (topicSel.value) l = l.filter(function(c){return c.t === topicSel.value;});
   const f = filtSel.value;
   if (f === "new") l = l.filter(function(c){return !st.seen[c.id] && !st.known[c.id];});
+  if (f === "due") l = l.filter(function(c){return isDue(c.id);});
   if (f === "rev") l = l.filter(function(c){return st.rev[c.id];});
   if (f === "known") l = l.filter(function(c){return st.known[c.id];});
   if (shuffled){
@@ -216,18 +238,25 @@ function progress(){
   const p = pool(); const k = p.filter(function(c){return st.known[c.id];}).length;
   document.getElementById("prog").style.width = (p.length ? k/p.length*100 : 0) + "%";
   document.getElementById("progTx").textContent = k + "/" + p.length;
+  const n = all.filter(function(c){ return isDue(c.id); }).length;
+  const bar = document.getElementById("dueBar");
+  bar.textContent = "📅 Bugün " + n + " kart tekrarını bekliyor — başla →";
+  bar.classList.toggle("on", n > 0 && filtSel.value !== "due");
 }
+let tt = null;
+function toast(t){ const el = document.getElementById("toast"); el.textContent = t; el.classList.add("on"); clearTimeout(tt); tt = setTimeout(function(){ el.classList.remove("on"); }, 1600); }
 let io = null;
 function render(){
   const l = list();
   document.querySelectorAll(".tab").forEach(function(b){ b.classList.toggle("on", b.dataset.s === st.sec); });
   document.getElementById("modeBtn").textContent = st.mode === "quiz" ? "🎬 Reels modu" : "📇 Kart modu";
   document.getElementById("shufBtn").classList.toggle("on", shuffled);
+  if (!l.length && filtSel.value === "due"){ feed.innerHTML = '<div class="empty">🎉 Bugünlük tekrar bitti.<br>Yeni kart görmek için filtreyi “Görmediklerim” yap.</div>'; progress(); return; }
   if (!l.length){ feed.innerHTML = '<div class="empty">Bu filtrede kart yok.<br>Filtreyi “Tümü” yap ya da başka bölüme geç.</div>'; progress(); return; }
   feed.innerHTML = l.map(function(c, i){
     const s = SEC[c.s] || {n:c.s, c:"var(--acc)"};
     return '<section class="card" data-id="'+esc(c.id)+'"><div class="in '+(st.mode==="quiz"?"quiz":"")+(c.s==="code"?" prob":"")+'" style="--c:'+s.c+'">'
-      + '<div class="meta"><span class="chip">'+esc(s.n)+'</span><span>'+esc(c.t)+'</span><span class="num">'+(i+1)+'/'+l.length+'</span></div>'
+      + '<div class="meta"><span class="chip">'+esc(s.n)+'</span><span>'+esc(c.t)+'</span><span class="lv">'+esc(dueTx(c.id))+'</span><span class="num">'+(i+1)+'/'+l.length+'</span></div>'
       + '<h2>'+inline(c.q)+'</h2>'
       + '<div class="reveal">👆 Önce kendin cevapla, sonra dokun</div>'
       + '<div class="body">' + rich(c.A)
@@ -256,14 +285,25 @@ feed.addEventListener("click", function(e){
   const id = card.dataset.id; const inner = card.querySelector(".in");
   if (e.target.closest(".reveal")){ inner.classList.add("open"); return; }
   const b = e.target.closest(".act button"); if (!b) return;
-  if (b.classList.contains("k")){ st.known[id] = st.known[id] ? 0 : 1; if (st.known[id]) delete st.rev[id]; }
-  else { st.rev[id] = st.rev[id] ? 0 : 1; if (st.rev[id]) delete st.known[id]; }
-  if (!st.known[id]) delete st.known[id]; if (!st.rev[id]) delete st.rev[id];
+  let go = false;
+  const bx = st.box[id];
+  if (b.classList.contains("r")){
+    st.box[id] = {b:1, due:day(1)}; st.rev[id] = 1; delete st.known[id];
+    toast("↻ Yarın tekrar gelecek"); go = true;
+  } else if (bx){
+    if (bx.due > day(0)){ toast("⏳ Bu kart " + dueTx(id).split("· ")[1] + " sorulacak"); return; }
+    if (bx.b >= 3){ delete st.box[id]; delete st.rev[id]; st.known[id] = 1; toast("🎓 Öğrenildi! Bildiklerim'e taşındı"); }
+    else { bx.b++; bx.due = day(IV[bx.b]); toast("✓ " + IV[bx.b] + " gün sonra tekrar"); }
+    go = true;
+  } else {
+    if (st.known[id]) delete st.known[id]; else { st.known[id] = 1; go = true; }
+  }
   save();
   card.querySelector(".k").classList.toggle("on", !!st.known[id]);
   card.querySelector(".r").classList.toggle("on", !!st.rev[id]);
+  card.querySelector(".lv").textContent = dueTx(id);
   progress();
-  if (st.known[id] || st.rev[id]) setTimeout(function(){ next(card); }, 250);
+  if (go) setTimeout(function(){ next(card); }, 250);
 });
 document.getElementById("tabs").addEventListener("click", function(e){
   const b = e.target.closest(".tab"); if (!b) return;
@@ -276,6 +316,7 @@ feed.addEventListener("input", function(e){
   clearTimeout(nt); nt = setTimeout(function(){ store("ko-notes", notes); }, 400);
 });
 topicSel.onchange = render; filtSel.onchange = render;
+document.getElementById("dueBar").onclick = function(){ st.sec = "all"; save(); topicSel.value = ""; filtSel.value = "due"; fillTopics(); render(); };
 document.getElementById("modeBtn").onclick = function(){ st.mode = st.mode === "quiz" ? "reels" : "quiz"; save(); render(); };
 document.getElementById("shufBtn").onclick = function(){ shuffled = !shuffled; order = null; render(); };
 const sheet = document.getElementById("sheet"), msg = document.getElementById("msg");
@@ -294,7 +335,7 @@ document.getElementById("impBtn").onclick = function(){
   }catch(err){ msg.style.color = "var(--warn)"; msg.textContent = "Hata: " + err.message; }
 };
 document.getElementById("clrImp").onclick = function(){ extra = []; store("ko-extra", extra); rebuild(); fillTopics(); render(); msg.style.color="var(--ok)"; msg.textContent = "İçe aktarılan kartlar silindi."; };
-document.getElementById("resetBtn").onclick = function(){ st.known = {}; st.rev = {}; st.seen = {}; save(); render(); msg.style.color="var(--ok)"; msg.textContent = "İlerleme sıfırlandı."; };
+document.getElementById("resetBtn").onclick = function(){ st.known = {}; st.rev = {}; st.seen = {}; st.box = {}; save(); render(); msg.style.color="var(--ok)"; msg.textContent = "İlerleme sıfırlandı."; };
 rebuild(); fillTopics(); render();
 })();
 

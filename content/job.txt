@@ -15,10 +15,29 @@ Akış: `.java` → `javac` → `.class` (bytecode) → JVM → (JIT ile) makine
 EX: “Write once, run anywhere”: Aynı .jar dosyası Windows sunucuda da Linux container'da da çalışır, çünkü her platformun kendi JVM'i var.
 SAY: Der Compiler übersetzt Java-Code in Bytecode, und die JVM führt diesen Bytecode plattformunabhängig aus.
 
+@@ job | Java · Temel | main metodu: public static void main(String[] args) ne demek?
+A: Programın giriş noktası. Her kelimenin bir sebebi var:
+- `public`: JVM dışarıdan çağırabilsin.
+- `static`: henüz hiç nesne yok; JVM metodu sınıf üzerinden çağırır.
+- `void`: bir şey döndürmez (hata koduyla çıkmak için `System.exit(1)`).
+- `String[] args`: komut satırından gelen argümanlar.
+Java 25'ten beri kısa `void main()` yazımı da var, ama mülakatta klasik hali açıklayabilmelisin.
+CODE:
+public class Importer {
+    public static void main(String[] args) {
+        String file = args.length > 0 ? args[0] : "orders.csv";
+        System.out.println("Importing " + file);
+    }
+}
+// Terminal: java Importer lieferungen.csv
+EX: Gece çalışan import job'u `java -jar importer.jar lieferungen.csv` ile başlatılır; dosya adı `args[0]` olarak gelir.
+SAY: Die main-Methode ist static, weil die JVM sie aufrufen muss, bevor ein Objekt existiert.
+
 @@ job | Java · Temel | Primitive tipler vs Wrapper (int vs Integer)
 A: Java'da 8 primitive tip var: `byte, short, int, long, float, double, char, boolean`. Değeri direkt tutar, `null` olamaz.
 Wrapper sınıflar (`Integer`, `Double`…) nesnedir, `null` olabilir ve Collections'da kullanılır (`List<int>` yazamazsın, `List<Integer>` yazarsın). Otomatik dönüşüme **autoboxing/unboxing** denir.
 **Tuzak:** `Integer` null iken unboxing → NullPointerException.
+**Tuzak 2:** `Integer`'ları `==` ile karşılaştırma: -128..127 arası önbellekten gelir (`true`), dışında farklı nesneler olur (`false`). Hep `equals()` kullan.
 CODE:
 Map<String, Integer> stock = new HashMap<>();
 int n = stock.get("Schraube"); // key yoksa get() null döner -> NPE!
@@ -61,6 +80,33 @@ for (String line : lines) {
 }
 String csv = sb.toString();
 EX: 100.000 satırlık CSV raporu üretirken `+=` kullanmak çok yavaşlar, `StringBuilder` hızlıdır.
+
+@@ job | Java · Temel | Sık kullanılan String metotları
+A: IDE'siz kodlamada ezbere bilmen gerekenler:
+`length()`, `charAt(i)`, `substring(a, b)` (b dahil değil), `indexOf`, `contains`, `split(";")`, `strip()`/`trim()`, `toUpperCase()`, `replace`, `isEmpty()`/`isBlank()`, `toCharArray()`, `String.join`, `String.valueOf`, `Integer.parseInt`.
+**Dikkat:** Array → `length`, String → `length()`, List → `size()`.
+CODE:
+String line = " S1;Dortmund;40 ";
+String[] p = line.strip().split(";");  // ["S1", "Dortmund", "40"]
+int qty = Integer.parseInt(p[2]);      // 40
+String city = p[1].toUpperCase();      // "DORTMUND"
+char first = p[0].charAt(0);           // 'S'
+String code = p[1].substring(0, 3);    // "Dor"
+EX: CSV/EDI satırlarını parçalamak tam olarak budur. `parseInt` bozuk veride `NumberFormatException` atar; onu yakalayıp satırı loglamayı unutma.
+SAY: Mit split, strip und parseInt verarbeite ich zum Beispiel CSV-Zeilen.
+
+@@ job | Java · Temel | Integer bölme, overflow ve BigDecimal
+A: `int / int` sonucu **tam sayıdır**, küsurat atılır: `7 / 2 == 3`. Ondalık lazımsa birini `double` yap: `7 / 2.0`. `%` kalanı verir (`n % 2 == 0` → çift).
+`int` en fazla ~2,1 milyar; aşınca hata vermez, **negatife döner (overflow)**. Büyük sayılar için `long`.
+Para için `double` değil `BigDecimal`: `0.1 + 0.2` double'da tam `0.3` etmez.
+CODE:
+int avg = 7 / 2;                  // 3
+double ok = 7 / 2.0;              // 3.5
+int big = Integer.MAX_VALUE + 1;  // -2147483648 (overflow)
+long safe = 3_000_000_000L;
+BigDecimal sum = new BigDecimal("0.10").add(new BigDecimal("0.20")); // 0.30
+EX: Sipariş başına ortalama miktarı `total / count` ile hesaplarsan küsurat kaybolur; fatura tutarlarını `double` ile tutarsan kuruş farkları çıkar.
+SAY: Für Geldbeträge verwende ich BigDecimal statt double, weil double Rundungsfehler hat.
 
 @@ job | Java · Collections | Map nedir? (Arkadaşına sorulan soru!)
 A: `Map`, **key → value** çiftleri tutan bir veri yapısıdır. Her key benzersizdir; aynı key'e tekrar `put` yaparsan eski değerin üstüne yazar. `Collection` arayüzünden türemez, ayrı bir arayüzdür.
@@ -107,6 +153,82 @@ A: `Collection` arayüzünün altında:
 - `Queue/Deque`: kuyruk/yığın (ArrayDeque, PriorityQueue)
 `Map` bu ağacın içinde değildir. **Collection** (arayüz) ile **Collections** (yardımcı sınıf: `sort`, `unmodifiableList`…) farklıdır.
 EX: Bir siparişteki benzersiz tedarikçiler → `Set`. Öncelikli acil siparişler → `PriorityQueue`.
+
+@@ job | Java · Collections | HashSet içeride nasıl çalışır?
+A: `HashSet` arkada bir `HashMap` kullanır: eklediğin eleman **key** olur, value olarak sabit bir yer tutucu nesne konur. Bu yüzden `add`, `contains`, `remove` ortalama O(1)'dir ve duplikat kontrolü `hashCode()` + `equals()` ile yapılır.
+`add()` eleman zaten varsa `false` döner. Sıra garantisi yok: ekleme sırası için `LinkedHashSet`, sıralı için `TreeSet` (O(log n)).
+**Tuzak:** Set'e koyduktan sonra hashCode'u etkileyen alanı değiştirirsen eleman “kaybolur”.
+CODE:
+Set<String> seen = new HashSet<>();
+for (String id : shipmentIds) {
+    if (!seen.add(id)) {
+        System.out.println("Duplikat: " + id);
+    }
+}
+EX: EDI ile gelen sevkiyat bildirimlerinde aynı ID'nin iki kez işlenmesini tek satırlık `seen.add()` kontrolüyle engellersin.
+SAY: Ein HashSet basiert intern auf einer HashMap; die Elemente sind die Schlüssel, deshalb gibt es keine Duplikate.
+
+@@ job | Java · Collections | Comparable vs Comparator
+A: `Comparable<T>`: sınıfın **doğal sıralaması**, sınıfın içinde `compareTo()` ile tanımlanır (tek bir sıralama).
+`Comparator<T>`: sınıfın **dışında** tanımlanır; istediğin kadar farklı sıralama yazabilirsin.
+Dönüş değeri: negatif = a önce, 0 = eşit, pozitif = b önce. `a - b` yazma (overflow riski), `Integer.compare(a, b)` kullan.
+CODE:
+record Order(String id, int priority, LocalDate due) implements Comparable<Order> {
+    public int compareTo(Order o) { return id.compareTo(o.id); }
+}
+Collections.sort(orders);                      // doğal sıra: id
+orders.sort(Comparator.comparing(Order::due)   // önce tarih,
+    .thenComparing(Order::priority, Comparator.reverseOrder())); // sonra öncelik (büyük önce)
+EX: Depo sevkiyat listesi: önce teslim tarihi, aynı gün olanlar önceliğe göre. Aynı `Order` sınıfı rapor ekranında başka bir `Comparator` ile tedarikçiye göre sıralanır.
+SAY: Comparable definiert die natürliche Ordnung in der Klasse selbst; mit einem Comparator kann ich von außen beliebig viele Sortierungen definieren.
+
+@@ job | Java · Collections | Array vs ArrayList
+A: **Array** (`int[]`): boyutu sabit, primitive tutabilir, `length` alanı var. **ArrayList**: boyutu otomatik büyür, sadece nesne tutar (`Integer`), `size()` ve hazır metotlar (`add`, `remove`, `contains`).
+Tuzaklar:
+- `Arrays.asList(...)` sabit boyutludur: `set` çalışır, `add` → `UnsupportedOperationException`.
+- `List.of(...)` tamamen değiştirilemez ve `null` kabul etmez.
+- Değiştirilebilir kopya: `new ArrayList<>(List.of(...))`.
+CODE:
+int[] qty = new int[3];           // {0, 0, 0}, qty.length == 3
+List<Integer> list = new ArrayList<>();
+list.add(5);                      // list.size() == 1
+List<String> fixed = Arrays.asList("A", "B");
+fixed.set(0, "X");                // OK
+fixed.add("C");                   // UnsupportedOperationException
+EX: Haftanın 7 günü için talep tahmini → `double[7]`. Gün içinde gelen, sayısı belli olmayan siparişler → `ArrayList<Order>`.
+SAY: Ein Array hat eine feste Größe, eine ArrayList wächst dynamisch und bietet viele fertige Methoden.
+
+@@ job | Java · Collections | ConcurrentModificationException ve Iterator
+A: Bir listeyi `for-each` ile gezerken aynı listeden `remove`/`add` yaparsan genellikle `ConcurrentModificationException` alırsın — tek thread'de bile! For-each arkada bir `Iterator` kullanır; liste beklenmedik şekilde değişince hemen hata verir (**fail-fast**).
+Doğru yollar: `removeIf()` ya da `Iterator.remove()`.
+CODE:
+for (Order o : orders) {
+    if (o.isCancelled()) orders.remove(o);  // HATA
+}
+
+orders.removeIf(Order::isCancelled);         // doğru ve kısa
+
+Iterator<Order> it = orders.iterator();
+while (it.hasNext()) {
+    if (it.next().isCancelled()) it.remove(); // doğru
+}
+EX: İptal edilen siparişleri gece batch'inde listeden temizlerken yapılan klasik hata; code review'da hemen göze batar.
+SAY: Wenn ich eine Liste in einer for-each-Schleife verändere, bekomme ich eine ConcurrentModificationException; deshalb nutze ich removeIf oder den Iterator.
+
+@@ job | Java · Collections | PriorityQueue ve ArrayDeque (Stack yerine ne?)
+A: **`ArrayDeque`**: iki uçlu kuyruk; hem **queue (FIFO)** hem **stack (LIFO)** olarak kullanılır. Eski `Stack` sınıfı yerine bunu kullan (`Stack` eski ve gereksiz yere senkronize).
+**`PriorityQueue`**: her zaman en küçük (ya da Comparator'a göre en öncelikli) elemanı verir. Arkada **heap** var: `offer`/`poll` O(log n), `peek` O(1).
+**Tuzak:** PriorityQueue'yu for-each ile gezersen elemanlar sıralı gelmez; sıralı almak için `poll()`.
+CODE:
+Deque<String> stack = new ArrayDeque<>();
+stack.push("a"); stack.pop();        // LIFO
+Queue<String> queue = new ArrayDeque<>();
+queue.offer("a"); queue.poll();      // FIFO
+PriorityQueue<Order> urgent =
+    new PriorityQueue<>(Comparator.comparing(Order::due));
+Order next = urgent.poll();          // en erken teslim tarihli
+EX: Depoda “en acil sipariş önce toplanır” → `PriorityQueue`. Valid Parentheses gibi kodlama soruları → `ArrayDeque` ile stack.
+SAY: Für Stack und Queue nehme ich ArrayDeque; eine PriorityQueue liefert immer das Element mit der höchsten Priorität.
 
 @@ job | Java · Exceptions | NullPointerException olursa ne yaparsın? (Sorulan soru!)
 A: NPE, `null` olan bir referans üzerinde metot/alan çağırınca oluşur. Cevabın 3 parçalı olsun:
@@ -155,6 +277,7 @@ EX: REST API'de `SupplierNotFoundException` → HTTP 404'e çevrilir (Spring'de 
 
 @@ job | Java · Exceptions | final, finally, finalize farkı
 A: `final`: değişken tekrar atanamaz / metot override edilemez / sınıftan türetilemez. `finally`: try bloğundan sonra her zaman çalışan blok. `finalize()`: GC öncesi çağrılan eski metot — **deprecated**, kullanma.
+Dikkat: `final` referans ≠ değişmez nesne. `final List<Order> l` başka listeye atanamaz ama `l.add(...)` çalışır. Lambda içinde kullanılan lokal değişkenler de **effectively final** olmalı (atandıktan sonra değişmemeli).
 EX: `final` alanlar immutable nesne yazmanın temelidir: `private final List<Order> orders;`
 
 @@ job | Java · OOP | OOP'nin 4 temel prensibi
@@ -192,6 +315,97 @@ public static final double VAT = 0.19;
 @@ job | Java · OOP | Access modifiers (public, protected, default, private)
 A: `private`: sadece sınıf içi. *default* (hiçbir şey yazmamak): aynı paket. `protected`: aynı paket + alt sınıflar. `public`: herkes.
 Kural: en kısıtlı olandan başla (alanlar `private`).
+
+@@ job | Java · OOP | Constructor, this() ve super()
+A: **Constructor** nesne oluşurken çalışır: sınıfla aynı isimde, dönüş tipi yok. Hiç yazmazsan derleyici parametresiz bir **default constructor** ekler; sen bir tane yazarsan eklemez.
+- `this.id = id`: alan ile aynı isimli parametreyi ayırır.
+- `this(...)`: aynı sınıftaki başka constructor'ı çağırır (**constructor chaining**).
+- `super(...)`: üst sınıfın constructor'ını çağırır; yazmazsan derleyici `super()` ekler.
+CODE:
+class Shipment {
+    private final String id;
+    private final int qty;
+    Shipment(String id, int qty) { this.id = id; this.qty = qty; }
+    Shipment(String id) { this(id, 1); }   // varsayılan miktar 1
+}
+class ExpressShipment extends Shipment {
+    ExpressShipment(String id) { super(id, 1); }
+}
+EX: Miktar verilmeyen siparişlerde kodu tekrar yazmak yerine `this(id, 1)` ile tek bir constructor'a yönlendirirsin.
+SAY: Mit this() rufe ich einen anderen Konstruktor derselben Klasse auf, mit super() den Konstruktor der Oberklasse.
+
+@@ job | Java · OOP | Object sınıfı ve toString()
+A: Java'da her sınıf dolaylı olarak `Object`'ten türer. Önemli metotları: `equals()`, `hashCode()`, `toString()`, `getClass()`.
+`toString()` override edilmezse `Shipment@1b6d3586` gibi sınıf adı + hash yazar; loglarda işe yaramaz. Override edersen log ve debug çok kolaylaşır. `record` bunu otomatik yazar.
+CODE:
+@Override
+public String toString() {
+    return "Shipment{id=" + id + ", qty=" + qty + "}";
+}
+// log.info("Received {}", shipment)  ->  Received Shipment{id=S1, qty=40}
+EX: Gece batch'i hata verdiğinde logda `Shipment@1b6d3586` görmek hiçbir şey söylemez; iyi bir `toString()` ile hatalı kaydı direkt görürsün.
+SAY: Jede Klasse erbt von Object; toString() überschreibe ich, damit die Logs aussagekräftig sind.
+
+@@ job | Java · OOP | Upcasting, downcasting ve instanceof
+A: **Upcasting**: alt sınıfı üst tip olarak tutmak; otomatik ve güvenli (`Transport t = new Truck();`). Bu referansla sadece `Transport`'un metotları çağrılabilir, ama çalışan kod `Truck`'ın override ettiği haldir.
+**Downcasting**: üst tipten alt tipe geçmek; elle yapılır, tip yanlışsa `ClassCastException`. Önce `instanceof` ile kontrol et; Java 16+ pattern matching kontrol + cast'i birleştirir.
+CODE:
+Transport t = new Truck();            // upcasting
+if (t instanceof Truck truck) {       // kontrol + cast
+    truck.loadTrailer();
+}
+Ship s = (Ship) t;                    // ClassCastException!
+EX: Kodun her yerinde `instanceof` zinciri görmek genelde polymorphism'in eksik kullanıldığını gösterir; davranışı alt sınıfa taşımak daha temizdir.
+SAY: Upcasting ist immer sicher; vor einem Downcast prüfe ich mit instanceof, sonst droht eine ClassCastException.
+
+@@ job | Java · OOP | enum ne zaman kullanılır?
+A: `enum`, sabit ve sınırlı bir değer kümesini **tip güvenli** tanımlar; String/int sabitleri yerine kullanılır, yazım hatası derleme zamanında yakalanır.
+Enum'lar alan, constructor ve metot içerebilir, `switch` ile çok iyi çalışır ve `==` ile karşılaştırılabilir (her değer tek bir nesnedir). `values()` ve `valueOf("SHIPPED")` hazır gelir.
+CODE:
+enum OrderStatus {
+    CREATED(false), SHIPPED(false),
+    DELIVERED(true), CANCELLED(true);
+
+    private final boolean finalState;
+    OrderStatus(boolean finalState) { this.finalState = finalState; }
+    boolean isFinal() { return finalState; }
+}
+if (order.status() == OrderStatus.DELIVERED) { ... }
+EX: `status.equals("SHIPED")` gibi yazım hataları ve geçersiz durumlar enum ile imkânsız hale gelir; sipariş durum makinesi için birebir.
+SAY: Für eine feste Menge von Werten wie einen Bestellstatus verwende ich ein Enum, weil es typsicher ist.
+
+@@ job | Java · OOP | Immutable class nasıl yazılır?
+A: Oluşturulduktan sonra durumu değişmeyen sınıf. Tarif:
+- Sınıf `final` (alt sınıf davranışı bozamasın)
+- Tüm alanlar `private final`, setter yok
+- Değiştirilebilir alanların (List, Date) **kopyası** alınır
+- “Değişiklik” yeni nesne döndürür (`withQty(...)`)
+Faydası: thread-safe, HashMap key'i olarak güvenli, hatası kolay bulunur. `String`, `LocalDate` ve `record` bu prensiple çalışır.
+CODE:
+public final class Order {
+    private final String id;
+    private final List<String> items;
+
+    public Order(String id, List<String> items) {
+        this.id = id;
+        this.items = List.copyOf(items); // dışarıdaki liste değişse de etkilenmez
+    }
+    public List<String> items() { return items; } // zaten değiştirilemez
+}
+EX: Gönderilmiş bir sipariş nesnesi sonradan sessizce değişirse fatura ile sevkiyat tutmaz; immutable nesnede bu hata olamaz.
+SAY: Eine unveränderliche Klasse ist final, hat nur private final Felder, keine Setter und macht defensive Kopien.
+
+@@ job | Java · Temel | Shallow copy vs deep copy
+A: **Shallow copy** sadece dış nesneyi kopyalar; içindeki nesneler hâlâ **aynı referans**. **Deep copy** iç nesneleri de kopyalar.
+`new ArrayList<>(list)`, `List.copyOf()`, `clone()` → shallow: liste yeni, elemanlar aynı nesneler. Elemanlar immutable ise (String, record) shallow copy yeterlidir.
+CODE:
+List<StringBuilder> a = new ArrayList<>();
+a.add(new StringBuilder("A"));
+List<StringBuilder> b = new ArrayList<>(a); // shallow copy
+b.add(new StringBuilder("B")); // a etkilenmez (liste ayrı)
+b.get(0).append("!");          // a.get(0) da "A!" olur (eleman aynı)
+EX: “What-if” analizi için stok planını kopyalayıp değiştiriyorsun; shallow copy alırsan gerçek plan da değişir. Senaryolar için deep copy ya da immutable nesneler gerekir.
+SAY: Bei einer flachen Kopie teilen sich Original und Kopie die inneren Objekte, bei einer tiefen Kopie nicht.
 
 @@ job | Java · Temel | Java pass-by-value mı pass-by-reference mı?
 A: Java **her zaman pass-by-value**. Nesnelerde kopyalanan şey referansın değeridir: metot içinde nesnenin içeriğini değiştirebilirsin, ama parametreyi başka nesneye yönlendirirsen çağıranı etkilemez.

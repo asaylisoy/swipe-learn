@@ -16,6 +16,9 @@ scripts/build.py     content/*.txt -> template.html içine gömer -> index.html
 scripts/vtt_to_chunks.py   YouTube altyazısını zaman damgalı metin parçalarına böler
 transcripts/         (gitignore) ham altyazılar ve parçalar
 index.html           ÜRETİLEN dosya, elle düzenleme
+public/              PWA dosyaları (manifest, sw.js, ikonlar) — workflow index.html ile birlikte yayınlar
+scripts/make_icons.py  public/ içindeki PNG ikonları üretir
+.github/workflows/pages.yml  main'e push -> build -> https://asaylisoy.github.io/swipe-learn/
 ```
 
 Build: `python3 scripts/build.py .` (template.html içindeki `%%CARDS%%` yerine kartları koyar).
@@ -77,9 +80,9 @@ Otomatik altyazı hatalıdır (özellikle araç isimleri, komutlar). Terimleri b
 
 ## Yol haritası (sıradaki işler)
 
-- [ ] PWA: `manifest.json` + service worker → offline çalışsın, ana ekrana ikonla eklensin
-- [ ] GitHub Pages'e deploy (GitHub Actions ile build + publish)
-- [ ] Spaced repetition: “Tekrar” kartlarını 1-3-7 gün aralıklarıyla geri getir (Leitner kutuları), localStorage'da
+- [x] PWA: `manifest.json` + service worker → offline çalışsın, ana ekrana ikonla eklensin
+- [x] GitHub Pages'e deploy (GitHub Actions ile build + publish)
+- [x] Spaced repetition: “Tekrar” kartlarını 1-3-7 gün aralıklarıyla geri getir (Leitner kutuları), localStorage'da
 - [ ] Günlük hedef sayacı (ör. günde 15 kart) ve seri (streak)
 - [ ] Kod Pratiği: NeetCode 150'nin Arrays & Hashing, Two Pointers, Stack, Binary Search bölümlerindeki Easy'leri tamamla; birkaç kolay Medium ekle
 - [ ] Bölüm 3'e: transkript pipeline'ı ile 11 videonun kartları
