@@ -86,6 +86,10 @@ Otomatik altyazı hatalıdır (özellikle araç isimleri, komutlar). Terimleri b
 - [ ] Günlük hedef sayacı (ör. günde 15 kart) ve seri (streak)
 - [ ] Kod Pratiği: NeetCode 150'nin Arrays & Hashing, Two Pointers, Stack, Binary Search bölümlerindeki Easy'leri tamamla; birkaç kolay Medium ekle
 - [ ] Bölüm 3'e: transkript pipeline'ı ile 11 videonun kartları
+- [ ] Bölüm 3 (cyber) ve Bölüm 2 (arch) kartlarını zenginleştir (job bölümündeki gibi "temel ama mutlaka bilinmeli" eksik taraması)
+- [ ] Yeni bölüm: tez konusu (kullanıcı araştırıp yazacak; içerik ondan gelecek)
+- [ ] Yeni bölüm: son ders (kullanıcı slaytları atacak; slaytlardan bilgi çekip aynı kart formatında hazırla)
+  Not: yeni bölüm = template.html'de yeni sekme + SEC'e renk/isim + build.py'deki dosya listesine yeni .txt
 
 ## Kod kuralları
 
