@@ -9,10 +9,13 @@ Kullanıcıyla **Türkçe** konuş. Kart içerikleri Türkçe; teknik terimler �
 ```
 template.html        UI (tek dosya: HTML + CSS + vanilla JS, framework yok)
 content/job.txt      Bölüm 1: Werkstudent & mülakat (Java, Python, SQL, Git, kodlama mülakatı, şirket/domain)
+content/alt.txt      Bölüm 1-Alt: “🇩🇪 Mülakat (Alternatif)” — başka kaynaktan Java mülakat listesi; Almanca sözlü soru-cevap + okunacak kod çözümleri
+content/quiz.txt     Rastgele testin soru bankası (kart olarak görünmez; alt sekmesindeki “📝 Rastgele test”)
 content/code.txt     Bölüm 1b: Kod Pratiği — LeetCode Easy soruları + sektörden mini görevler (ipucu + Java/Python çözüm)
 content/arch.txt     Bölüm 2: SOLID, design patterns, mimari türleri, sistem tasarımı
 content/cyber.txt    Bölüm 3: siber güvenlik temelleri (kavram + savunma + kariyer)
 scripts/build.py     content/*.txt -> template.html içine gömer -> index.html
+scripts/verify_java.py     alt.txt'deki “Kod · …” kartlarını derler/test eder (CI: .github/workflows/verify.yml; makinede Java yok)
 scripts/vtt_to_chunks.py   YouTube altyazısını zaman damgalı metin parçalarına böler
 transcripts/         (gitignore) ham altyazılar ve parçalar
 index.html           ÜRETİLEN dosya, elle düzenleme
@@ -41,7 +44,9 @@ Python çözümü (katlanır)
 ```
 - `code` bölümünde problem metni (A) her modda açık görünür; altında kullanıcının kendi yaklaşımını yazdığı bir kutu var (localStorage `ko-notes`).
 - Yeni kod sorusu eklerken: A = kendi cümlelerinle problem + örnek, HINT = yaklaşımı ele vermeden yön göster, SOL/PY = çalışan çözüm, EX = karmaşıklık + gerçek hayattaki karşılığı. **Her çözümü örneklerle gerçekten çalıştırıp doğrula.**
-- `bölüm` ∈ `job | code | arch | cyber`. Kart kimliği = bölüm + başlık → başlığı değiştirmek kullanıcının ilerlemesini sıfırlar; gerekmedikçe değiştirme.
+- `alt` bölümü: başlık = Almanca mülakat sorusu, `A` = ~30 sn'lik sade Almanca (B1) ezber cevabı, `EX` = Türkçe “**Ne zaman:** / **Neden:** / **Gerçek hayat:**” satırları. Kod kartlarında (konu `Kod · …`) `A` görev, `CODE` çözüm (sadece top-level tipler, gevşek metot yok), `NOTE:` “önemli satırların mantığı” maddeleri. Yeni kod kartı ekleyince `scripts/verify_java.py` içindeki TESTS'e test ekle.
+- `quiz.txt` formatı: `@@ quiz | Konu | Almanca soru`, 4 adet `O: şık` (doğru olanın başında `*`), `WHY: Türkçe açıklama`.
+- `bölüm` ∈ `job | alt | code | arch | cyber` (+ `quiz` soru bankası). Kart kimliği = bölüm + başlık → başlığı değiştirmek kullanıcının ilerlemesini sıfırlar; gerekmedikçe değiştirme.
 - Uygulama içi “Kart içe aktar” JSON formatı: `[{"s":"cyber","t":"Konu","q":"Başlık","A":"...","EX":"...","CODE":"...","SAY":"..."}]`
 
 ## İçerik kuralları
