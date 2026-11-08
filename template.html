@@ -100,6 +100,11 @@ textarea.mine{width:100%;min-height:96px;background:#0b0c10;color:#cfe3ff;border
 #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%);background:#262a35;color:var(--tx);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:8;white-space:nowrap}
 #toast.on{opacity:1}
 .wrapcode pre{font-size:11.5px}
+.mynote summary{color:var(--mut);font-weight:600}
+.mynote textarea.mine{margin:0 0 4px;min-height:110px;font-family:inherit}
+textarea.mine{font-size:16px}
+.sy{display:block;font-size:11px;color:var(--mut);min-height:14px;margin-bottom:6px}
+#sheet input{width:100%;background:#0b0c10;color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:9px;font-size:16px;margin-top:4px}
 .note{background:rgba(124,196,255,.08);border:1px solid rgba(124,196,255,.3)}
 .note b.h{color:#7cc4ff}
 #testBar{display:none;width:100%;margin-top:8px;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.5);color:var(--alt);border-radius:10px;padding:7px 10px;font-size:13px;font-weight:700;text-align:left;cursor:pointer}
@@ -169,6 +174,13 @@ textarea.mine{width:100%;min-height:96px;background:#0b0c10;color:#cfe3ff;border
     <p><b>Modlar:</b> 🎬 Reels = her şey açık, kaydır-oku. 📇 Kart = önce sadece soru; kendini test et, sonra cevabı aç. “↻ Tekrar” dediklerin “Tekrar listem” filtresinde toplanır.</p>
     <p><b>📝 Rastgele test:</b> “🇩🇪 Mülakat (Alternatif)” sekmesindeki sarı butondan. Yanlış yaptığın sorular sonraki testlerde daha sık gelir.</p>
     <p><b>📅 Aralıklı tekrar:</b> “↻ Tekrar” dediğin kart ertesi gün “Bugün tekrar”a düşer. O gün “✓ Biliyorum” dersen 3 gün, sonra 7 gün sonra tekrar gelir; üçünü de bilirsen “Bildiklerim”e geçer. Bilemezsen başa (1 gün) döner.</p>
+    <p><b>☁️ Not senkronu (Mac ↔ iPhone):</b> Kartlardaki “📝 Notum” kutularına yazdıkların GitHub hesabındaki gizli bir Gist'te saklanır; her cihazda bir kez token yapıştırman yeter. Durum: <b id="syncState">kapalı</b></p>
+    <input id="tok" type="password" placeholder="GitHub token (ghp_…) — sadece “gist” izni" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="row">
+      <button class="ib on" id="syncBtn">Bağlan</button>
+      <button class="ib" id="syncNowBtn">Şimdi senkronla</button>
+      <button class="ib" id="unsyncBtn">Bağlantıyı kes</button>
+    </div>
     <p><b>Kart içe aktar:</b> Claude'un ürettiği JSON kart listesini (ör. video transkriptlerinden) yapıştır. Bölümler: job / code / arch / cyber. Format:<br><code>[{"s":"cyber","t":"Konu","q":"Başlık","A":"Açıklama","EX":"Örnek","CODE":"","SAY":""}]</code></p>
     <textarea id="imp" placeholder='[{"s":"cyber","t":"Konu","q":"...","A":"..."}]'></textarea>
     <div class="row">
@@ -302,6 +314,7 @@ function render(){
       + (c.PY ? '<details class="py"><summary>🐍 Çözüm (Python)</summary><div><pre>'+esc(c.PY)+'</pre></div></details>' : '')
       + (c.EX ? '<div class="box ex"><b class="h">'+(c.s==="alt" ? "💡 Ne zaman · neden · gerçek hayat" : "🌍 Gerçek hayattan")+'</b>'+rich(c.EX)+'</div>' : '')
       + (c.SAY ? '<div class="box say"><b class="h">🎤 Mülakatta böyle söyle</b>'+rich(c.SAY)+'</div>' : '')
+      + (c.s!=="code" ? '<details class="mynote"'+(notes[c.id]?' open':'')+'><summary>📝 Notum</summary><div><textarea class="mine" placeholder="Kendi cümlelerinle not al, AI\'dan öğrendiklerini ekle…">'+esc(notes[c.id]||"")+'</textarea><span class="sy">'+esc(syncTxt)+'</span></div></details>' : '')
       + '</div>'
       + '<div class="act"><button class="r '+(st.rev[c.id]?"on":"")+'">↻ Tekrar</button><button class="k '+(st.known[c.id]?"on":"")+'">✓ Biliyorum</button></div>'
       + '</div></section>';
@@ -344,12 +357,84 @@ document.getElementById("tabs").addEventListener("click", function(e){
   const b = e.target.closest(".tab"); if (!b) return;
   st.sec = b.dataset.s; save(); fillTopics(); render();
 });
+var syncTxt = "";
 let nt = null;
 feed.addEventListener("input", function(e){
   if (!e.target.classList.contains("mine")) return;
-  const id = e.target.closest(".card").dataset.id; notes[id] = e.target.value;
-  clearTimeout(nt); nt = setTimeout(function(){ store("ko-notes", notes); }, 400);
+  const id = e.target.closest(".card").dataset.id; notes[id] = e.target.value; noteT[id] = Date.now();
+  clearTimeout(nt); nt = setTimeout(function(){ store("ko-notes", notes); store("ko-notes-t", noteT); syncNow(); }, 1200);
 });
+// ---- Not senkronu: GitHub Gist (notes.json), her not için son değişiklik zamanı; yeni olan kazanır ----
+const GH = "https://api.github.com", GIST_DESC = "Kaydır & Öğren notları";
+let noteT = store("ko-notes-t") || {};
+Object.keys(notes).forEach(function(k){ if (notes[k] && !noteT[k]) noteT[k] = 1; });
+let sync = store("ko-sync"), syncing = false, again = false;
+function setSync(t){ syncTxt = sync ? t : ""; document.getElementById("syncState").textContent = t; feed.querySelectorAll(".sy").forEach(function(el){ el.textContent = sync ? t : ""; }); }
+async function gh(path, opt){
+  opt = opt || {};
+  const h = {Authorization: "Bearer " + sync.token, Accept: "application/vnd.github+json"};
+  if (opt.body) h["Content-Type"] = "application/json";
+  const r = await fetch(GH + path, {method: opt.method || "GET", cache: "no-store", headers: h, body: opt.body ? JSON.stringify(opt.body) : undefined});
+  if (!r.ok) throw new Error(r.status === 401 ? "Token geçersiz" : "GitHub " + r.status);
+  return r.json();
+}
+function payload(){ return JSON.stringify({v:1, notes:notes, t:noteT}); }
+async function readGist(){
+  const g = await gh("/gists/" + sync.gist), f = g.files["notes.json"];
+  if (!f) return {notes:{}, t:{}};
+  const txt = f.truncated ? await (await fetch(f.raw_url, {cache:"no-store"})).text() : f.content;
+  try { return JSON.parse(txt || "{}"); } catch (e) { return {notes:{}, t:{}}; }
+}
+async function syncNow(){
+  if (!sync || !sync.gist) return;
+  if (syncing){ again = true; return; }
+  syncing = true; setSync("⏳ senkronlanıyor…");
+  try {
+    const rem = await readGist(), rn = rem.notes || {}, rt = rem.t || {};
+    let changed = false, push = false;
+    Object.keys(Object.assign({}, rn, notes, rt, noteT)).forEach(function(k){
+      const a = rt[k] || 0, b = noteT[k] || 0;
+      if (a > b){ notes[k] = rn[k] || ""; noteT[k] = a; changed = true; }
+      else if (b > a) push = true;
+    });
+    if (push) await gh("/gists/" + sync.gist, {method:"PATCH", body:{files:{"notes.json":{content:payload()}}}});
+    if (changed){
+      store("ko-notes", notes); store("ko-notes-t", noteT);
+      feed.querySelectorAll("textarea.mine").forEach(function(ta){
+        if (ta === document.activeElement) return;
+        const id = ta.closest(".card").dataset.id; ta.value = notes[id] || "";
+        const d = ta.closest("details"); if (d && notes[id]) d.open = true;
+      });
+    }
+    setSync("☁️ senkron · " + new Date().toLocaleTimeString("tr-TR", {hour:"2-digit", minute:"2-digit"}));
+  } catch (err){ setSync("⚠️ " + err.message + " (notlar bu cihazda duruyor)"); }
+  syncing = false;
+  if (again){ again = false; syncNow(); }
+}
+async function connect(token){
+  sync = {token: token};
+  const list = await gh("/gists?per_page=100");
+  const found = list.filter(function(g){ return g.description === GIST_DESC && g.files["notes.json"]; })[0];
+  if (found) sync.gist = found.id;
+  else sync.gist = (await gh("/gists", {method:"POST", body:{description:GIST_DESC, public:false, files:{"notes.json":{content:payload()}}}})).id;
+  store("ko-sync", sync);
+  await syncNow();
+}
+// uygulamaya geri dönünce (iPhone) ya da pencereye tıklayınca (Mac) diğer cihazdaki notları çek
+let lastPull = 0;
+function pullSoon(){ if (Date.now() - lastPull > 10000){ lastPull = Date.now(); syncNow(); } }
+document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") pullSoon(); });
+window.addEventListener("focus", pullSoon);
+window.addEventListener("pageshow", pullSoon);
+document.getElementById("syncBtn").onclick = async function(){
+  const tok = document.getElementById("tok").value.trim();
+  if (!tok){ msg.style.color = "var(--warn)"; msg.textContent = "Önce token'ı yapıştır."; return; }
+  msg.textContent = "";
+  try { await connect(tok); document.getElementById("tok").value = ""; msg.style.color = "var(--ok)"; msg.textContent = "Bağlandı. Notların artık senkronlanıyor."; }
+  catch (err){ sync = null; store("ko-sync", null); setSync("kapalı"); msg.style.color = "var(--warn)"; msg.textContent = "Bağlanamadı: " + err.message; }
+};
+document.getElementById("syncNowBtn").onclick = function(){ syncNow(); };
+document.getElementById("unsyncBtn").onclick = function(){ sync = null; store("ko-sync", null); setSync("kapalı"); msg.style.color = "var(--ok)"; msg.textContent = "Bu cihazda senkron kapatıldı (Gist ve notlar duruyor)."; };
 topicSel.onchange = render; filtSel.onchange = render;
 document.getElementById("dueBar").onclick = function(){ st.sec = "all"; save(); topicSel.value = ""; filtSel.value = "due"; fillTopics(); render(); };
 document.getElementById("modeBtn").onclick = function(){ st.mode = st.mode === "quiz" ? "reels" : "quiz"; save(); render(); };
@@ -440,6 +525,7 @@ testEl.addEventListener("click", function(e){
 });
 document.getElementById("testBar").onclick = testStart;
 rebuild(); fillTopics(); render();
+if (sync && sync.gist) syncNow();
 })();
 
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {

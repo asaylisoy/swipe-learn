@@ -101,4 +101,5 @@ Otomatik altyazı hatalıdır (özellikle araç isimleri, komutlar). Terimleri b
 - Vanilla JS, bağımlılık yok, tek dosya çıktı (index.html) — telefonda hızlı açılsın.
 - Kullanıcıdan/JSON'dan gelen her metin ekrana basılmadan önce `esc()` ile escape edilir. `innerHTML`'e ham veri koyma.
 - localStorage erişimi her zaman try/catch içinde.
+- Notlar (`ko-notes` + `ko-notes-t` zaman damgaları) isteğe bağlı olarak kullanıcının GitHub hesabındaki gizli bir Gist'e (`notes.json`, açıklama “Kaydır & Öğren notları”) senkronlanır; token cihazda `ko-sync`'te durur, sadece `gist` izni. Birleştirme: her not için yeni zaman damgası kazanır.
 - Değişiklikten sonra 390×800 viewport'ta (telefon) kontrol et.
