@@ -15,7 +15,7 @@
 :root{
   --bg:#0e0f13; --card:#171920; --card2:#1f222b; --line:#2a2e3a;
   --tx:#e9ebf1; --mut:#9aa0b0; --acc:#7c9cff; --ok:#4fd18b; --warn:#ffb454;
-  --job:#7c9cff; --arch:#c58cff; --cyber:#4fd1c5; --code:#ff8fa3;
+  --job:#7c9cff; --alt:#ffd166; --arch:#c58cff; --cyber:#4fd1c5; --code:#ff8fa3;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -34,6 +34,7 @@ header{padding:calc(env(safe-area-inset-top) + 8px) 12px 8px;background:var(--bg
 .tab.on{color:#0b0d14;font-weight:700;border-color:transparent}
 .tab.on[data-s=all]{background:var(--tx)}
 .tab.on[data-s=job]{background:var(--job)}
+.tab.on[data-s=alt]{background:var(--alt)}
 .tab.on[data-s=arch]{background:var(--arch)}
 .tab.on[data-s=cyber]{background:var(--cyber)}
 .tab.on[data-s=code]{background:var(--code)}
@@ -98,6 +99,30 @@ textarea.mine{width:100%;min-height:96px;background:#0b0c10;color:#cfe3ff;border
 #dueBar.on{display:block}
 #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%);background:#262a35;color:var(--tx);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:8;white-space:nowrap}
 #toast.on{opacity:1}
+.wrapcode pre{font-size:11.5px}
+.note{background:rgba(124,196,255,.08);border:1px solid rgba(124,196,255,.3)}
+.note b.h{color:#7cc4ff}
+#testBar{display:none;width:100%;margin-top:8px;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.5);color:var(--alt);border-radius:10px;padding:7px 10px;font-size:13px;font-weight:700;text-align:left;cursor:pointer}
+#testBar.on{display:block}
+#test{position:fixed;inset:0;background:var(--bg);z-index:10;display:none;overflow-y:auto;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 20px)}
+#test.on{display:block}
+#test .wrap{max-width:640px;margin:0 auto}
+#test h2{font-size:20px}
+#test .top{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mut);margin-bottom:10px}
+#test .opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:12px;padding:12px 14px;margin:0 0 8px;font-size:15px;cursor:pointer}
+#test .opt.sel{border-color:var(--alt);background:rgba(255,209,102,.12)}
+#test .go{width:100%;border-radius:12px;padding:12px;font-size:15px;font-weight:700;border:0;background:var(--alt);color:#1a1405;cursor:pointer;margin-top:6px}
+#test .go:disabled{opacity:.35}
+#test .go.sec{background:var(--card2);color:var(--tx);border:1px solid var(--line)}
+#test .cnt{display:flex;gap:8px;margin:14px 0}
+#test .cnt button{flex:1}
+#test .score{font-size:44px;font-weight:800;text-align:center;margin:10px 0 0}
+#test .pct{text-align:center;color:var(--mut);margin-bottom:16px}
+#test .res{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 10px;font-size:14.5px}
+#test .res p{margin:4px 0}
+#test .bad{color:#ff8f8f} #test .good{color:var(--ok)} #test .why{color:#d6d9e2}
+#test .hist{font-size:13px;color:var(--mut);margin-top:14px}
+#test .muted{color:var(--mut);font-size:14px}
 @media (min-width:700px){ .card{padding:18px max(18px, calc((100vw - 640px)/2))} }
 </style>
 </head>
@@ -113,6 +138,7 @@ textarea.mine{width:100%;min-height:96px;background:#0b0c10;color:#cfe3ff;border
   <div class="tabs" id="tabs">
     <button class="tab" data-s="all">Hepsi</button>
     <button class="tab" data-s="job">💼 Werkstudent & Mülakat</button>
+    <button class="tab" data-s="alt">🇩🇪 Mülakat (Alternatif)</button>
     <button class="tab" data-s="code">🧩 Kod Pratiği</button>
     <button class="tab" data-s="arch">🏗️ Yazılım & Mimari</button>
     <button class="tab" data-s="cyber">🛡️ Siber Güvenlik</button>
@@ -130,15 +156,18 @@ textarea.mine{width:100%;min-height:96px;background:#0b0c10;color:#cfe3ff;border
     <span id="progTx">0/0</span>
   </div>
   <button id="dueBar"></button>
+  <button id="testBar">📝 Rastgele test çöz — çoktan seçmeli, sonuçlar sonda →</button>
 </header>
 <main id="feed"></main>
 <div id="toast"></div>
+<div id="test"><div class="wrap" id="testIn"></div></div>
 
 <div id="sheet">
   <div class="pan">
     <h3>Ayarlar</h3>
     <p><b>Telefona ekle:</b> Sayfayı telefonda aç, tarayıcı menüsünden “Ana ekrana ekle”. İlerlemen bu cihazda saklanır.</p>
     <p><b>Modlar:</b> 🎬 Reels = her şey açık, kaydır-oku. 📇 Kart = önce sadece soru; kendini test et, sonra cevabı aç. “↻ Tekrar” dediklerin “Tekrar listem” filtresinde toplanır.</p>
+    <p><b>📝 Rastgele test:</b> “🇩🇪 Mülakat (Alternatif)” sekmesindeki sarı butondan. Yanlış yaptığın sorular sonraki testlerde daha sık gelir.</p>
     <p><b>📅 Aralıklı tekrar:</b> “↻ Tekrar” dediğin kart ertesi gün “Bugün tekrar”a düşer. O gün “✓ Biliyorum” dersen 3 gün, sonra 7 gün sonra tekrar gelir; üçünü de bilirsen “Bildiklerim”e geçer. Bilemezsen başa (1 gün) döner.</p>
     <p><b>Kart içe aktar:</b> Claude'un ürettiği JSON kart listesini (ör. video transkriptlerinden) yapıştır. Bölümler: job / code / arch / cyber. Format:<br><code>[{"s":"cyber","t":"Konu","q":"Başlık","A":"Açıklama","EX":"Örnek","CODE":"","SAY":""}]</code></p>
     <textarea id="imp" placeholder='[{"s":"cyber","t":"Konu","q":"...","A":"..."}]'></textarea>
@@ -157,24 +186,28 @@ textarea.mine{width:100%;min-height:96px;background:#0b0c10;color:#cfe3ff;border
 </script>
 <script>
 (function(){
-const SEC = {job:{n:"Werkstudent",c:"var(--job)"},code:{n:"Kod Pratiği",c:"var(--code)"},arch:{n:"Yazılım",c:"var(--arch)"},cyber:{n:"Siber",c:"var(--cyber)"}};
+const SEC = {job:{n:"Werkstudent",c:"var(--job)"},alt:{n:"Mülakat Alt.",c:"var(--alt)"},code:{n:"Kod Pratiği",c:"var(--code)"},arch:{n:"Yazılım",c:"var(--arch)"},cyber:{n:"Siber",c:"var(--cyber)"}};
 function parse(raw){
   return raw.split(/^@@ /m).slice(1).map(function(block){
     const lines = block.split("\n");
     const head = lines[0].split("|").map(function(x){return x.trim();});
-    const c = {s:head[0], t:head[1]||"", q:head.slice(2).join("|")||"", A:"", EX:"", CODE:"", SAY:"", HINT:"", SOL:"", PY:""};
+    const c = {s:head[0], t:head[1]||"", q:head.slice(2).join("|")||"", A:"", EX:"", CODE:"", SAY:"", HINT:"", SOL:"", PY:"", NOTE:"", WHY:"", O:[]};
     let cur = null;
     for (const ln of lines.slice(1)){
-      const m = ln.match(/^(A|EX|CODE|SAY|HINT|SOL|PY):\s?(.*)$/);
+      const m = ln.match(/^(A|EX|CODE|SAY|HINT|SOL|PY|NOTE|WHY|O):\s?(.*)$/);
+      if (m && m[1] === "O"){ c.O.push(m[2]); cur = null; continue; }
       if (m){ cur = m[1]; c[cur] = m[2]; continue; }
       if (cur) c[cur] += (c[cur] ? "\n" : "") + ln;
     }
-    ["A","EX","CODE","SAY","HINT","SOL","PY"].forEach(function(k){ c[k] = c[k].replace(/\s+$/,""); });
+    ["A","EX","CODE","SAY","HINT","SOL","PY","NOTE","WHY"].forEach(function(k){ c[k] = c[k].replace(/\s+$/,""); });
     return c;
   });
 }
 function store(k, v){ try{ if (v === undefined) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); }catch(e){ return null; } }
 let base = parse(document.getElementById("cards").textContent);
+// "quiz" blokları kart değil, rastgele testin soru bankası
+const bank = base.filter(function(c){ return c.s === "quiz" && c.O.length >= 2; });
+base = base.filter(function(c){ return c.s !== "quiz"; });
 let extra = store("ko-extra") || [];
 let notes = store("ko-notes") || {};
 let st = store("ko-state") || {known:{}, rev:{}, seen:{}, sec:"job", mode:"reels"};
@@ -242,6 +275,7 @@ function progress(){
   const bar = document.getElementById("dueBar");
   bar.textContent = "📅 Bugün " + n + " kart tekrarını bekliyor — başla →";
   bar.classList.toggle("on", n > 0 && filtSel.value !== "due");
+  document.getElementById("testBar").classList.toggle("on", st.sec === "alt" && bank.length > 0);
 }
 let tt = null;
 function toast(t){ const el = document.getElementById("toast"); el.textContent = t; el.classList.add("on"); clearTimeout(tt); tt = setTimeout(function(){ el.classList.remove("on"); }, 1600); }
@@ -255,17 +289,18 @@ function render(){
   if (!l.length){ feed.innerHTML = '<div class="empty">Bu filtrede kart yok.<br>Filtreyi “Tümü” yap ya da başka bölüme geç.</div>'; progress(); return; }
   feed.innerHTML = l.map(function(c, i){
     const s = SEC[c.s] || {n:c.s, c:"var(--acc)"};
-    return '<section class="card" data-id="'+esc(c.id)+'"><div class="in '+(st.mode==="quiz"?"quiz":"")+(c.s==="code"?" prob":"")+'" style="--c:'+s.c+'">'
+    return '<section class="card" data-id="'+esc(c.id)+'"><div class="in '+(st.mode==="quiz"?"quiz":"")+(c.s==="code"?" prob":"")+(c.s==="alt"?" wrapcode":"")+'" style="--c:'+s.c+'">'
       + '<div class="meta"><span class="chip">'+esc(s.n)+'</span><span>'+esc(c.t)+'</span><span class="lv">'+esc(dueTx(c.id))+'</span><span class="num">'+(i+1)+'/'+l.length+'</span></div>'
       + '<h2>'+inline(c.q)+'</h2>'
       + '<div class="reveal">👆 Önce kendin cevapla, sonra dokun</div>'
       + '<div class="body">' + rich(c.A)
-      + (c.CODE ? '<pre>'+esc(c.CODE)+'</pre>' : '')
+      + (c.CODE ? '<pre>'+esc(c.s==="alt" ? c.CODE.replace(/^ +/gm, function(m){ return m.slice(m.length >> 1); }) : c.CODE)+'</pre>' : '')
+      + (c.NOTE ? '<div class="box note"><b class="h">🔍 Önemli satırların mantığı</b>'+rich(c.NOTE)+'</div>' : '')
       + (c.s==="code" ? '<label class="lbl">✍️ Önce kendin düşün / yaz (kaydedilir)</label><textarea class="mine" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="Yaklaşımın, sözde kod ya da kod...">'+esc(notes[c.id]||"")+'</textarea>' : '')
       + (c.HINT ? '<details class="hint"><summary>💡 İpucu</summary><div>'+rich(c.HINT)+'</div></details>' : '')
       + (c.SOL ? '<details class="sol"><summary>✅ Çözüm (Java)</summary><div><pre>'+esc(c.SOL)+'</pre></div></details>' : '')
       + (c.PY ? '<details class="py"><summary>🐍 Çözüm (Python)</summary><div><pre>'+esc(c.PY)+'</pre></div></details>' : '')
-      + (c.EX ? '<div class="box ex"><b class="h">🌍 Gerçek hayattan</b>'+rich(c.EX)+'</div>' : '')
+      + (c.EX ? '<div class="box ex"><b class="h">'+(c.s==="alt" ? "💡 Ne zaman · neden · gerçek hayat" : "🌍 Gerçek hayattan")+'</b>'+rich(c.EX)+'</div>' : '')
       + (c.SAY ? '<div class="box say"><b class="h">🎤 Mülakatta böyle söyle</b>'+rich(c.SAY)+'</div>' : '')
       + '</div>'
       + '<div class="act"><button class="r '+(st.rev[c.id]?"on":"")+'">↻ Tekrar</button><button class="k '+(st.known[c.id]?"on":"")+'">✓ Biliyorum</button></div>'
@@ -336,6 +371,74 @@ document.getElementById("impBtn").onclick = function(){
 };
 document.getElementById("clrImp").onclick = function(){ extra = []; store("ko-extra", extra); rebuild(); fillTopics(); render(); msg.style.color="var(--ok)"; msg.textContent = "İçe aktarılan kartlar silindi."; };
 document.getElementById("resetBtn").onclick = function(){ st.known = {}; st.rev = {}; st.seen = {}; st.box = {}; save(); render(); msg.style.color="var(--ok)"; msg.textContent = "İlerleme sıfırlandı."; };
+// ---- Rastgele test ----
+const testEl = document.getElementById("test"), testIn = document.getElementById("testIn");
+let qstats = store("ko-qstats") || {}, T = null;
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); const x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+function qkey(q){ return "quiz::" + q.q; }
+function pick(n){
+  // daha önce yanlış yapılan sorular daha ağır basar
+  const pool = bank.slice(), out = [];
+  while (out.length < n && pool.length){
+    const w = pool.map(function(q){ const s = qstats[qkey(q)] || {w:0, r:0}; return 1 + 2 * Math.max(0, s.w - s.r); });
+    let r = Math.random() * w.reduce(function(a, b){ return a + b; }, 0), i = 0;
+    while (i < w.length - 1 && r >= w[i]){ r -= w[i]; i++; }
+    out.push(pool.splice(i, 1)[0]);
+  }
+  return out.map(function(q){
+    return {q:q, pick:-1, opts:shuffle(q.O.map(function(o){ return {t:o.replace(/^\*\s*/, ""), ok:/^\*/.test(o)}; }))};
+  });
+}
+function testStart(){
+  const hist = store("ko-tests") || [];
+  testIn.innerHTML = '<div class="top"><b style="color:var(--tx);font-size:16px">📝 Rastgele test</b><span class="sp"></span><button class="ib" data-a="close">✕</button></div>'
+    + '<p class="muted">Soru bankasında <b>' + bank.length + '</b> soru var. Her test rastgele seçer, seçenek sırası da karışır. Cevaplar en sonda gösterilir; daha önce yanlış yaptıkların daha sık gelir.</p>'
+    + '<div class="cnt">' + [10, 20, 30].map(function(n){ return '<button class="go' + (n === 20 ? '' : ' sec') + '" data-a="start" data-n="' + n + '">' + Math.min(n, bank.length) + ' soru</button>'; }).join("") + '</div>'
+    + (hist.length ? '<div class="hist"><b>Son testlerin</b><br>' + hist.slice(-5).reverse().map(function(h){ return esc(h.d) + ' — ' + h.ok + '/' + h.n + ' (%' + Math.round(h.ok / h.n * 100) + ')'; }).join("<br>") + '</div>' : '');
+  testEl.classList.add("on"); testEl.scrollTop = 0;
+}
+function testQ(){
+  const it = T.items[T.i];
+  testIn.innerHTML = '<div class="top"><span>Soru ' + (T.i + 1) + '/' + T.items.length + '</span><div class="bar"><i style="width:' + (T.i / T.items.length * 100) + '%"></i></div><button class="ib" data-a="quit">✕</button></div>'
+    + '<div class="meta" style="--c:var(--alt)"><span class="chip">' + esc(it.q.t) + '</span></div>'
+    + '<h2>' + inline(it.q.q) + '</h2>'
+    + it.opts.map(function(o, k){ return '<button class="opt' + (it.pick === k ? ' sel' : '') + '" data-a="opt" data-k="' + k + '">' + inline(o.t) + '</button>'; }).join("")
+    + '<button class="go" data-a="next"' + (it.pick < 0 ? ' disabled' : '') + '>' + (T.i === T.items.length - 1 ? 'Bitir ve sonucu gör' : 'Sonraki →') + '</button>';
+  testEl.scrollTop = 0;
+}
+function testEnd(){
+  let ok = 0; const wrong = [], right = [];
+  T.items.forEach(function(it){
+    const good = it.opts[it.pick] && it.opts[it.pick].ok, k = qkey(it.q);
+    const s = qstats[k] || {w:0, r:0}; if (good){ ok++; s.r++; right.push(it); } else { s.w++; wrong.push(it); } qstats[k] = s;
+  });
+  store("ko-qstats", qstats);
+  const hist = store("ko-tests") || []; hist.push({d:new Date().toLocaleDateString("tr-TR"), ok:ok, n:T.items.length}); store("ko-tests", hist.slice(-30));
+  const row = function(it, showPick){
+    const corr = it.opts.filter(function(o){ return o.ok; })[0];
+    return '<div class="res"><p><b>' + inline(it.q.q) + '</b></p>'
+      + (showPick ? '<p class="bad">✗ Senin cevabın: ' + inline(it.opts[it.pick].t) + '</p>' : '')
+      + '<p class="good">✓ Doğru: ' + inline(corr.t) + '</p>'
+      + (it.q.WHY ? '<p class="why">' + inline(it.q.WHY) + '</p>' : '') + '</div>';
+  };
+  testIn.innerHTML = '<div class="top"><b style="color:var(--tx);font-size:16px">Sonuç</b><span class="sp"></span><button class="ib" data-a="close">✕</button></div>'
+    + '<div class="score">' + ok + '/' + T.items.length + '</div><div class="pct">%' + Math.round(ok / T.items.length * 100) + ' doğru</div>'
+    + (wrong.length ? '<h3 style="margin:6px 0 8px">❌ Yanlışların (' + wrong.length + ')</h3>' + wrong.map(function(it){ return row(it, true); }).join("") : '<p class="good" style="text-align:center">🎉 Hepsi doğru!</p>')
+    + (right.length ? '<details><summary>✅ Doğruların (' + right.length + ')</summary><div>' + right.map(function(it){ return row(it, false); }).join("") + '</div></details>' : '')
+    + '<button class="go" data-a="again">🔁 Yeni test</button><button class="go sec" data-a="close">Kapat</button>';
+  testEl.scrollTop = 0;
+}
+testEl.addEventListener("click", function(e){
+  const b = e.target.closest("[data-a]"); if (!b) return;
+  const a = b.dataset.a;
+  if (a === "close"){ testEl.classList.remove("on"); T = null; }
+  else if (a === "quit"){ if (confirm("Test yarıda kalacak. Çıkılsın mı?")){ testEl.classList.remove("on"); T = null; } }
+  else if (a === "start"){ T = {items:pick(+b.dataset.n), i:0}; testQ(); }
+  else if (a === "again"){ testStart(); }
+  else if (a === "opt"){ T.items[T.i].pick = +b.dataset.k; testQ(); }
+  else if (a === "next"){ if (T.items[T.i].pick < 0) return; if (T.i < T.items.length - 1){ T.i++; testQ(); } else testEnd(); }
+});
+document.getElementById("testBar").onclick = testStart;
 rebuild(); fillTopics(); render();
 })();
 

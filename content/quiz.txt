@@ -1,0 +1,601 @@
+@@ quiz | Collections | Was ist eine Map in Java?
+O: Eine sortierte Liste
+O: *Eine Datenstruktur mit Schlüssel-Wert-Paaren
+O: Eine Klasse für Threads
+O: Ein Array mit festen Indizes
+WHY: Map, benzersiz anahtarları değerlere eşler (ör. ürün no → stok).
+
+@@ quiz | Collections | Was passiert bei HashMap.put() mit einem bereits vorhandenen Schlüssel?
+O: Es entsteht ein zweiter Eintrag
+O: Es gibt immer eine Exception
+O: *Der alte Wert wird ersetzt
+O: Die Map wird gelöscht
+WHY: Anahtarlar benzersizdir; put eski değerin üstüne yazar ve eski değeri döndürür.
+
+@@ quiz | Collections | Welche Aussage zu ArrayList stimmt?
+O: Die Größe ist immer fest
+O: *Der Indexzugriff ist normalerweise O(1)
+O: Sie verbietet doppelte Werte
+O: Sie implementiert Map
+WHY: ArrayList arkada dizi kullanır; get(i) doğrudan indekse gider. Boyutu büyür, duplikat kabul eder.
+
+@@ quiz | Collections | Welche Collection garantiert keine doppelten Elemente?
+O: ArrayList
+O: LinkedList
+O: *HashSet
+O: ArrayDeque
+WHY: Set ailesi duplikat kabul etmez; HashSet bunu hashCode + equals ile kontrol eder.
+
+@@ quiz | Collections | Welche Map behält die Einfügereihenfolge?
+O: HashMap
+O: TreeMap
+O: *LinkedHashMap
+O: ConcurrentHashMap
+WHY: LinkedHashMap ekleme sırasını korur; TreeMap anahtara göre sıralar, HashMap sıra garantisi vermez.
+
+@@ quiz | Collections | Welche Map sortiert die Schlüssel automatisch?
+O: HashMap
+O: *TreeMap
+O: LinkedHashMap
+O: Hashtable
+WHY: TreeMap anahtarları doğal sıraya ya da verilen Comparator'a göre sıralı tutar (O(log n)).
+
+@@ quiz | Collections | Wie viele null-Schlüssel erlaubt eine HashMap?
+O: Keinen
+O: *Einen
+O: Zwei
+O: Beliebig viele
+WHY: HashMap tek bir null anahtar ve birden fazla null değer kabul eder. ConcurrentHashMap hiç null kabul etmez.
+
+@@ quiz | Collections | Wie schnell ist HashMap.get() im Durchschnitt?
+O: O(n)
+O: O(log n)
+O: *O(1)
+O: O(n²)
+WHY: hashCode ile doğrudan doğru kovaya gidilir; ortalama sabit zaman.
+
+@@ quiz | Collections | Wie schnell ist list.contains(x) bei einer unsortierten ArrayList?
+O: O(1)
+O: O(log n)
+O: *O(n)
+O: O(n log n)
+WHY: En kötü durumda her eleman tek tek kontrol edilir.
+
+@@ quiz | Collections | Was passiert, wenn man equals() überschreibt, aber hashCode() nicht?
+O: Der Code kompiliert nicht
+O: *HashMap und HashSet finden gleiche Objekte eventuell nicht
+O: Nichts, das ist kein Problem
+O: Die JVM überschreibt hashCode() automatisch
+WHY: Eşit nesneler farklı hash'le farklı kovalara düşer; Set'te duplikat oluşur, Map'te get bulamaz.
+
+@@ quiz | Collections | Was ist eine Hash Collision?
+O: Ein Fehler, der das Programm beendet
+O: *Zwei verschiedene Schlüssel landen im selben Bucket
+O: Zwei Threads schreiben gleichzeitig
+O: Ein Schlüssel ist null
+WHY: Normal bir durumdur; kova içinde liste ya da (Java 8+) ağaçla çözülür.
+
+@@ quiz | Collections | Wie schnell ist get(i) bei einer LinkedList?
+O: O(1)
+O: *O(n)
+O: O(log n)
+O: O(n²)
+WHY: LinkedList düğümleri baştan (ya da sondan) tek tek gezerek i. elemana ulaşır.
+
+@@ quiz | Collections | Welche Klasse wird heute für einen Stack (LIFO) empfohlen?
+O: Stack
+O: Vector
+O: *ArrayDeque
+O: TreeSet
+WHY: Eski Stack sınıfı senkronize ve yavaş; ArrayDeque push/pop ile modern seçim.
+
+@@ quiz | Collections | Welche Methode definiert das Interface Comparable?
+O: compare()
+O: *compareTo()
+O: equals()
+O: sort()
+WHY: Comparable → compareTo(other), sınıfın içinde. Comparator → compare(a, b), sınıfın dışında.
+
+@@ quiz | Collections | Was ist Collections (mit s)?
+O: Das Basis-Interface für List und Set
+O: *Eine Hilfsklasse mit statischen Methoden wie sort()
+O: Ein anderer Name für Map
+O: Eine Annotation
+WHY: Collection (s'siz) bir interface; Collections ise sort, max, unmodifiableList gibi yardımcı metotlar içeren sınıf.
+
+@@ quiz | Collections | Was ist die Voraussetzung für Binary Search?
+O: Das Array darf keine Duplikate haben
+O: *Das Array muss sortiert sein
+O: Das Array muss eine gerade Länge haben
+O: Es funktioniert nur mit Strings
+WHY: Her adımda yarıyı atabilmek için sıralı olmalı; karmaşıklık O(log n).
+
+@@ quiz | Collections | Was liefert map.getOrDefault("x", 0), wenn "x" nicht existiert?
+O: null
+O: Eine Exception
+O: *0
+O: "x"
+WHY: Anahtar yoksa verilen varsayılan değer döner; null unboxing kaynaklı NPE'yi önler.
+
+@@ quiz | Collections | Was gibt set.add(x) zurück, wenn x schon im Set ist?
+O: true
+O: *false
+O: null
+O: Es wirft eine Exception
+WHY: Ekleme olmadığı için false döner; duplikat tespitinde pratik bir kullanım.
+
+@@ quiz | Collections | Was passiert bei Arrays.asList("a", "b").add("c")?
+O: Die Liste hat danach drei Elemente
+O: *UnsupportedOperationException
+O: NullPointerException
+O: Der Code kompiliert nicht
+WHY: Arrays.asList sabit boyutludur; set çalışır ama add/remove çalışmaz.
+
+@@ quiz | Collections | Man entfernt in einer for-each-Schleife Elemente aus derselben ArrayList. Was passiert typischerweise?
+O: Alles funktioniert
+O: *ConcurrentModificationException
+O: StackOverflowError
+O: Die Liste wird sortiert
+WHY: for-each arkada Iterator kullanır; liste değişince fail-fast hata verir. Doğrusu: removeIf ya da Iterator.remove().
+
+@@ quiz | Collections | Was ist der Unterschied zwischen Queue und Stack?
+O: Es gibt keinen Unterschied
+O: *Queue ist FIFO, Stack ist LIFO
+O: Queue ist LIFO, Stack ist FIFO
+O: Stack erlaubt keine Duplikate
+WHY: Kuyruk: ilk giren ilk çıkar. Yığın: son giren ilk çıkar (Ctrl+Z).
+
+@@ quiz | OOP & Basics | Was ist Method Overriding?
+O: Eine Methode mit anderen Parametern erstellen
+O: *Eine geerbte Methode in der Unterklasse neu implementieren
+O: Ein Objekt zerstören
+O: Einen Konstruktor aufrufen
+WHY: Overriding: aynı imza, alt sınıfta yeni davranış (çalışma zamanında seçilir). Farklı parametre = overloading.
+
+@@ quiz | OOP & Basics | Welche Aussage über die Parameterübergabe in Java stimmt?
+O: Java ist immer pass-by-reference
+O: Primitive by-value, Objekte by-reference
+O: *Java ist immer pass-by-value
+O: Objekte werden immer vollständig kopiert
+WHY: Nesnelerde de referansın değeri kopyalanır; içerik değişebilir ama parametreye yeni nesne atamak çağıranı etkilemez.
+
+@@ quiz | OOP & Basics | Was ist der Zweck eines Interface?
+O: Nur Daten speichern
+O: *Einen Vertrag für implementierende Typen definieren
+O: Nur private Methoden enthalten
+O: Den Garbage Collector steuern
+WHY: Interface “ne yapılmalı”yı tanımlar; implementasyonlar “nasıl”ı yazar.
+
+@@ quiz | OOP & Basics | Was ist KEIN OOP-Prinzip?
+O: Kapselung
+O: Polymorphie
+O: Vererbung
+O: *Kompilierung
+WHY: Dört prensip: kapselleme, kalıtım, polimorfizm, soyutlama.
+
+@@ quiz | OOP & Basics | Was ist Overloading?
+O: *Gleicher Methodenname, unterschiedliche Parameter
+O: Eine Methode in der Unterklasse neu schreiben
+O: Zu viele Objekte im Speicher
+O: Eine Klasse von zwei Klassen erben lassen
+WHY: Overloading derleme zamanında seçilir, ör. print(int) ve print(String).
+
+@@ quiz | OOP & Basics | Was gilt für eine static-Methode?
+O: Sie braucht immer ein Objekt
+O: *Man kann sie über den Klassennamen ohne Objekt aufrufen
+O: Sie kann nicht public sein
+O: Sie kann nie Parameter haben
+WHY: static üyeler sınıfa aittir (Math.max). Instance alanlarına doğrudan erişemez.
+
+@@ quiz | OOP & Basics | Was bedeutet final bei einer Klasse?
+O: Die Klasse kann nicht instanziiert werden
+O: *Von der Klasse kann man nicht erben
+O: Alle Methoden sind static
+O: Die Klasse ist abstrakt
+WHY: final sınıf genişletilemez; örnek: String.
+
+@@ quiz | OOP & Basics | final List<String> list = new ArrayList<>(); Was ist erlaubt?
+O: list = new ArrayList<>();
+O: *list.add("A");
+O: Nichts, die Liste ist komplett unveränderlich
+O: list = null;
+WHY: final sadece referansı sabitler; içerik değişebilir. Değişmez liste için List.of / List.copyOf.
+
+@@ quiz | OOP & Basics | Welchen Rückgabetyp hat ein Konstruktor?
+O: void
+O: Den Typ der Klasse
+O: *Keinen
+O: Object
+WHY: Constructor'ın dönüş tipi yazılmaz; void yazarsan normal bir metot olur.
+
+@@ quiz | OOP & Basics | Was passiert, wenn man in einer Klasse keinen Konstruktor schreibt?
+O: Die Klasse kompiliert nicht
+O: *Der Compiler erzeugt einen parameterlosen Standardkonstruktor
+O: Man kann keine Objekte erzeugen
+O: Alle Felder sind final
+WHY: Default constructor sadece hiç constructor yazmadıysan eklenir.
+
+@@ quiz | OOP & Basics | Was macht super(...) im Konstruktor?
+O: Ruft eine statische Methode auf
+O: *Ruft den Konstruktor der Oberklasse auf
+O: Erstellt eine Kopie des Objekts
+O: Beendet den Konstruktor
+WHY: Üst sınıfın alanları önce onun constructor'ında başlatılır.
+
+@@ quiz | OOP & Basics | Von wie vielen Klassen kann eine Java-Klasse direkt erben?
+O: Von beliebig vielen
+O: *Von genau einer
+O: Von zwei
+O: Von keiner
+WHY: Java'da sınıflar için tekli kalıtım vardır; ama birden çok interface implemente edilebilir.
+
+@@ quiz | OOP & Basics | Wie viele Interfaces kann eine Klasse implementieren?
+O: Nur eins
+O: Maximal zwei
+O: *Beliebig viele
+O: Keins, wenn sie erbt
+WHY: class A extends B implements C, D, E... geçerlidir.
+
+@@ quiz | OOP & Basics | Wo ist ein private-Feld sichtbar?
+O: Im ganzen Projekt
+O: Im gleichen Paket
+O: In Unterklassen
+O: *Nur in derselben Klasse
+WHY: private en kısıtlı erişimdir; kapsüllemenin temeli.
+
+@@ quiz | OOP & Basics | Wo ist ein protected-Mitglied sichtbar?
+O: Nur in derselben Klasse
+O: *Im gleichen Paket und in Unterklassen
+O: Überall
+O: Nur in Unterklassen im gleichen Paket
+WHY: Sıralama: private < default (paket) < protected (paket + alt sınıflar) < public.
+
+@@ quiz | OOP & Basics | String s = "java"; s.toUpperCase(); Was ist danach in s?
+O: "JAVA"
+O: *"java"
+O: null
+O: Der Code kompiliert nicht
+WHY: String immutable'dır; toUpperCase yeni bir String döndürür. s = s.toUpperCase() yazmak gerekir.
+
+@@ quiz | OOP & Basics | Integer a = 1000; Integer b = 1000; Was ergibt a == b normalerweise?
+O: true
+O: *false
+O: Eine Exception
+O: Es kompiliert nicht
+WHY: == referans karşılaştırır; -128..127 dışındaki değerler önbellekten gelmez. Integer'ları equals() ile karşılaştır.
+
+@@ quiz | OOP & Basics | Welcher Typ kann null sein?
+O: int
+O: boolean
+O: *Integer
+O: double
+WHY: Primitive'ler null olamaz; wrapper sınıflar (Integer) nesnedir ve null olabilir.
+
+@@ quiz | OOP & Basics | Wodurch ist Java plattformunabhängig?
+O: Durch den Garbage Collector
+O: *Durch Bytecode, der auf einer JVM läuft
+O: Durch die Stream API
+O: Durch Maven
+WHY: javac bytecode üretir; her işletim sisteminin kendi JVM'i aynı bytecode'u çalıştırır.
+
+@@ quiz | OOP & Basics | Was enthält das JDK zusätzlich zur JRE?
+O: Den Garbage Collector
+O: *Den Compiler javac und Entwicklungswerkzeuge
+O: Den Webbrowser
+O: Die Datenbank
+WHY: JRE = çalıştırmak için; JDK = JRE + derleyici, debugger vb. (geliştirmek için).
+
+@@ quiz | OOP & Basics | Animal a = new Dog(); a.sound(); Welche Methode läuft, wenn Dog sound() überschreibt?
+O: Animal.sound()
+O: *Dog.sound()
+O: Beide nacheinander
+O: Keine, es gibt einen Fehler
+WHY: Polymorfizm: çalışma zamanındaki gerçek nesnenin (Dog) override ettiği metot çalışır.
+
+@@ quiz | OOP & Basics | Welche Beziehung beschreibt Komposition?
+O: Ist-ein (is-a)
+O: *Hat-ein (has-a)
+O: Kennt-kein
+O: Erbt-von
+WHY: Order bir Address'e sahiptir (has-a). Kalıtım ise is-a ilişkisidir.
+
+@@ quiz | OOP & Basics | Was ist das Ergebnis von 7 / 2 in Java (beide int)?
+O: 3.5
+O: *3
+O: 4
+O: 3.0
+WHY: int / int tam sayı bölmesidir, küsurat atılır. 3.5 için 7 / 2.0 yazılır.
+
+@@ quiz | OOP & Basics | Welchen Standardwert hat ein String-Feld (Instanzvariable) ohne Zuweisung?
+O: ""
+O: "null"
+O: *null
+O: Es gibt einen Kompilierfehler
+WHY: Referans tipli alanlar null, int alanlar 0, boolean alanlar false ile başlar. Lokal değişkenlerin ise varsayılanı yoktur.
+
+@@ quiz | OOP & Basics | Was ist ein record?
+O: Eine Datenbanktabelle
+O: *Eine kompakte Klasse für unveränderliche Daten mit automatischem equals/hashCode/toString
+O: Eine Log-Datei
+O: Eine abstrakte Klasse
+WHY: record (Java 16+) DTO gibi veri taşıyan sınıflar için boilerplate'i siler.
+
+@@ quiz | OOP & Basics | Wofür ist ein enum gedacht?
+O: Für Zahlen mit Nachkommastellen
+O: *Für eine feste Menge von Konstanten, z. B. Bestellstatus
+O: Für Threads
+O: Für Dateizugriffe
+WHY: enum tip güvenlidir; geçersiz bir değer derlenmez (String sabitlerinin aksine).
+
+@@ quiz | Exceptions | Welche Exception ist eine Checked Exception?
+O: NullPointerException
+O: IllegalArgumentException
+O: *IOException
+O: ArithmeticException
+WHY: Checked exception'ları derleyici zorlar (try-catch ya da throws). Diğerleri RuntimeException'dır.
+
+@@ quiz | Exceptions | Von welcher Klasse erben Unchecked Exceptions?
+O: Error
+O: *RuntimeException
+O: IOException
+O: Object direkt
+WHY: RuntimeException ve alt sınıfları unchecked'tır; genelde programlama hatasını gösterir.
+
+@@ quiz | Exceptions | Wo steht das Schlüsselwort throws?
+O: Im catch-Block
+O: *In der Methodensignatur
+O: Im finally-Block
+O: Vor dem Klassennamen
+WHY: throws imzada bildirir; throw ise metodun içinde exception fırlatır.
+
+@@ quiz | Exceptions | Wann wird der finally-Block ausgeführt?
+O: Nur wenn eine Exception auftritt
+O: Nur wenn keine Exception auftritt
+O: *Fast immer, mit oder ohne Exception
+O: Nie nach einem return
+WHY: finally return'den sonra bile çalışır; sadece System.exit gibi uç durumlarda çalışmaz.
+
+@@ quiz | Exceptions | Was braucht eine Ressource für try-with-resources?
+O: Sie muss Serializable sein
+O: *Sie muss AutoCloseable implementieren
+O: Sie muss final sein
+O: Sie muss eine Exception werfen
+WHY: Blok bitince close() otomatik çağrılır; bunun için AutoCloseable gerekir.
+
+@@ quiz | Exceptions | Was liefert Integer.parseInt("abc")?
+O: 0
+O: null
+O: *NumberFormatException
+O: -1
+WHY: Geçersiz sayı metni NumberFormatException fırlatır; yakalayıp varsayılan değer dönebilirsin.
+
+@@ quiz | Exceptions | Wann tritt eine NullPointerException auf?
+O: Bei Division durch 0
+O: *Wenn man eine Methode auf einer null-Referenz aufruft
+O: Wenn ein Array zu groß ist
+O: Wenn eine Datei fehlt
+WHY: null üzerinde metot/alan erişimi NPE verir. Sıfıra bölme ArithmeticException'dır.
+
+@@ quiz | Exceptions | Welche Reihenfolge der catch-Blöcke ist korrekt?
+O: Erst Exception, dann IOException
+O: *Erst IOException, dann Exception
+O: Die Reihenfolge ist egal
+O: Man darf nur einen catch-Block haben
+WHY: Spesifik olan önce gelmeli; genel Exception önce gelirse sonraki blok erişilemez olur ve derleme hatası verir.
+
+@@ quiz | Exceptions | Was zeigt „Caused by“ in einem Stacktrace?
+O: Den Namen des Entwicklers
+O: *Die ursprüngliche Ursache einer verketteten Exception
+O: Die Laufzeit des Programms
+O: Die Java-Version
+WHY: Exception başka bir exception'ı sarmışsa asıl sebep çoğunlukla en alttaki “Caused by” satırındadır.
+
+@@ quiz | Generics & Streams | Was ist der Hauptvorteil von Generics wie List<String>?
+O: Schnellere Ausführung
+O: *Typsicherheit zur Compile-Zeit
+O: Weniger Speicherverbrauch
+O: Automatische Sortierung
+WHY: Yanlış tip eklemek derleme hatası verir; cast gerekmez.
+
+@@ quiz | Generics & Streams | Was ist ein Functional Interface?
+O: Ein Interface ohne Methoden
+O: *Ein Interface mit genau einer abstrakten Methode
+O: Ein Interface mit nur static-Methoden
+O: Eine Klasse mit main-Methode
+WHY: Lambda'lar functional interface'leri implemente eder (Predicate, Function, Consumer…).
+
+@@ quiz | Generics & Streams | Was gibt ein Predicate<T> zurück?
+O: T
+O: void
+O: *boolean
+O: Optional<T>
+WHY: Predicate bir koşuldur (test → true/false); filter() bunu kullanır.
+
+@@ quiz | Generics & Streams | Was macht map() in einem Stream?
+O: Es wählt Elemente aus
+O: *Es wandelt jedes Element um
+O: Es erstellt eine HashMap
+O: Es sortiert die Elemente
+WHY: map dönüştürür (sayı → kare); filter seçer.
+
+@@ quiz | Generics & Streams | Was macht filter() in einem Stream?
+O: *Es behält nur Elemente, die eine Bedingung erfüllen
+O: Es wandelt jedes Element um
+O: Es entfernt Elemente aus der Original-Liste
+O: Es zählt die Elemente
+WHY: filter yeni akışta sadece koşulu sağlayanları bırakır; orijinal koleksiyon değişmez.
+
+@@ quiz | Generics & Streams | Welche Operation ist eine Endoperation (terminal operation)?
+O: filter()
+O: map()
+O: sorted()
+O: *collect()
+WHY: collect, count, toList, forEach terminaldir; filter/map/sorted ara işlemdir.
+
+@@ quiz | Generics & Streams | Was passiert bei einem Stream ohne Endoperation?
+O: Er läuft sofort
+O: *Nichts, Streams sind lazy
+O: Eine Exception
+O: Die Liste wird gelöscht
+WHY: Ara işlemler ancak terminal bir işlem geldiğinde çalışır.
+
+@@ quiz | Generics & Streams | Was liefert Optional.empty().orElse("x")?
+O: null
+O: *"x"
+O: Eine Exception
+O: Ein leerer String
+WHY: orElse, Optional boşsa verilen varsayılanı döndürür. get() boşken NoSuchElementException atar.
+
+@@ quiz | Generics & Streams | Welchem Lambda entspricht die Methodenreferenz String::length?
+O: () -> length()
+O: *s -> s.length()
+O: s -> String.length(s)
+O: length -> s
+WHY: Method reference, mevcut bir metodu çağıran lambda'nın kısa yazımıdır.
+
+@@ quiz | Generics & Streams | Was ergibt List.of(1, 2, 3, 4).stream().filter(n -> n % 2 == 0).map(n -> n * 10).toList()?
+O: [10, 30]
+O: *[20, 40]
+O: [2, 4]
+O: [10, 20, 30, 40]
+WHY: filter çiftleri bırakır (2, 4), map her birini 10 ile çarpar.
+
+@@ quiz | Runtime & Concurrency | Wo werden Objekte gespeichert, die mit new erzeugt werden?
+O: Im Stack
+O: *Im Heap
+O: In der CPU
+O: Im Bytecode
+WHY: Nesneler heap'te; lokal değişkenler ve referanslar stack'te tutulur.
+
+@@ quiz | Runtime & Concurrency | Was verursacht typischerweise einen StackOverflowError?
+O: Zu viele Objekte im Heap
+O: *Endlose Rekursion
+O: Eine fehlende Datei
+O: Ein null-Wert
+WHY: Her çağrı stack'e bir çerçeve ekler; bitmeyen recursion stack'i doldurur.
+
+@@ quiz | Runtime & Concurrency | Welche Objekte entfernt der Garbage Collector?
+O: Alle Objekte nach 60 Sekunden
+O: *Objekte, auf die keine erreichbare Referenz mehr zeigt
+O: Objekte mit dem Wert null
+O: Nur static-Objekte
+WHY: Hâlâ referansı olan (ör. static listede duran) nesneler silinemez → memory leak.
+
+@@ quiz | Runtime & Concurrency | Was ist eine Race Condition?
+O: Ein Wettrennen zwischen zwei Programmen
+O: *Mehrere Threads ändern gemeinsame Daten gleichzeitig und das Ergebnis hängt vom Timing ab
+O: Ein Thread wartet für immer
+O: Ein zu langsamer Algorithmus
+WHY: Senkronizasyon yoksa sonuç rastgele bozulur (ör. stok sayacı).
+
+@@ quiz | Runtime & Concurrency | Ist count++ thread-safe?
+O: Ja, immer
+O: *Nein, es ist nicht atomar
+O: Nur bei long
+O: Nur in einer Schleife
+WHY: count++ = oku, artır, yaz (3 adım). Çözüm: AtomicInteger ya da synchronized.
+
+@@ quiz | Runtime & Concurrency | Was ist ein Deadlock?
+O: Ein Thread läuft zu schnell
+O: *Threads warten gegenseitig für immer auf Locks
+O: Der Heap ist voll
+O: Eine Endlosschleife in einem Thread
+WHY: A, B'nin kilidini; B, A'nın kilidini bekler. Önlem: kilitleri hep aynı sırayla al.
+
+@@ quiz | Runtime & Concurrency | Welche Map ist für mehrere Threads gedacht?
+O: HashMap
+O: TreeMap
+O: *ConcurrentHashMap
+O: LinkedHashMap
+WHY: ConcurrentHashMap thread-safe ve hızlıdır; null anahtar/değer kabul etmez.
+
+@@ quiz | Runtime & Concurrency | Was teilen sich Threads desselben Prozesses?
+O: Nichts
+O: Nur den Stack
+O: *Den Heap-Speicher
+O: Nur die CPU-Register
+WHY: Her thread'in kendi stack'i var; heap ortak. Bu yüzden senkronizasyon gerekir.
+
+@@ quiz | Ökosystem & Backend | Wofür benutzt man Maven oder Gradle?
+O: Zum Schreiben von SQL
+O: *Für Build und Abhängigkeitsverwaltung
+O: Als Datenbank
+O: Als Webbrowser
+WHY: Kütüphaneleri indirir, derler, test eder, JAR üretir.
+
+@@ quiz | Ökosystem & Backend | Mit welcher JUnit-Methode prüft man, dass eine Exception geworfen wird?
+O: assertEquals
+O: assertTrue
+O: *assertThrows
+O: assertNull
+WHY: assertThrows(Tip.class, () -> kod) → doğru exception fırlatıldıysa test geçer.
+
+@@ quiz | Ökosystem & Backend | Wofür benutzt man Mockito?
+O: Für Datenbank-Migrationen
+O: *Um Abhängigkeiten im Test durch Mock-Objekte zu ersetzen
+O: Um JAR-Dateien zu bauen
+O: Für Logging
+WHY: Gerçek DB/API yerine sahte nesne → testler hızlı ve bağımsız.
+
+@@ quiz | Ökosystem & Backend | Welche HTTP-Methode erstellt typischerweise eine neue Ressource?
+O: GET
+O: *POST
+O: DELETE
+O: HEAD
+WHY: POST oluşturur (cevap genelde 201 Created); GET okur, DELETE siler.
+
+@@ quiz | Ökosystem & Backend | Welche HTTP-Methode ist NICHT idempotent?
+O: GET
+O: PUT
+O: DELETE
+O: *POST
+WHY: Aynı POST'u iki kez göndermek iki kayıt oluşturabilir; GET/PUT/DELETE tekrarında sonuç değişmez.
+
+@@ quiz | Ökosystem & Backend | Was bedeutet der HTTP-Statuscode 404?
+O: Server-Fehler
+O: Nicht authentifiziert
+O: *Nicht gefunden
+O: Erfolgreich erstellt
+WHY: 404 Not Found. 500 sunucu hatası, 401 kimlik yok, 201 oluşturuldu.
+
+@@ quiz | Ökosystem & Backend | Was bedeutet Dependency Injection?
+O: Eine Klasse erzeugt alle Abhängigkeiten selbst mit new
+O: *Eine Klasse bekommt ihre Abhängigkeiten von außen, z. B. über den Konstruktor
+O: Code wird in die Datenbank eingefügt
+O: Eine Sicherheitslücke
+WHY: Gevşek bağlılık sağlar; testte sahte bağımlılık verilebilir. (SQL Injection ile karıştırma!)
+
+@@ quiz | Ökosystem & Backend | In welcher Spring-Schicht liegt die Geschäftslogik?
+O: Controller
+O: *Service
+O: Repository
+O: Entity
+WHY: Controller HTTP'yi karşılar, Service iş mantığını içerir, Repository veritabanıyla konuşur.
+
+@@ quiz | Ökosystem & Backend | Wie stehen JPA und Hibernate zueinander?
+O: Sie sind dasselbe
+O: *Hibernate ist eine Implementierung der JPA-Spezifikation
+O: JPA ist eine Implementierung von Hibernate
+O: Beide sind Datenbanken
+WHY: JPA bir standart (spesifikasyon), Hibernate onun en bilinen uygulaması.
+
+@@ quiz | Ökosystem & Backend | Wofür ist ein Git-Branch gut?
+O: Um Dateien zu löschen
+O: *Um isoliert an einer Änderung zu arbeiten, ohne main zu stören
+O: Um den Code zu kompilieren
+O: Um die Datenbank zu sichern
+WHY: Her iş için ayrı dal → PR → review → main'e merge.
+
+@@ quiz | Ökosystem & Backend | Was macht var in Java?
+O: Es macht Java dynamisch typisiert
+O: *Der Compiler leitet den Typ einer lokalen Variable ab
+O: Es erzeugt eine globale Variable
+O: Es ist nur für Felder erlaubt
+WHY: var (Java 10+) sadece lokal değişkenlerde; tip derleme zamanında sabitlenir, Java statik tipli kalır.
+
+@@ quiz | Ökosystem & Backend | Was macht ein Breakpoint beim Debugging?
+O: Er beendet das Programm
+O: *Er hält das Programm an einer Zeile an, damit man Variablen prüfen kann
+O: Er löscht eine Zeile
+O: Er kompiliert den Code neu
+WHY: Program durur; Step Over / Step Into ile adım adım ilerleyip değişkenleri izlersin.

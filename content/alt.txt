@@ -1,0 +1,706 @@
+@@ alt | Başlangıç | 🇩🇪 Bu bölüm nasıl kullanılır?
+A: Bu bölüm başka bir kaynaktaki mülakat hazırlık listesinden derlendi. “Werkstudent & Mülakat” ile bazı konular çakışır, bu bilerek böyle.
+- **Sözlü kartlar:** Başlık = Almanca soru. Altındaki Almanca cevabı sesli tekrar et, ezberle (~30 saniye). Sarı kutu: ne zaman kullanılır, neden, gerçek hayatta nerede.
+- **Kod kartları:** Kodu yazmak zorunda değilsin; çözümü oku, mavi kutudaki “önemli satırlar” açıklamasıyla mantığı otur.
+- **📝 Rastgele test:** Üstteki sarı butondan. 10/20/30 soru, cevaplar sonda.
+İpucu: “📇 Kart modu”nda önce cevabı kendin söyle, sonra aç.
+SAY: Ich bereite mich strukturiert vor und kann die wichtigsten Java-Grundlagen auf Deutsch erklären.
+
+@@ alt | Sözlü · Collections | Was ist der Unterschied zwischen List, Set und Map?
+A: Eine List speichert Elemente in einer festen Reihenfolge, und Duplikate sind erlaubt. Ich kann über den Index zugreifen, zum Beispiel mit get(0). Ein Set speichert jedes Element nur einmal, also gibt es keine Duplikate. Eine Map speichert Schlüssel-Wert-Paare. Jeder Schlüssel ist eindeutig, und über den Schlüssel finde ich schnell den Wert. Map gehört übrigens nicht zum Collection-Interface.
+EX: **Ne zaman:** Sıra önemli ve tekrar olabilir → List. Tekrar istemiyorsun → Set. Bir şeyi anahtarla bulacaksın → Map.
+**Neden:** Doğru yapı kodu hem basitleştirir hem hızlandırır (Set/Map'te arama ortalama O(1)).
+**Gerçek hayat:** Sepetteki ürünler (aynı ürün iki kez olabilir) → List. Bir siparişteki benzersiz tedarikçiler → Set. Ürün numarası → stok miktarı → Map.
+
+@@ alt | Sözlü · Collections | Was ist eine HashMap?
+A: Eine HashMap ist eine Implementierung von Map. Sie speichert Schlüssel-Wert-Paare. Intern berechnet sie mit hashCode() einen Bucket, also einen Platz in einem Array. Deshalb sind put() und get() im Durchschnitt O(1), also sehr schnell. Die Reihenfolge ist nicht garantiert. Eine HashMap erlaubt einen null-Schlüssel und mehrere null-Werte. Sie ist nicht thread-safe.
+EX: **Ne zaman:** Anahtarla hızlı arama gerekiyor ve sıra önemli değilse. Map'lerde varsayılan seçim budur.
+**Neden:** Listeyi baştan sona taramak yerine anahtardan doğrudan konuma gider.
+**Gerçek hayat:** Müşteri ID → müşteri bilgisi; kargo takip numarası → kargo durumu.
+
+@@ alt | Sözlü · Collections | HashMap vs TreeMap vs LinkedHashMap?
+A: Alle drei sind Maps. Die HashMap hat keine feste Reihenfolge, ist aber am schnellsten, im Durchschnitt O(1). Die LinkedHashMap merkt sich die Einfügereihenfolge. Die TreeMap sortiert die Schlüssel automatisch, zum Beispiel alphabetisch oder nach Datum. Dafür ist sie etwas langsamer, nämlich O(log n). Normalerweise nehme ich die HashMap. Nur wenn ich eine Reihenfolge brauche, nehme ich eine der anderen.
+EX: **Ne zaman:** Varsayılan → HashMap. Ekleme sırası korunmalı → LinkedHashMap. Anahtara göre sıralı lazım → TreeMap.
+**Neden:** Sıra özelliği bedava değil; ekstra bellek ya da hız maliyeti var.
+**Gerçek hayat:** Tarihe göre sıralı teslimat planı → `TreeMap<LocalDate, ...>`. “Son görüntülenen ürünler” → LinkedHashMap.
+
+@@ alt | Sözlü · Collections | ArrayList vs LinkedList?
+A: Eine ArrayList basiert auf einem Array. Der Zugriff über den Index ist sehr schnell, also O(1). Einfügen in der Mitte ist langsamer, weil Elemente verschoben werden müssen. Eine LinkedList besteht aus Knoten, die aufeinander zeigen. Einfügen und Löschen am Anfang oder am Ende ist schnell, aber der Zugriff über den Index ist O(n). In der Praxis benutze ich fast immer ArrayList.
+EX: **Ne zaman:** Neredeyse her zaman ArrayList. Kuyruk gerekiyorsa LinkedList yerine ArrayDeque.
+**Neden:** ArrayList bellekte bitişik durur; işlemci önbelleği sayesinde pratikte çok hızlıdır.
+**Gerçek hayat:** Gün içinde gelen siparişleri listeleyip rapor çıkarmak → ArrayList.
+
+@@ alt | Sözlü · Collections | Was ist der Unterschied zwischen equals() und ==?
+A: Bei Objekten vergleicht == die Referenz. Es prüft also, ob es genau dasselbe Objekt im Speicher ist. equals() vergleicht den Inhalt, wenn die Klasse equals() richtig überschreibt. Bei primitiven Typen wie int vergleicht == direkt den Wert. Strings vergleiche ich deshalb immer mit equals().
+EX: **Ne zaman:** Nesnelerin içeriğini karşılaştırırken her zaman `equals()`. `==` sadece primitive'lerde ve “aynı nesne mi?” sorusunda.
+**Neden:** İki farklı String nesnesi aynı metni taşıyabilir; `==` o zaman false döner.
+**Gerçek hayat:** Kullanıcının girdiği kodu kayıtlı değerle karşılaştırmak → `equals()`. `status == "SHIPPED"` yazmak klasik bir bug'dır.
+
+@@ alt | Sözlü · Collections | Warum muss man hashCode() überschreiben, wenn man equals() überschreibt?
+A: Es gibt eine Regel: Wenn zwei Objekte laut equals() gleich sind, müssen sie den gleichen hashCode haben. HashMap und HashSet suchen zuerst mit dem hashCode den richtigen Bucket. Danach prüfen sie mit equals(). Wenn ich nur equals() überschreibe, landen gleiche Objekte in verschiedenen Buckets. Dann findet die HashMap das Objekt nicht, oder ein HashSet enthält Duplikate.
+EX: **Ne zaman:** Kendi sınıfını HashMap key'i ya da HashSet elemanı yapacaksan ikisini birlikte override et. Ya da `record` kullan; ikisini de otomatik yazar.
+**Neden:** Hash tabanlı yapılar önce hashCode ile kovayı bulur, sonra equals ile karşılaştırır.
+**Gerçek hayat:** Ürünleri `HashSet<Product>` içinde tutup aynı ürünün iki kez girmesini engellemek.
+
+@@ alt | Sözlü · Collections | Kann eine HashMap doppelte Schlüssel enthalten?
+A: Nein. Jeder Schlüssel ist in einer HashMap eindeutig. Wenn ich put() mit einem Schlüssel aufrufe, der schon existiert, wird der alte Wert überschrieben. put() gibt dann den alten Wert zurück. Doppelte Werte sind aber erlaubt. Zwei verschiedene Schlüssel können also denselben Wert haben.
+EX: **Ne zaman önemli:** Aynı anahtara ikinci kez `put` yaparsan eski veri sessizce kaybolur. İstemiyorsan `putIfAbsent()` ya da `merge()` kullan.
+**Neden:** Map'in tanımı gereği bir anahtar = bir değer.
+**Gerçek hayat:** Telefon rehberi: aynı isimle yeni numara kaydedersen eskisi gider. Ama iki kişinin numarası aynı olabilir (değer tekrarı serbest).
+
+@@ alt | Sözlü · Collections | Was bedeutet Hash Collision?
+A: Eine Hash-Kollision passiert, wenn zwei verschiedene Schlüssel im selben Bucket landen. Das ist normal und kein Fehler. Die HashMap speichert dann mehrere Einträge in diesem Bucket, zuerst als Liste. Seit Java 8 wird ein sehr voller Bucket in einen Baum umgewandelt. Viele Kollisionen machen die HashMap langsam. Deshalb braucht man eine gute hashCode()-Methode.
+EX: **Ne zaman önemli:** Kendi `hashCode()`'unu yazarken. Hep aynı değeri döndüren bir hashCode tüm elemanları tek kovaya atar; O(1) arama O(n)'e düşer.
+**Neden:** Kova sayısı sınırlı, olası anahtar sayısı sınırsız; çakışma kaçınılmaz.
+**Gerçek hayat:** Aynı posta koduna düşen iki farklı adres gibi: aynı “kutu”, içinde ayrıca aranır.
+
+@@ alt | Sözlü · Collections | Array vs ArrayList?
+A: Ein Array hat eine feste Größe. Ich lege die Größe beim Erstellen fest, und sie ändert sich nicht. Ein Array kann auch primitive Typen wie int speichern. Eine ArrayList wächst automatisch, wenn ich Elemente hinzufüge. Sie speichert nur Objekte, also Integer statt int. Außerdem hat sie viele nützliche Methoden wie add(), remove() und contains().
+EX: **Ne zaman:** Eleman sayısı baştan belli ve sabitse → Array. Sayı değişiyorsa → ArrayList.
+**Neden:** Array daha hafif ve primitive tutar; ArrayList esnek ve kullanışlı.
+**Gerçek hayat:** 12 aylık satış rakamları → `double[12]`. Gün içinde gelen siparişler → `ArrayList<Order>`.
+
+@@ alt | Sözlü · Collections | Was ist der Unterschied zwischen Collection und Collections?
+A: Collection ohne s ist ein Interface. Es ist die Basis für List, Set und Queue. Collections mit s ist eine Hilfsklasse. Sie hat nur statische Methoden, zum Beispiel Collections.sort(), Collections.max() oder Collections.unmodifiableList(). Map gehört übrigens nicht zum Collection-Interface.
+EX: **Ne zaman:** `Collection` → parametre tipi olarak (“her tür koleksiyonu kabul ederim”). `Collections` → hazır yardımcı işlemler (sıralama, max, değiştirilemez kopya).
+**Neden:** Tek harf farkı yüzünden mülakatta sık sorulan bir tuzak sorudur.
+**Gerçek hayat:** Bir raporu dışarı verirken listeyi `Collections.unmodifiableList()` ile korumak.
+
+@@ alt | Sözlü · Collections | Comparable vs Comparator?
+A: Comparable definiert die natürliche Sortierung direkt in der Klasse, mit der Methode compareTo(). Es gibt also nur eine Standard-Sortierung. Ein Comparator ist eine separate Sortierregel außerhalb der Klasse, mit der Methode compare(). Damit kann ich viele verschiedene Sortierungen definieren, zum Beispiel nach Name oder nach Preis.
+EX: **Ne zaman:** Sınıfın tek, doğal bir sırası varsa (sayı, tarih, ID) → Comparable. Farklı ekranlarda farklı sıralamalar gerekiyorsa → Comparator.
+**Neden:** Sınıfı değiştirmeden yeni sıralama ekleyebilirsin.
+**Gerçek hayat:** Online mağazadaki “fiyata göre”, “puana göre”, “en yeni” butonları = üç farklı Comparator.
+
+@@ alt | Sözlü · Collections | Was sind Queue, Deque und Stack?
+A: Eine Queue ist eine Warteschlange nach dem FIFO-Prinzip: First In, First Out. Was zuerst kommt, geht zuerst raus. Ein Stack ist ein Stapel nach dem LIFO-Prinzip: Last In, First Out. Eine Deque ist eine Warteschlange mit zwei Enden. Ich kann vorne und hinten einfügen und entfernen. In Java benutze ich ArrayDeque für Queue und für Stack.
+EX: **Ne zaman:** Gelen işleri geliş sırasıyla işlemek → Queue. “Geri al” ya da iç içe yapı kontrolü → Stack.
+**Neden:** `ArrayDeque`, eski `Stack` sınıfından daha hızlı ve modern.
+**Gerçek hayat:** Kargo bandındaki paketler, yazıcı kuyruğu → Queue. Tarayıcının “geri” butonu, Ctrl+Z → Stack.
+
+@@ alt | Sözlü · Collections | Warum ist die Suche in einer ArrayList O(n), in einer HashMap aber O(1)?
+A: Wenn ich in einer ArrayList einen Wert suche, zum Beispiel mit contains(), muss Java im schlimmsten Fall jedes Element einzeln prüfen. Bei n Elementen sind das n Schritte, also O(n). Eine HashMap berechnet aus dem Schlüssel mit hashCode() direkt die Position. Sie springt sofort zum richtigen Bucket. Deshalb ist die Suche im Durchschnitt O(1), egal wie groß die Map ist.
+EX: **Ne zaman önemli:** Döngü içinde `list.contains()` yapıyorsan toplam O(n²) olur; listeyi önce HashSet/HashMap'e çevir.
+**Neden:** 1 milyon elemanda fark, 1 milyon adım ile ~1 adım arasındadır.
+**Gerçek hayat:** Kütüphanede kitabı rafları tek tek gezerek aramak (O(n)) ile katalog numarasıyla doğrudan rafa gitmek (O(1)).
+
+@@ alt | Sözlü · Collections | HashSet vs TreeSet?
+A: Beide speichern keine Duplikate. Ein HashSet hat keine feste Reihenfolge und ist sehr schnell, im Durchschnitt O(1). Ein TreeSet hält die Elemente immer sortiert, zum Beispiel aufsteigend. Dafür sind die Operationen O(log n). Wenn ich nur Duplikate vermeiden will, nehme ich HashSet. Wenn ich die Elemente sortiert brauche, nehme ich TreeSet.
+EX: **Ne zaman:** Sadece “tekrar olmasın” → HashSet. “Tekrar olmasın ve sıralı olsun” → TreeSet. Ekleme sırası lazım → LinkedHashSet.
+**Neden:** Sıralı tutmanın bir maliyeti var.
+**Gerçek hayat:** Siteyi ziyaret eden benzersiz kullanıcılar → HashSet. Bir rapordaki şehirlerin alfabetik listesi → TreeSet.
+
+@@ alt | Sözlü · OOP & Basics | Was sind die vier OOP-Prinzipien?
+A: Die vier Prinzipien sind Kapselung, Vererbung, Polymorphie und Abstraktion. Kapselung heißt: Die Daten sind private, und man greift nur über Methoden darauf zu. Vererbung heißt: Eine Klasse übernimmt mit extends Eigenschaften von einer anderen Klasse. Polymorphie heißt: Ein Objekt verhält sich je nach Typ unterschiedlich. Abstraktion heißt: Ich zeige nur das Wichtige und verstecke die Details.
+EX: **Ne zaman:** Her sınıf tasarımında. Mülakatta neredeyse kesin sorulur; her birine bir örnek hazırla.
+**Neden:** Bu dört fikir kodu değiştirilebilir ve tekrar kullanılabilir yapar.
+**Gerçek hayat:** Araba: motorun içi gizli (kapsülleme), sürücü sadece gaz/fren görür (soyutlama), elektrikli ve benzinli araba aynı pedallarla farklı çalışır (polimorfizm), hepsi “Araç”tan türer (kalıtım).
+
+@@ alt | Sözlü · OOP & Basics | Interface vs abstrakte Klasse?
+A: Ein Interface ist ein Vertrag. Es sagt, welche Methoden eine Klasse haben muss. Eine Klasse kann viele Interfaces implementieren. Eine abstrakte Klasse kann schon Code, Felder und einen Konstruktor haben. Aber eine Klasse kann nur von einer Klasse erben. Ich nehme ein Interface für eine Fähigkeit. Eine abstrakte Klasse nehme ich, wenn mehrere Klassen gemeinsamen Code teilen.
+EX: **Ne zaman:** “Ne yapabilir?” (ödeme yapabilir, yazdırılabilir) → Interface. Ortak kod ve ortak durum paylaşan bir aile → abstract class.
+**Neden:** Interface esneklik verir (çoklu implementasyon); abstract class kod tekrarını azaltır.
+**Gerçek hayat:** `PaymentMethod` interface'i (kredi kartı, PayPal). `AbstractImporter` (CSV ve Excel import'larının ortak dosya açma kodu).
+
+@@ alt | Sözlü · OOP & Basics | Overloading vs Overriding?
+A: Overloading heißt: In derselben Klasse gibt es mehrere Methoden mit dem gleichen Namen, aber mit unterschiedlichen Parametern. Das entscheidet der Compiler. Overriding heißt: Eine Unterklasse schreibt eine geerbte Methode mit der gleichen Signatur neu. Das wird zur Laufzeit entschieden, das ist Polymorphie. Beim Overriding benutze ich immer die Annotation @Override.
+EX: **Ne zaman:** Aynı işi farklı girdilerle yapmak → Overloading (`print(int)`, `print(String)`). Alt sınıf farklı davranmalı → Overriding.
+**Neden:** `@Override` yazarsan imzayı yanlış yazdığında derleyici hata verir.
+**Gerçek hayat:** `shippingCost(weight)` ve `shippingCost(weight, express)` → overloading. `Truck.cost()` ile `Ship.cost()` farklı hesaplar → overriding.
+
+@@ alt | Sözlü · OOP & Basics | Was macht static?
+A: static bedeutet: Das Feld oder die Methode gehört zur Klasse und nicht zu einem Objekt. Ich kann eine static-Methode ohne Objekt aufrufen, zum Beispiel Math.max(). Ein static-Feld gibt es nur einmal, alle Objekte teilen es. Eine static-Methode kann nicht direkt auf Instanzvariablen zugreifen.
+EX: **Ne zaman:** Nesneye ihtiyaç duymayan yardımcı metotlar (`Math.max`), sabitler (`static final double VAT = 0.19`).
+**Neden:** Her nesne için ayrı kopya gerekmez. Dikkat: değişen static veri (global state) test etmeyi zorlaştırır.
+**Gerçek hayat:** KDV oranı tüm faturalar için aynıdır → static sabit.
+
+@@ alt | Sözlü · OOP & Basics | Was macht final?
+A: final hat drei Bedeutungen. Eine final-Variable kann man nur einmal zuweisen. Eine final-Methode kann man in einer Unterklasse nicht überschreiben. Von einer final-Klasse kann man nicht erben, ein Beispiel ist String. Wichtig: Bei einer final-Liste kann ich die Referenz nicht ändern, aber den Inhalt schon.
+EX: **Ne zaman:** Değişmemesi gereken değerler ve alanlar (`final` alanlar immutable sınıfın temelidir), davranışı değiştirilmemesi gereken sınıflar.
+**Neden:** Yanlışlıkla değiştirmeyi derleme zamanında engeller ve kodu okuyana niyetini söyler.
+**Gerçek hayat:** Bir siparişin ID'si oluşturulduktan sonra asla değişmemeli → `private final String id`.
+
+@@ alt | Sözlü · OOP & Basics | Was ist ein Konstruktor?
+A: Ein Konstruktor ist eine spezielle Methode. Sie wird aufgerufen, wenn ich ein Objekt mit new erstelle. Er hat den gleichen Namen wie die Klasse und keinen Rückgabetyp. Im Konstruktor initialisiere ich die Felder. Wenn ich keinen Konstruktor schreibe, erzeugt der Compiler einen leeren Standardkonstruktor. Ich kann Konstruktoren auch überladen.
+EX: **Ne zaman:** Nesne geçerli bir başlangıç durumunda olmalıysa; zorunlu alanları constructor'da al.
+**Neden:** Nesne “yarım” oluşturulamaz; doğrulamayı da burada yaparsın (ör. miktar negatifse exception).
+**Gerçek hayat:** `new Order("A-17", 5)` → sipariş numarası ve miktar olmadan sipariş oluşmasın.
+
+@@ alt | Sözlü · OOP & Basics | String vs StringBuilder?
+A: Ein String ist unveränderlich, also immutable. Jede Änderung erzeugt ein neues String-Objekt. Ein StringBuilder ist veränderlich. Er ändert denselben Speicher. Deshalb ist er schneller, wenn ich viele Texte zusammenfüge, zum Beispiel in einer Schleife. Für normale, kleine Texte benutze ich String.
+EX: **Ne zaman:** Döngü içinde metin birleştirme → StringBuilder. Normal metinler → String.
+**Neden:** Döngüde `+=` her seferinde yeni nesne üretir, çok yavaşlar. String'in değişmezliği onu güvenli kılar (HashMap key'i, thread'ler arası paylaşım).
+**Gerçek hayat:** 100.000 satırlık CSV raporu oluşturmak → StringBuilder.
+
+@@ alt | Sözlü · OOP & Basics | Primitive Typen vs Referenztypen?
+A: Primitive Typen wie int, double oder boolean speichern den Wert direkt. Sie können nicht null sein. Es gibt acht primitive Typen in Java. Referenztypen wie String, Arrays oder eigene Klassen speichern nur eine Referenz. Das ist eine Adresse zum Objekt im Heap. Eine Referenz kann null sein.
+EX: **Ne zaman:** Basit sayı/mantık değerleri ve performans → primitive. “Değer yok” durumunu göstermek ya da koleksiyonda saklamak → wrapper (`Integer`).
+**Neden:** Koleksiyonlar sadece nesne tutar (`List<int>` yazılamaz).
+**Gerçek hayat:** Stok `0` (gerçekten bitti) ile `null` (veri henüz gelmedi) farklı şeylerdir.
+
+@@ alt | Sözlü · OOP & Basics | Warum ist Java plattformunabhängig?
+A: Der Java-Compiler übersetzt den Quellcode nicht direkt in Maschinencode, sondern in Bytecode. Diesen Bytecode führt die JVM aus, die Java Virtual Machine. Für jedes Betriebssystem gibt es eine eigene JVM. Deshalb läuft dieselbe .class- oder .jar-Datei auf Windows, Linux und macOS. Das Motto ist: Write once, run anywhere.
+EX: **Ne zaman önemli:** Uygulama farklı sistemlerde çalışacaksa (geliştirici Mac'te, sunucu Linux'ta).
+**Neden:** Her platform için ayrı derleme gerekmez.
+**Gerçek hayat:** Laptopta yazılan Spring Boot uygulaması aynı .jar dosyasıyla Linux sunucuda ya da Docker container'da çalışır.
+
+@@ alt | Sözlü · OOP & Basics | Ist Java pass-by-value oder pass-by-reference?
+A: Java ist immer pass-by-value. Bei primitiven Typen wird der Wert kopiert. Bei Objekten wird der Wert der Referenz kopiert. Deshalb kann eine Methode den Inhalt eines Objekts ändern, zum Beispiel ein Element zu einer Liste hinzufügen. Aber wenn die Methode dem Parameter ein neues Objekt zuweist, merkt der Aufrufer davon nichts.
+EX: **Ne zaman önemli:** Bir metoda liste/nesne verdiğinde, metodun onu değiştirip değiştiremeyeceğini anlamak için.
+**Neden:** “Nesneler by-reference geçer” cevabı yanlış sayılır; klasik tuzak sorudur.
+**Gerçek hayat:** Ev adresini bir kâğıda yazıp vermek: karşı taraf eve gidip mobilyayı değiştirebilir (içerik değişir), ama kendi kâğıdındaki adresi silmesi senin kâğıdını değiştirmez.
+
+@@ alt | Sözlü · OOP & Basics | Was ist Polymorphie?
+A: Polymorphie heißt Vielgestaltigkeit. Ich kann verschiedene Objekte über einen gemeinsamen Typ ansprechen, zum Beispiel über ein Interface. Jedes Objekt führt dann seine eigene Version der Methode aus. Java entscheidet zur Laufzeit, welche Methode aufgerufen wird. Das macht den Code flexibel. Ich kann neue Klassen hinzufügen, ohne den alten Code zu ändern.
+EX: **Ne zaman:** Aynı işi yapan farklı türler varsa (ödeme yöntemleri, taşıma araçları).
+**Neden:** if/else ya da switch zincirleri yerine her tür kendi davranışını taşır; yeni tür eklemek eski kodu bozmaz.
+**Gerçek hayat:** `PaymentMethod p` → `p.pay(50)`: kredi kartı, PayPal ya da sonradan eklenen yeni bir yöntem için kasa kodu hiç değişmez.
+
+@@ alt | Sözlü · OOP & Basics | Komposition vs Vererbung?
+A: Vererbung ist eine Ist-ein-Beziehung: Ein Hund ist ein Tier. Komposition ist eine Hat-ein-Beziehung: Ein Auto hat einen Motor. Bei Komposition benutzt eine Klasse ein anderes Objekt als Feld. Ich bevorzuge meistens Komposition, weil sie flexibler ist und die Klassen weniger stark verbindet. Vererbung nutze ich nur bei einer echten Ist-ein-Beziehung.
+EX: **Ne zaman:** Gerçek bir “is-a” ilişkisi → kalıtım. “Bir parçası var / bir şeyi kullanıyor” → composition.
+**Neden:** Kalıtım üst sınıftaki her değişikliği alt sınıflara taşır; composition parçayı değiştirmeyi kolaylaştırır.
+**Gerçek hayat:** `Order` bir `Address`'e sahiptir (has-a), ondan türemez. `ExpressShipment` bir `Shipment`'tır (is-a).
+
+@@ alt | Sözlü · OOP & Basics | Was ist der Unterschied zwischen int und Integer? Was ist Autoboxing?
+A: int ist ein primitiver Typ. Integer ist die Wrapper-Klasse dazu, also ein Objekt. Integer kann null sein, int nicht. Autoboxing heißt: Java wandelt int automatisch in Integer um. Unboxing ist der umgekehrte Weg. Achtung: Wenn ein Integer null ist und Java ihn in int umwandelt, gibt es eine NullPointerException. Integer-Objekte vergleiche ich mit equals(), nicht mit ==.
+EX: **Ne zaman:** Koleksiyonlarda (`List<Integer>`, `Map<String, Integer>`) ve “değer olmayabilir” durumunda → Integer. Hesaplama ve döngüler → int.
+**Neden:** Generics sadece nesnelerle çalışır.
+**Gerçek hayat:** `map.get("ürün")` anahtar yoksa null döner; bunu `int`'e atarsan program çöker → `getOrDefault(..., 0)` kullan.
+
+@@ alt | Sözlü · OOP & Basics | Was ist eine NullPointerException und wie vermeidest du sie?
+A: Eine NullPointerException passiert, wenn ich eine Methode auf einer Referenz aufrufe, die null ist. Zuerst lese ich den Stacktrace und finde die Zeile und die Variable. Dann suche ich die Ursache: Warum ist der Wert null? Um das zu vermeiden, prüfe ich Eingaben, benutze Optional oder gebe leere Listen statt null zurück. Die Exception einfach mit catch zu ignorieren, ist keine Lösung.
+EX: **Ne zaman:** Dışarıdan gelen her veride (kullanıcı, dosya, API, veritabanı) null olabileceğini varsay.
+**Neden:** Production'da en sık görülen hatalardan biridir.
+**Gerçek hayat:** CSV'de “müşteri adı” sütunu boş geldi, kod `name.trim()` çağırınca gece batch işi çöktü. Çözüm: içe aktarırken satırı doğrula ve logla.
+
+@@ alt | Sözlü · Exceptions & Streams | Checked vs Unchecked Exceptions?
+A: Checked Exceptions prüft der Compiler. Ich muss sie mit try-catch behandeln oder mit throws weitergeben, zum Beispiel IOException. Unchecked Exceptions erben von RuntimeException, zum Beispiel NullPointerException oder IllegalArgumentException. Der Compiler zwingt mich nicht, sie zu behandeln. Sie zeigen meistens einen Programmierfehler.
+EX: **Ne zaman:** Dış dünyadan gelen, beklenebilir hatalar (dosya yok, ağ koptu) → checked. Programcı hatası, yanlış kullanım → unchecked.
+**Neden:** Checked exception, çağıranı hatayı düşünmeye zorlar.
+**Gerçek hayat:** Dosya okumak her zaman başarısız olabilir → `IOException`. Negatif sipariş miktarı → `IllegalArgumentException`.
+
+@@ alt | Sözlü · Exceptions & Streams | throw vs throws?
+A: Mit throw werfe ich eine Exception. Das passiert im Methodenkörper, zum Beispiel throw new IllegalArgumentException(). Mit throws schreibe ich in die Methodensignatur, welche Checked Exceptions die Methode werfen kann. Kurz gesagt: throw ist die Aktion, throws ist die Warnung an den Aufrufer.
+EX: **Ne zaman:** Geçersiz bir durum tespit ettiğinde → `throw`. Metodun içinde yakalamadığın checked exception varsa → imzaya `throws`.
+**Neden:** Çağıran taraf, hangi hatalara hazırlıklı olması gerektiğini imzadan görür.
+**Gerçek hayat:** `withdraw(amount)` bakiye yetersizse `throw new InsufficientFundsException()`. Dosya okuyan metot: `load(Path p) throws IOException`.
+
+@@ alt | Sözlü · Exceptions & Streams | Wofür ist der finally-Block?
+A: Der finally-Block wird nach try und catch ausgeführt. Er läuft immer, egal ob eine Exception aufgetreten ist oder nicht, sogar nach einem return. Nur in Extremfällen läuft er nicht, zum Beispiel bei System.exit(). Ich benutze finally zum Aufräumen, zum Beispiel um Ressourcen zu schließen. Heute nehme ich dafür meistens try-with-resources.
+EX: **Ne zaman:** Hata olsa da olmasa da yapılması gereken temizlik işleri (kilidi bırakmak, bağlantıyı kapatmak, geçici dosyayı silmek).
+**Neden:** Kaynak sızıntısını engeller.
+**Gerçek hayat:** Veritabanı bağlantısı kapatılmazsa bağlantı havuzu dolar ve uygulama birkaç saat sonra kilitlenir.
+
+@@ alt | Sözlü · Exceptions & Streams | Was ist try-with-resources?
+A: Try-with-resources ist eine Variante von try, die Ressourcen automatisch schließt. Ich öffne die Ressource in Klammern direkt nach try. Am Ende wird close() automatisch aufgerufen, auch wenn eine Exception passiert. Die Ressource muss das Interface AutoCloseable implementieren. So vergesse ich nie, Dateien oder Datenbankverbindungen zu schließen.
+EX: **Ne zaman:** Dosya, veritabanı bağlantısı, network stream gibi kapatılması gereken her kaynakta.
+**Neden:** `finally` ile elle kapatmaktan daha kısa ve hatasız.
+**Gerçek hayat:** `try (BufferedReader br = Files.newBufferedReader(path)) { ... }` → CSV import'u bitince dosya kendiliğinden kapanır.
+
+@@ alt | Sözlü · Exceptions & Streams | Wie liest du einen Stacktrace?
+A: Ein Stacktrace zeigt, welche Exception passiert ist und welche Methoden vorher aufgerufen wurden. Oben stehen der Typ der Exception und die Nachricht. Die erste Zeile mit „at“ zeigt, wo die Exception entstanden ist. Ich suche die erste Zeile aus meinem eigenen Code. Wenn es „Caused by“ gibt, schaue ich dort, denn das ist oft die eigentliche Ursache.
+EX: **Ne zaman:** Her hata ayıklamada ilk adım. Yakalanmayan bir exception, çağıran metotlara doğru yukarı çıkar (exception propagation); stacktrace bu yolu gösterir.
+**Neden:** Sınıf adı ve satır numarası hatanın yerini doğrudan söyler.
+**Gerçek hayat:** Production log'unda 80 satırlık stacktrace var: framework satırlarını atla, kendi paketinle başlayan ilk satıra ve en alttaki “Caused by”a bak.
+
+@@ alt | Sözlü · Exceptions & Streams | Warum benutzt man Generics, zum Beispiel List<String>?
+A: Mit Generics sage ich dem Compiler, welchen Typ eine Collection enthält. In eine List<String> darf ich nur Strings einfügen. Der Compiler findet Fehler schon beim Kompilieren und nicht erst zur Laufzeit. Außerdem brauche ich keine Casts mehr. Das macht den Code sicherer und besser lesbar.
+EX: **Ne zaman:** Her koleksiyonda ve tekrar kullanılabilir sınıflarda (`Box<T>`, `Repository<T>`).
+**Neden:** Hata derleme zamanında yakalanır; çalışırken `ClassCastException` sürprizi olmaz.
+**Gerçek hayat:** `List<Order>` listesine yanlışlıkla bir `Customer` eklemeye çalışırsan kod derlenmez bile.
+
+@@ alt | Sözlü · Exceptions & Streams | Was ist ein Lambda-Ausdruck?
+A: Ein Lambda-Ausdruck ist eine kurze Schreibweise für eine Funktion ohne Namen. Er implementiert ein Functional Interface. Das ist ein Interface mit genau einer abstrakten Methode. Ein Beispiel ist x -> x * 2. Lambdas benutze ich oft mit der Stream API, beim Sortieren mit einem Comparator oder mit removeIf().
+EX: **Ne zaman:** Küçük, tek seferlik bir davranışı parametre olarak vermek gerektiğinde (filtre koşulu, sıralama kuralı).
+**Neden:** Anonim sınıf yazmaktan çok daha kısa ve okunur.
+**Gerçek hayat:** `orders.removeIf(o -> o.isCancelled())` → iptal edilen siparişleri tek satırda sil.
+
+@@ alt | Sözlü · Exceptions & Streams | Wofür ist die Stream API?
+A: Mit der Stream API verarbeite ich Daten aus einer Collection deklarativ. Das heißt, ich beschreibe, was ich will, und nicht, wie die Schleife funktioniert. Typische Methoden sind filter(), map(), sorted() und collect(). Ein Stream ändert die ursprüngliche Liste nicht. Er ist lazy: Erst eine Endoperation wie collect() oder count() startet die Verarbeitung.
+EX: **Ne zaman:** Filtreleme, dönüştürme, gruplama, toplama gibi veri işlemlerinde. Çok basit döngülerde klasik `for` da gayet uygundur.
+**Neden:** Kısa ve okunur; hata yapma ihtimali düşük.
+**Gerçek hayat:** “Geciken siparişleri tedarikçiye göre say” → tek bir stream: `filter` + `groupingBy` + `counting`.
+
+@@ alt | Sözlü · Exceptions & Streams | Was ist der Unterschied zwischen filter() und map()?
+A: filter() wählt Elemente aus. Es bekommt eine Bedingung und behält nur die Elemente, für die die Bedingung true ist. Die Anzahl kann also kleiner werden. map() wandelt jedes Element in etwas anderes um, zum Beispiel eine Zahl in ihr Quadrat oder ein Objekt in seinen Namen. Die Anzahl bleibt gleich.
+EX: **Ne zaman:** “Hangilerini istiyorum?” → filter. “Her birini neye çevireceğim?” → map. Çoğu zaman ikisi art arda kullanılır.
+**Neden:** Her adım tek bir iş yapar; okumak kolaylaşır.
+**Gerçek hayat:** Sadece aktif müşterileri al (filter), sonra e-posta adreslerini çıkar (map) → bülten listesi.
+
+@@ alt | Sözlü · Exceptions & Streams | Was ist Optional?
+A: Optional ist ein Container, der einen Wert enthalten kann oder leer ist. Ich benutze Optional vor allem als Rückgabetyp, statt null zurückzugeben. So sieht der Aufrufer sofort, dass vielleicht kein Ergebnis kommt. Mit Methoden wie orElse(), map() oder ifPresent() arbeite ich sicher mit dem Wert. get() ohne Prüfung sollte ich vermeiden.
+EX: **Ne zaman:** “Bulunamayabilir” bir sonuç döndüren metotlarda (`findById`). Alan ya da parametre olarak önerilmez.
+**Neden:** null dönüşünü kontrol etmeyi unutmak NPE'ye yol açar; Optional bunu tipin içine yazar.
+**Gerçek hayat:** `repo.findById(id).orElseThrow(() -> new NotFoundException(id))` → REST API'de 404 döndürmek.
+
+@@ alt | Sözlü · Runtime & Concurrency | Stack vs Heap?
+A: Der Stack speichert Methodenaufrufe, lokale Variablen und Referenzen. Jeder Thread hat seinen eigenen Stack. Er ist schnell und wird automatisch aufgeräumt, wenn eine Methode endet. Der Heap speichert alle Objekte, die ich mit new erzeuge. Den Heap räumt der Garbage Collector auf. Zu tiefe Rekursion führt zu einem StackOverflowError, ein voller Heap zu einem OutOfMemoryError.
+EX: **Ne zaman önemli:** Bellek hatalarını anlamak ve debug etmek için.
+**Neden:** Sonsuz recursion → StackOverflowError; hiç temizlenmeyen büyük listeler → OutOfMemoryError.
+**Gerçek hayat:** Stack = masandaki not kâğıtları (iş bitince atılır). Heap = depo; temizlikçi (Garbage Collector) artık kimsenin kullanmadığı kutuları kaldırır.
+
+@@ alt | Sözlü · Runtime & Concurrency | Was ist der Garbage Collector?
+A: Der Garbage Collector ist ein Teil der JVM. Er sucht automatisch Objekte im Heap, die nicht mehr erreichbar sind. Das heißt, keine Referenz zeigt mehr auf sie. Diese Objekte löscht er und gibt den Speicher frei. Deshalb muss ich in Java den Speicher nicht selbst freigeben. Ich kann den Garbage Collector nicht direkt steuern. System.gc() ist nur eine Bitte.
+EX: **Ne zaman önemli:** Memory leak sorularında. GC hâlâ ulaşılabilen nesneleri silemez: static bir listeye sürekli ekleyip hiç silmezsen bellek dolar.
+**Neden:** C/C++'taki elle bellek yönetimi hatalarını büyük ölçüde ortadan kaldırır.
+**Gerçek hayat:** Hiç temizlenmeyen bir cache, uygulamanın birkaç gün sonra `OutOfMemoryError` ile çökmesine yol açar.
+
+@@ alt | Sözlü · Runtime & Concurrency | Was ist der Unterschied zwischen Thread und Prozess?
+A: Ein Prozess ist ein laufendes Programm mit eigenem Speicher. Ein Thread ist ein Ausführungsstrang innerhalb eines Prozesses. Ein Prozess kann viele Threads haben. Diese Threads teilen sich den Speicher, also den Heap. Threads sind leichter als Prozesse. Aber wegen des gemeinsamen Speichers kann es Probleme wie Race Conditions geben.
+EX: **Ne zaman:** Aynı programda işleri paralel yürütmek → thread. Tamamen izole çalışma → ayrı process.
+**Neden:** Thread'ler belleği paylaşır ve hızlı haberleşir, ama senkronizasyon gerektirir.
+**Gerçek hayat:** Tarayıcıda sekmeler ayrı process'lerde çalışır (biri çökünce diğerleri yaşar). Bir web sunucusunda her istek ayrı bir thread'de işlenir.
+
+@@ alt | Sözlü · Runtime & Concurrency | Was bedeutet thread-safe?
+A: Thread-safe heißt: Der Code funktioniert korrekt, auch wenn mehrere Threads ihn gleichzeitig benutzen. Ein typisches Problem ist die Race Condition. Zwei Threads ändern dieselben Daten gleichzeitig, und das Ergebnis ist falsch. Sogar count++ ist nicht atomar. Lösungen sind synchronized, AtomicInteger, ConcurrentHashMap oder unveränderliche Objekte.
+EX: **Ne zaman:** Birden fazla thread aynı veriye yazıyorsa (web sunucusu, paralel import).
+**Neden:** Race condition hataları rastgele ve nadir görünür; bu yüzden bulması çok zordur.
+**Gerçek hayat:** İki kullanıcı aynı anda son ürünü satın alıyor; korumasız stok sayacı -1'e düşer (overselling).
+
+@@ alt | Sözlü · Runtime & Concurrency | HashMap vs ConcurrentHashMap?
+A: Eine HashMap ist nicht thread-safe. Wenn mehrere Threads gleichzeitig schreiben, können Daten verloren gehen. Eine ConcurrentHashMap ist für mehrere Threads gemacht. Sie ist thread-safe und trotzdem schnell, weil sie nicht die ganze Map sperrt. Eine ConcurrentHashMap erlaubt keine null-Schlüssel und keine null-Werte.
+EX: **Ne zaman:** Tek thread → HashMap. Birden fazla thread aynı map'e yazıyor → ConcurrentHashMap.
+**Neden:** Tüm map'i kilitleyen eski `Hashtable`'dan çok daha hızlıdır.
+**Gerçek hayat:** Web uygulamasında tüm isteklerin paylaştığı bir cache → ConcurrentHashMap.
+
+@@ alt | Sözlü · Runtime & Concurrency | Was ist ein Deadlock?
+A: Ein Deadlock ist eine Situation, in der zwei oder mehr Threads für immer aufeinander warten. Thread A hat Lock 1 und wartet auf Lock 2. Thread B hat Lock 2 und wartet auf Lock 1. Keiner kann weitermachen. Ich vermeide Deadlocks, indem alle Threads die Locks immer in derselben Reihenfolge holen und Locks nur kurz halten.
+EX: **Ne zaman önemli:** Birden fazla kilit (lock) kullanan kodda.
+**Neden:** Program hata vermez, sadece donar; bu yüzden bulması zordur.
+**Gerçek hayat:** Tek şeritli bir köprüye iki yönden giren iki araba: ikisi de geri çekilmezse sonsuza kadar bekler. Bonus: `volatile`, bir değişkendeki değişikliğin diğer thread'lerce hemen görülmesini sağlar, ama `count++`'ı atomik yapmaz.
+
+@@ alt | Sözlü · Ökosystem & Backend | Was sind Maven und Gradle?
+A: Maven und Gradle sind Build-Tools. Sie laden die Abhängigkeiten, also externe Bibliotheken, automatisch herunter. Sie kompilieren den Code, führen die Tests aus und erstellen am Ende eine JAR-Datei. Bei Maven stehen die Abhängigkeiten in der pom.xml, bei Gradle in der build.gradle. Eine JAR-Datei starte ich mit java -jar.
+EX: **Ne zaman:** Neredeyse her gerçek Java projesinde.
+**Neden:** Kütüphaneleri elle indirip sürüm takip etmek yerine tek dosyada tanımlarsın; herkes aynı şekilde build alır, CI/CD de bunu kullanır.
+**Gerçek hayat:** `pom.xml`'e Spring Boot ekle → `mvn clean package` → `target/app.jar` → sunucuda `java -jar app.jar`.
+
+@@ alt | Sözlü · Ökosystem & Backend | Was ist ein Unit-Test? Was machen JUnit und Mockito?
+A: Ein Unit-Test testet eine kleine Einheit, meistens eine Methode, getrennt vom Rest. JUnit ist das Standard-Framework dafür. Ich schreibe Methoden mit @Test und prüfe die Ergebnisse mit assertEquals() oder assertThrows(). Mockito erstellt Mock-Objekte. Damit ersetze ich echte Abhängigkeiten, zum Beispiel eine Datenbank, durch einfache Test-Objekte. So bleibt der Test schnell und unabhängig.
+EX: **Ne zaman:** Her önemli iş mantığında; özellikle bir hatayı düzeltirken önce o hatayı yakalayan testi yaz.
+**Neden:** Kod değişince bozulan yeri hemen gösterir; refactoring'i güvenli yapar.
+**Gerçek hayat:** `PriceCalculator`'ı test ederken gerçek veritabanı yerine Mockito ile sahte bir `ProductRepository` kullanırsın.
+
+@@ alt | Sözlü · Ökosystem & Backend | Was ist Dependency Injection?
+A: Dependency Injection heißt: Eine Klasse erzeugt ihre Abhängigkeiten nicht selbst mit new. Sie bekommt sie von außen, meistens über den Konstruktor. In Spring übernimmt das der IoC-Container, IoC heißt Inversion of Control. Der Vorteil ist lose Kopplung. Ich kann Implementierungen leicht austauschen und im Test einfach Mocks übergeben.
+EX: **Ne zaman:** Bir sınıf başka bir servise ya da repository'ye ihtiyaç duyduğunda (Spring'de neredeyse her yerde).
+**Neden:** Test edilebilirlik ve değiştirilebilirlik.
+**Gerçek hayat:** `OrderService` bir `PaymentClient` kullanıyor: testte sahte client, production'da gerçek banka API'si verilir; `OrderService` kodu hiç değişmez.
+
+@@ alt | Sözlü · Ökosystem & Backend | Was ist eine REST API?
+A: Eine REST API ist eine Schnittstelle über HTTP. Man arbeitet mit Ressourcen, zum Beispiel /users/5. Die HTTP-Methoden sagen, was passieren soll: GET liest, POST erstellt, PUT ersetzt, PATCH ändert teilweise und DELETE löscht. Die Daten werden meistens als JSON geschickt. Statuscodes zeigen das Ergebnis, zum Beispiel 200 OK, 201 Created oder 404 Not Found.
+EX: **Ne zaman:** Frontend ile backend arasında ya da iki sistem arasında haberleşmede.
+**Neden:** Standart, dilden bağımsız ve her yerde destekleniyor.
+**Gerçek hayat:** Mobil uygulama `GET /api/orders/42` ile sipariş durumunu çeker; kargo firması `POST /api/shipments` ile yeni gönderi oluşturur.
+
+@@ alt | Sözlü · Ökosystem & Backend | Was ist Spring Boot?
+A: Spring Boot ist ein Framework, mit dem ich schnell Java-Anwendungen und REST APIs baue. Es hat viel automatische Konfiguration und einen eingebauten Webserver. Typisch sind drei Schichten. Der Controller nimmt die HTTP-Anfragen an. Der Service enthält die Geschäftslogik. Das Repository spricht mit der Datenbank. Spring verbindet die Objekte mit Dependency Injection.
+EX: **Ne zaman:** Java ile backend/REST servisi yazarken. Almanya'daki Java backend ilanlarının çoğunda geçer.
+**Neden:** Katmanlara ayırmak (separation of concerns) kodu düzenli ve test edilebilir yapar.
+**Gerçek hayat:** `OrderController` (HTTP) → `OrderService` (stok kontrolü, fiyat hesabı) → `OrderRepository` (DB'ye kaydetme).
+
+@@ alt | Sözlü · Ökosystem & Backend | Was sind record und enum?
+A: Ein record ist eine kurze Klasse für unveränderliche Daten. Java erzeugt automatisch den Konstruktor, die Getter, equals(), hashCode() und toString(). Ein enum ist ein Typ mit einer festen Menge von Konstanten, zum Beispiel Wochentage oder ein Bestellstatus. Enums sind typsicher. Das heißt, ich kann keinen ungültigen Wert benutzen.
+EX: **Ne zaman:** Sadece veri taşıyan sınıflar (DTO, sonuç nesnesi) → record. Sınırlı ve sabit bir değer kümesi → enum.
+**Neden:** record onlarca satır tekrar kodunu siler; enum, String sabitlerindeki yazım hatalarını engeller.
+**Gerçek hayat:** `record Address(String street, String city)`, `enum OrderStatus { CREATED, SHIPPED, DELIVERED }`.
+
+@@ alt | Sözlü · Ökosystem & Backend | JDBC vs JPA vs Hibernate?
+A: JDBC ist die Standard-API von Java für Datenbanken. Damit schreibe ich SQL direkt und verarbeite die Ergebnisse selbst. JPA ist eine Spezifikation für ORM, also für die Abbildung von Java-Objekten auf Tabellen. Hibernate ist die bekannteste Implementierung von JPA. Mit JPA arbeite ich mit Objekten und Annotationen wie @Entity, und Hibernate erzeugt das SQL.
+EX: **Ne zaman:** Basit ya da çok özel sorgular, tam kontrol → JDBC. Tipik CRUD uygulaması → JPA/Hibernate (Spring Data JPA).
+**Neden:** ORM tekrar eden SQL ve dönüştürme kodunu azaltır; ama ürettiği SQL'i bilmek performans için önemlidir.
+**Gerçek hayat:** `@Entity class Order` yazarsın → Hibernate `orders` tablosu için INSERT/SELECT'leri kendisi üretir.
+
+@@ alt | Sözlü · Ökosystem & Backend | Wie gehst du beim Debugging vor?
+A: Zuerst versuche ich, den Fehler zu reproduzieren. Dann lese ich die Fehlermeldung und den Stacktrace. In der IDE setze ich einen Breakpoint vor der Fehlerstelle und starte im Debug-Modus. Mit Step Over gehe ich zur nächsten Zeile, mit Step Into springe ich in eine Methode hinein. Dabei beobachte ich die Werte der Variablen. Am Ende schreibe ich einen Test, damit der Fehler nicht zurückkommt.
+EX: **Ne zaman:** Her “beklenmeyen davranış”ta; `System.out.println` ile tahmin yürütmek yerine.
+**Neden:** Değişkenlerin gerçek değerini adım adım görürsün.
+**Gerçek hayat:** Fatura toplamı 1 cent yanlış çıkıyor → breakpoint koy, adım adım ilerle, `double` yuvarlama hatasını gör, `BigDecimal`'e geç, test ekle.
+
+@@ alt | Sözlü · Ökosystem & Backend | Wie arbeitest du mit Git im Team?
+A: Für jede Aufgabe erstelle ich einen eigenen Branch. Dort mache ich kleine Commits mit klaren Nachrichten. Dann pushe ich den Branch und öffne einen Pull Request. Ein Kollege macht ein Code Review, und die automatischen Tests laufen. Danach wird der Branch in den main-Branch gemergt. Bei einem Merge-Konflikt löse ich ihn manuell und teste noch einmal.
+EX: **Ne zaman:** Her ekip projesinde, tek başına çalışırken bile.
+**Neden:** main dalı hep çalışır halde kalır; değişiklikler incelenir ve gerekirse geri alınabilir.
+**Gerçek hayat:** `feature/login-fix` dalı → PR → review → CI yeşil → main'e merge → otomatik deploy. Bu uygulamanın kendi akışı da böyle!
+
+@@ alt | Kod · Collections | HashMap ile kelime sayma
+A: **Görev (çok olası):** Bir cümlede her kelimenin kaç kez geçtiğini bul. Büyük/küçük harf fark etmesin.
+Örnek: `"Der Hund und der Ball"` → `{der=2, hund=1, und=1, ball=1}`
+CODE:
+class WordCounter {
+    static Map<String, Integer> count(String text) {
+        Map<String, Integer> counts = new HashMap<>();
+        for (String word : text.toLowerCase().split("\\s+")) {
+            if (word.isEmpty()) continue;
+            counts.put(word, counts.getOrDefault(word, 0) + 1);
+        }
+        return counts;
+    }
+}
+NOTE: - `toLowerCase()`: “Der” ve “der” aynı kelime sayılsın diye her şeyi küçük harfe çevirir.
+- `split("\\s+")`: Bir ya da daha fazla boşluğa göre böler (`\\s+` = “en az bir boşluk karakteri”).
+- `if (word.isEmpty()) continue;`: Metin boşlukla başlarsa ilk parça boş gelir; onu atla.
+- `counts.getOrDefault(word, 0) + 1`: Kelime daha önce yoksa 0'dan başla, varsa mevcut sayıya 1 ekle. `put` aynı anahtarın eski değerinin üstüne yazar.
+EX: **Karmaşıklık:** O(n), her kelimeye bir kez bakılır; HashMap işlemleri ortalama O(1).
+**Gerçek hayat:** Log dosyasında en sık geçen hata kodlarını bulmak, müşteri yorumlarında en çok geçen kelimeler.
+SAY: Ich gehe einmal über alle Wörter und zähle sie in einer HashMap. Mit getOrDefault starte ich bei null, wenn das Wort neu ist.
+
+@@ alt | Kod · Collections | ArrayList üzerinde işlem: ekle, sil, filtrele, sırala
+A: **Görev (çok olası):** Bir öğrenci listesi oluştur, eleman ekle ve çıkar, notu 2,0 ve daha iyi olanları filtrele, isme göre sırala. (Almanya'da 1,0 en iyi nottur.)
+CODE:
+record Student(String name, double grade) {}
+
+class StudentDemo {
+    static List<Student> goodStudents() {
+        List<Student> list = new ArrayList<>();
+        list.add(new Student("Mia", 2.3));
+        list.add(new Student("Tom", 3.8));
+        list.add(new Student("Lea", 1.3));
+        list.add(new Student("Ali", 1.7));
+        // silme
+        list.removeIf(s -> s.name().equals("Tom"));
+
+        // filtreleme
+        List<Student> good = new ArrayList<>();
+        for (Student s : list) {
+            if (s.grade() <= 2.0) good.add(s);
+        }
+        // sıralama
+        good.sort(Comparator.comparing(Student::name));
+        return good; // [Ali, Lea]
+    }
+}
+NOTE: - `record Student(...)`: Constructor, getter (`name()`, `grade()`), equals ve toString'i otomatik veren kısa veri sınıfı.
+- `list.add(...)`: Listenin sonuna ekler.
+- `removeIf(s -> ...)`: Koşulu sağlayan elemanları güvenle siler. for-each içinde `remove` yapmak `ConcurrentModificationException` verir.
+- `for` + `if`: Filtreleme; koşulu sağlayanları yeni bir listeye koyar, orijinal liste değişmez.
+- `Comparator.comparing(Student::name)`: “İsme göre karşılaştır” kuralı; `sort` bu kurala göre sıralar.
+EX: **Karmaşıklık:** Ekleme O(1), filtreleme O(n), sıralama O(n log n).
+**Gerçek hayat:** Bugünkü siparişlerden iptalleri çıkar, acil olanları filtrele, teslim saatine göre sırala.
+SAY: Ich entferne Elemente mit removeIf, filtere mit einer Bedingung und sortiere mit einem Comparator nach dem Namen.
+
+@@ alt | Kod · OOP | Basit OOP modeli: Person ve Employee
+A: **Görev (çok olası):** Bir `Person` sınıfı ve ondan türeyen bir `Employee` sınıfı yaz. Employee'nin ek olarak maaşı olsun ve kendini farklı tanıtsın.
+CODE:
+class Person {
+    private final String name;
+    private final int age;
+
+    Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    String getName() { return name; }
+    String describe() { return name + " (" + age + ")"; }
+}
+
+class Employee extends Person {
+    private final double salary;
+
+    Employee(String name, int age, double salary) {
+        super(name, age);
+        this.salary = salary;
+    }
+    @Override
+    String describe() {
+        return super.describe() + ", Gehalt: " + salary;
+    }
+}
+NOTE: - `private final` alanlar: **Kapsülleme**; dışarıdan doğrudan erişilemez, sonradan değiştirilemez.
+- `this.name = name`: Aynı isimli parametreyi alandan ayırır.
+- `extends Person`: **Kalıtım**; Employee, Person'ın alanlarını ve metotlarını alır.
+- `super(name, age)`: Önce üst sınıfın constructor'ı çalışmalı; isim ve yaş orada atanır.
+- `@Override describe()`: **Overriding**; `super.describe()` ile üst sınıfın metnini alıp maaşı ekler.
+- `Person p = new Employee("Ali", 25, 2000);` yazıp `p.describe()` çağırırsan Employee'nin versiyonu çalışır → **polymorphism**.
+EX: **Gerçek hayat:** HR sistemi: `Person` → `Employee`, `Freelancer`. Bordro kodu hepsini `Person` olarak gezip her birinin kendi `describe()`/`cost()` metodunu çağırır.
+SAY: Employee erbt von Person, ruft im Konstruktor super() auf und überschreibt die Methode describe().
+
+@@ alt | Kod · String | Palindrom kontrolü
+A: **Görev (olası):** Bir String'in palindrom olup olmadığını kontrol et (tersten okunuşu aynı). Büyük/küçük harf, boşluk ve noktalama önemsiz.
+Örnek: `"Anna"` → true, `"Hallo"` → false, `"A man, a plan, a canal: Panama"` → true
+CODE:
+class Palindrome {
+    static boolean isPalindrome(String s) {
+        String t = s.toLowerCase().replaceAll("[^a-z0-9]", "");
+        int left = 0;
+        int right = t.length() - 1;
+        while (left < right) {
+            if (t.charAt(left) != t.charAt(right)) return false;
+            left++;
+            right--;
+        }
+        return true;
+    }
+}
+NOTE: - `replaceAll("[^a-z0-9]", "")`: Harf ve rakam dışındaki her şeyi (boşluk, virgül…) siler.
+- `left = 0`, `right = t.length() - 1`: İki işaretçi (**two pointers**): biri baştan, biri sondan başlar.
+- `while (left < right)`: Ortada buluşana kadar devam et.
+- `charAt(left) != charAt(right)` → `return false`: Tek bir uyuşmazlık yeterli, hemen çık.
+- Döngü biterse her çift eşleşmiştir → `true`.
+EX: **Karmaşıklık:** O(n) zaman. Alternatif: `new StringBuilder(t).reverse().toString().equals(t)` daha kısa ama ekstra bir kopya oluşturur.
+**Gerçek hayat:** Two pointers tekniği; sıralı veride çift arama gibi birçok soruda tekrar karşına çıkar.
+SAY: Ich bereinige den String und vergleiche dann mit zwei Zeigern von außen nach innen.
+
+@@ alt | Kod · Collections | Set ile duplicate silme
+A: **Görev (olası):** Bir listedeki tekrar eden sayıları kaldır, ilk görülme sırası korunsun.
+Örnek: `[3, 1, 3, 2, 1]` → `[3, 1, 2]`
+CODE:
+class RemoveDuplicates {
+    static List<Integer> unique(List<Integer> numbers) {
+        Set<Integer> seen = new LinkedHashSet<>(numbers);
+        return new ArrayList<>(seen);
+    }
+}
+NOTE: - `new LinkedHashSet<>(numbers)`: Listedeki her elemanı Set'e ekler. Set duplikatları kabul etmez, **LinkedHashSet** ayrıca ekleme sırasını korur.
+- `HashSet` kullansaydın tekrarlar yine silinirdi ama sıra garanti olmazdı; `TreeSet` ise küçükten büyüğe sıralardı.
+- `new ArrayList<>(seen)`: Sonucu tekrar List'e çevirir, çünkü metot List döndürüyor.
+- Stream alternatifi: `numbers.stream().distinct().toList()`.
+EX: **Karmaşıklık:** O(n). İç içe iki for döngüsüyle yapmak O(n²) olurdu.
+**Gerçek hayat:** İki kez gönderilmiş aynı sipariş numaralarını temizlemek, e-posta listesindeki tekrar eden adresleri silmek.
+SAY: Ich benutze ein LinkedHashSet, weil es Duplikate entfernt und die Reihenfolge behält.
+
+@@ alt | Kod · Streams | Stream API ile filtreleme: çift sayıların karesi
+A: **Görev (olası):** Bir sayı listesinden çift sayıları seç ve karelerini al.
+Örnek: `[1, 2, 3, 4, 5, 6]` → `[4, 16, 36]`
+CODE:
+class EvenSquares {
+    static List<Integer> evenSquares(List<Integer> numbers) {
+        return numbers.stream()
+                .filter(n -> n % 2 == 0)
+                .map(n -> n * n)
+                .toList();
+    }
+}
+NOTE: - `stream()`: Listeyi bir veri akışına çevirir; orijinal liste değişmez.
+- `filter(n -> n % 2 == 0)`: Sadece çiftleri bırakır (`%` = bölümden kalan). Eleman sayısı **azalabilir**.
+- `map(n -> n * n)`: Her elemanı karesine **dönüştürür**; eleman sayısı aynı kalır.
+- `toList()`: Sonucu yeni bir listeye toplar (Java 16+). Eski yazım: `.collect(Collectors.toList())`.
+EX: **Karmaşıklık:** O(n).
+**Gerçek hayat:** Sadece aktif ürünleri al (filter) → fiyatlarına KDV ekle (map) → listeye topla.
+SAY: Mit filter wähle ich die geraden Zahlen aus, mit map berechne ich das Quadrat, und toList sammelt das Ergebnis.
+
+@@ alt | Kod · OOP | Interface ve polymorphism: PaymentMethod
+A: **Görev (olası):** Bir `PaymentMethod` interface'i oluştur; `CreditCard` ve `PayPal` implementasyonlarını yaz. Ödeme yapan kod, hangi yöntem olduğunu bilmeden çalışsın.
+CODE:
+interface PaymentMethod {
+    String pay(double amount);
+}
+
+class CreditCard implements PaymentMethod {
+    public String pay(double amount) {
+        return amount + " EUR mit Kreditkarte bezahlt";
+    }
+}
+
+class PayPal implements PaymentMethod {
+    public String pay(double amount) {
+        return amount + " EUR mit PayPal bezahlt";
+    }
+}
+
+class Checkout {
+    static void payAll(List<PaymentMethod> methods, double amount) {
+        for (PaymentMethod m : methods) {
+            System.out.println(m.pay(amount));
+        }
+    }
+}
+NOTE: - `interface PaymentMethod`: Sözleşme; “her ödeme yöntemi `pay` yapabilmeli” der, nasıl yapacağını söylemez.
+- `implements PaymentMethod`: Sınıf bu sözleşmeye uyacağına söz verir; `pay` metodunu yazmak zorundadır.
+- `public String pay(...)`: Interface metotları otomatik `public`'tir; implementasyonda da `public` yazmak zorunlu (yoksa derlenmez).
+- `List<PaymentMethod>`: Liste interface tipinde; içine CreditCard da PayPal da girer.
+- `m.pay(amount)`: Hangi nesneyse onun `pay`'i çalışır → **polymorphism**. Yeni bir yöntem eklemek `Checkout`'u değiştirmeyi gerektirmez.
+EX: **Gerçek hayat:** Online mağazaya yarın yeni bir ödeme yöntemi eklenecekse sadece yeni bir sınıf yazarsın. Bu, SOLID'deki Open/Closed prensibidir.
+SAY: Checkout kennt nur das Interface PaymentMethod. Welche pay-Methode läuft, entscheidet Java zur Laufzeit.
+
+@@ alt | Kod · Exceptions | Exception handling: String'i sayıya çevir
+A: **Görev (olası):** Bir String'i sayıya dönüştür; geçersiz girdide program çökmesin, varsayılan bir değer dönsün.
+Örnek: `"42"` → 42, `" 7 "` → 7, `"abc"` → -1, `null` → -1
+CODE:
+class SafeParse {
+    static int parseOrDefault(String input, int fallback) {
+        if (input == null) return fallback;
+        try {
+            return Integer.parseInt(input.trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Ungültige Zahl: " + input);
+            return fallback;
+        }
+    }
+}
+NOTE: - `if (input == null) return fallback;`: null'a `trim()` çağırmak NPE verir; önce kontrol et.
+- `input.trim()`: Baştaki ve sondaki boşlukları siler; `" 7 "` geçerli sayılsın.
+- `Integer.parseInt(...)`: Geçersiz metinde `NumberFormatException` fırlatır (unchecked).
+- `catch (NumberFormatException e)`: Sadece beklenen hatayı yakala, `catch (Exception e)` yazma. Hatayı logla, boş catch bırakma.
+- `return fallback`: Program devam eder, çağıran taraf varsayılan değeri alır.
+EX: **Gerçek hayat:** CSV'den miktar sütununu okurken bir satırda “abc” varsa tüm import çökmesin: o satırı logla, devam et.
+SAY: Ich fange gezielt die NumberFormatException, logge die ungültige Eingabe und gebe einen Standardwert zurück.
+
+@@ alt | Kod · Algoritma | Fibonacci
+A: **Görev (olası):** n. Fibonacci sayısını hesapla. Dizi: 0, 1, 1, 2, 3, 5, 8, 13… (her sayı önceki ikisinin toplamı).
+Örnek: `fib(0)` = 0, `fib(1)` = 1, `fib(10)` = 55
+CODE:
+class Fibonacci {
+    static long fib(int n) {
+        if (n < 0) throw new IllegalArgumentException("n < 0");
+        long a = 0;
+        long b = 1;
+        for (int i = 0; i < n; i++) {
+            long next = a + b;
+            a = b;
+            b = next;
+        }
+        return a;
+    }
+}
+NOTE: - `long`: Fibonacci sayıları çok hızlı büyür; `int` 47. adımda taşar (overflow).
+- `a = 0, b = 1`: Dizinin ilk iki elemanı. `a` her zaman “şu anki” sayıyı tutar.
+- Döngüde `next = a + b; a = b; b = next;`: İki değişkeni bir adım kaydırır; sadece son iki sayıyı hatırlamak yeterli.
+- `return a`: n adım kaydırınca `a` n. sayıdır.
+- Recursive versiyon (`fib(n-1) + fib(n-2)`) kısa görünür ama O(2ⁿ), çok yavaştır. Mülakatta bunu söylemek artı puan.
+EX: **Karmaşıklık:** O(n) zaman, O(1) bellek.
+**Gerçek hayat:** Doğrudan nadir kullanılır; ama “recursion vs iterasyon” ve “aynı hesabı tekrar yapma” (dynamic programming) fikrini gösteren klasik sorudur.
+SAY: Ich rechne iterativ und merke mir nur die letzten zwei Zahlen. Die rekursive Lösung wäre exponentiell langsam.
+
+@@ alt | Kod · Algoritma | Asal sayı testi
+A: **Görev (olası):** Bir sayının asal olup olmadığını kontrol et.
+Örnek: 2, 13, 97 → true; 0, 1, 9, 100 → false
+CODE:
+class Prime {
+    static boolean isPrime(int n) {
+        if (n < 2) return false;
+        for (int i = 2; i <= n / i; i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+}
+NOTE: - `if (n < 2) return false;`: 0 ve 1 asal değildir, negatifler de değildir.
+- `i <= n / i`: Bu, `i * i <= n` demektir; yani sadece **√n'e kadar** denemek yeterli. 100'ün bir böleni 10'dan büyükse (ör. 20), eşi 10'dan küçüktür (5) ve zaten bulunmuştur. Bölme kullanmak, çok büyük sayılarda `i * i` taşmasını engeller.
+- `n % i == 0`: Kalansız bölünüyorsa asal değil, hemen çık.
+EX: **Karmaşıklık:** O(√n). 2'den n'e kadar denemek O(n) olurdu.
+**Gerçek hayat:** Kriptografi (RSA) büyük asal sayılara dayanır. Mülakatta asıl ölçülen şey √n optimizasyonunu bilmen.
+SAY: Ich prüfe nur Teiler bis zur Wurzel aus n, weil jeder größere Teiler einen kleineren Partner hat.
+
+@@ alt | Kod · Algoritma | Dizide max ve min bulma
+A: **Görev (olası):** Bir int dizisindeki en büyük ve en küçük değeri tek geçişte bul.
+Örnek: `[3, -2, 9, 4]` → min = -2, max = 9
+CODE:
+class MinMax {
+    static int[] minMax(int[] numbers) {
+        if (numbers.length == 0) {
+            throw new IllegalArgumentException("leeres Array");
+        }
+        int min = numbers[0];
+        int max = numbers[0];
+        for (int n : numbers) {
+            if (n < min) min = n;
+            if (n > max) max = n;
+        }
+        return new int[] {min, max};
+    }
+}
+NOTE: - Boş dizi kontrolü: Boş dizide `numbers[0]` → `ArrayIndexOutOfBoundsException`. Edge case'i düşündüğünü göster.
+- `min = max = numbers[0]`: Başlangıç değeri **ilk eleman** olmalı. `max = 0` ile başlamak tüm sayılar negatifse yanlış sonuç verir (klasik hata!).
+- `for (int n : numbers)`: Her elemana bir kez bak, gerekirse min/max'ı güncelle.
+- `return new int[] {min, max}`: İki değer döndürmenin basit yolu (alternatif: küçük bir `record`).
+EX: **Karmaşıklık:** O(n), tek geçiş. Önce sıralamak O(n log n) olurdu, gereksiz.
+**Gerçek hayat:** Bir haftalık sıcaklık ölçümlerinde en düşük/en yüksek değer, depodaki en ağır paket.
+SAY: Ich starte mit dem ersten Element und aktualisiere Minimum und Maximum in einem einzigen Durchlauf.
+
+@@ alt | Kod · Algoritma | Binary search
+A: **Görev (olası):** **Sıralı** bir dizide hedef sayının indeksini bul; yoksa -1 döndür.
+Örnek: `[1, 3, 5, 7, 9, 11]`, hedef 7 → 3
+CODE:
+class BinarySearch {
+    static int search(int[] sorted, int target) {
+        int left = 0;
+        int right = sorted.length - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (sorted[mid] == target) return mid;
+            if (sorted[mid] < target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return -1;
+    }
+}
+NOTE: - Ön koşul: Dizi **sıralı** olmalı, yoksa binary search çalışmaz.
+- `left <= right`: Aralıkta en az bir eleman kaldığı sürece devam et (`<=`, tek elemanlı aralığı da kontrol eder).
+- `mid = left + (right - left) / 2`: Ortayı bulur. `(left + right) / 2` çok büyük dizilerde int taşmasına yol açabilir.
+- `sorted[mid] < target` → `left = mid + 1`: Hedef sağ yarıda; sol yarıyı tamamen at.
+- Aksi halde `right = mid - 1`: Hedef sol yarıda.
+- Her adımda arama alanı yarıya iner.
+EX: **Karmaşıklık:** O(log n). 1 milyon elemanda en fazla ~20 adım (lineer aramada 1 milyon).
+**Gerçek hayat:** Sözlükte kelime aramak; tarihe göre sıralı log'larda belirli bir zamanı bulmak. Java'da hazırı: `Arrays.binarySearch`.
+SAY: Binary Search halbiert in jedem Schritt den Suchbereich, deshalb ist sie O(log n). Das Array muss sortiert sein.
+
+@@ alt | Kod · Algoritma | İki sayının toplamı (Two Sum)
+A: **Görev (olası):** Bir dizide toplamı `target` eden iki sayının indekslerini bul.
+Örnek: `[2, 7, 11, 15]`, target 9 → `[0, 1]` (2 + 7)
+CODE:
+class TwoSum {
+    static int[] twoSum(int[] nums, int target) {
+        // Wert -> Index
+        Map<Integer, Integer> seen = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            int need = target - nums[i];
+            if (seen.containsKey(need)) {
+                return new int[] {seen.get(need), i};
+            }
+            seen.put(nums[i], i);
+        }
+        return new int[0];
+    }
+}
+NOTE: - `Map<Integer, Integer> seen`: Şimdiye kadar görülen sayılar → indeksleri.
+- `need = target - nums[i]`: Bu sayının “eşi” ne olmalı? (9 - 7 = 2)
+- `seen.containsKey(need)`: Eşi daha önce gördük mü? HashMap'te bu O(1).
+- Bulunduysa `{eşin indeksi, şimdiki indeks}` döndür.
+- `seen.put(...)` kontrolden **sonra**: Böylece bir eleman kendisiyle eşleşmez (ör. target 6 ve tek bir 3 varsa).
+- `return new int[0]`: Çözüm yoksa boş dizi.
+EX: **Karmaşıklık:** O(n). İç içe iki döngüyle her çifti denemek O(n²) olurdu; mülakatçı tam bu iyileştirmeyi görmek ister.
+**Gerçek hayat:** “Toplamı bütçeye tam eşit iki ürün”, “toplamı kamyon kapasitesini dolduran iki paket”.
+SAY: Ich speichere jede Zahl mit ihrem Index in einer HashMap und prüfe, ob die passende Ergänzung schon da ist. So brauche ich nur einen Durchlauf.
+
+@@ alt | Kod · Test | JUnit ile test yazma
+A: **Görev (ekstra):** Bir metot için normal durum, edge case ve hatalı girdi testleri yaz.
+CODE:
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class Calculator {
+    static int divide(int a, int b) {
+        if (b == 0) {
+            throw new IllegalArgumentException("Division durch 0");
+        }
+        return a / b;
+    }
+}
+
+class CalculatorTest {
+    @Test
+    void normalCase() {
+        assertEquals(5, Calculator.divide(10, 2));
+    }
+
+    @Test
+    void edgeCaseNegativeRoundsTowardZero() {
+        assertEquals(-3, Calculator.divide(-7, 2));
+    }
+
+    @Test
+    void divisionByZeroThrows() {
+        assertThrows(IllegalArgumentException.class,
+                () -> Calculator.divide(1, 0));
+    }
+}
+NOTE: - `@Test`: JUnit bu metodu test olarak çalıştırır.
+- `assertEquals(beklenen, gerçek)`: Önce **beklenen** değer yazılır. Eşit değilse test kırmızı olur.
+- Normal durum: `10 / 2 = 5`; temel davranış çalışıyor mu?
+- Edge case: `-7 / 2` Java'da `-3`'tür, çünkü int bölme sıfıra doğru keser (`-4` değil). Sınır durumları ayrı test etmek, mülakatçının görmek istediği şeydir.
+- `assertThrows(Exception.class, () -> ...)`: Hatalı girdide doğru exception'ın fırlatıldığını kontrol eder; lambda “bu kodu çalıştır” demektir.
+- Test isimleri ne test edildiğini anlatmalı (`divisionByZeroThrows`).
+EX: **Gerçek hayat:** Bir bug bulunca önce onu yakalayan testi yaz (kırmızı), sonra düzelt (yeşil). Test CI'da her push'ta çalışır ve hata geri gelmez.
+SAY: Ich teste den Normalfall, einen Grenzfall und ungültige Eingaben. Für Exceptions benutze ich assertThrows.
