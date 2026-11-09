@@ -11,6 +11,7 @@ template.html        UI (tek dosya: HTML + CSS + vanilla JS, framework yok)
 content/job.txt      Bölüm 1: Werkstudent & mülakat (Java, Python, SQL, Git, kodlama mülakatı, şirket/domain)
 content/alt.txt      Bölüm 1-Alt: “🇩🇪 Mülakat (Alternatif)” — başka kaynaktan Java mülakat listesi; Almanca sözlü soru-cevap + okunacak kod çözümleri
 content/quiz.txt     Rastgele testin soru bankası (kart olarak görünmez; alt sekmesindeki “📝 Rastgele test”)
+content/tez.json     Bölüm “🎓 Tez” — kaynak ~/Desktop/tez_ortak/tez_reels_karten*.json (Almanca); build.py JSON'u karta çevirir (frage→başlık, antwort→A, merksatz→SAY “Merksatz”, typ→TAG)
 content/code.txt     Bölüm 1b: Kod Pratiği — LeetCode Easy soruları + sektörden mini görevler (ipucu + Java/Python çözüm)
 content/arch.txt     Bölüm 2: SOLID, design patterns, mimari türleri, sistem tasarımı
 content/cyber.txt    Bölüm 3: siber güvenlik temelleri (kavram + savunma + kariyer)
@@ -21,7 +22,7 @@ transcripts/         (gitignore) ham altyazılar ve parçalar
 index.html           ÜRETİLEN dosya, elle düzenleme
 public/              PWA dosyaları (manifest, sw.js, ikonlar) — workflow index.html ile birlikte yayınlar
 scripts/make_icons.py  public/ içindeki PNG ikonları üretir
-.github/workflows/pages.yml  main'e push -> build -> https://asaylisoy.github.io/swipe-learn/
+.github/workflows/pages.yml  main'e push -> build -> https://asaylisoy.github.io/swipe-learn/ (repo ve site herkese açık; kullanıcı bilerek böyle istedi)
 ```
 
 Build: `python3 scripts/build.py .` (template.html içindeki `%%CARDS%%` yerine kartları koyar).
@@ -46,7 +47,7 @@ Python çözümü (katlanır)
 - Yeni kod sorusu eklerken: A = kendi cümlelerinle problem + örnek, HINT = yaklaşımı ele vermeden yön göster, SOL/PY = çalışan çözüm, EX = karmaşıklık + gerçek hayattaki karşılığı. **Her çözümü örneklerle gerçekten çalıştırıp doğrula.**
 - `alt` bölümü: başlık = Almanca mülakat sorusu, `A` = ~30 sn'lik sade Almanca (B1) ezber cevabı, `EX` = Türkçe “**Ne zaman:** / **Neden:** / **Gerçek hayat:**” satırları. Kod kartlarında (konu `Kod · …`) `A` görev, `CODE` çözüm (sadece top-level tipler, gevşek metot yok), `NOTE:` “önemli satırların mantığı” maddeleri. Yeni kod kartı ekleyince `scripts/verify_java.py` içindeki TESTS'e test ekle.
 - `quiz.txt` formatı: `@@ quiz | Konu | Almanca soru`, 4 adet `O: şık` (doğru olanın başında `*`), `WHY: Türkçe açıklama`.
-- `bölüm` ∈ `job | alt | code | arch | cyber` (+ `quiz` soru bankası). Kart kimliği = bölüm + başlık → başlığı değiştirmek kullanıcının ilerlemesini sıfırlar; gerekmedikçe değiştirme.
+- `bölüm` ∈ `job | alt | code | arch | cyber | tez` (+ `quiz` soru bankası). `tez` kartları .txt'de değil, `content/tez.json`'da. Kart kimliği = bölüm + başlık → başlığı değiştirmek kullanıcının ilerlemesini sıfırlar; gerekmedikçe değiştirme.
 - Uygulama içi “Kart içe aktar” JSON formatı: `[{"s":"cyber","t":"Konu","q":"Başlık","A":"...","EX":"...","CODE":"...","SAY":"..."}]`
 
 ## İçerik kuralları

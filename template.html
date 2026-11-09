@@ -15,7 +15,7 @@
 :root{
   --bg:#0e0f13; --card:#171920; --card2:#1f222b; --line:#2a2e3a;
   --tx:#e9ebf1; --mut:#9aa0b0; --acc:#7c9cff; --ok:#4fd18b; --warn:#ffb454;
-  --job:#7c9cff; --alt:#ffd166; --arch:#c58cff; --cyber:#4fd1c5; --code:#ff8fa3;
+  --job:#7c9cff; --alt:#ffd166; --tez:#a3e635; --arch:#c58cff; --cyber:#4fd1c5; --code:#ff8fa3;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -35,6 +35,7 @@ header{padding:calc(env(safe-area-inset-top) + 8px) 12px 8px;background:var(--bg
 .tab.on[data-s=all]{background:var(--tx)}
 .tab.on[data-s=job]{background:var(--job)}
 .tab.on[data-s=alt]{background:var(--alt)}
+.tab.on[data-s=tez]{background:var(--tez)}
 .tab.on[data-s=arch]{background:var(--arch)}
 .tab.on[data-s=cyber]{background:var(--cyber)}
 .tab.on[data-s=code]{background:var(--code)}
@@ -105,6 +106,7 @@ textarea.mine{width:100%;min-height:96px;background:#0b0c10;color:#cfe3ff;border
 textarea.mine{font-size:16px}
 .sy{display:block;font-size:11px;color:var(--mut);min-height:14px;margin-bottom:6px}
 #sheet input{width:100%;background:#0b0c10;color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:9px;font-size:16px;margin-top:4px}
+.tag{font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:1px 7px;white-space:nowrap}
 .note{background:rgba(124,196,255,.08);border:1px solid rgba(124,196,255,.3)}
 .note b.h{color:#7cc4ff}
 #testBar{display:none;width:100%;margin-top:8px;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.5);color:var(--alt);border-radius:10px;padding:7px 10px;font-size:13px;font-weight:700;text-align:left;cursor:pointer}
@@ -147,6 +149,7 @@ textarea.mine{font-size:16px}
     <button class="tab" data-s="code">🧩 Kod Pratiği</button>
     <button class="tab" data-s="arch">🏗️ Yazılım & Mimari</button>
     <button class="tab" data-s="cyber">🛡️ Siber Güvenlik</button>
+    <button class="tab" data-s="tez">🎓 Tez</button>
   </div>
   <div class="sub">
     <select id="topic"></select>
@@ -198,20 +201,20 @@ textarea.mine{font-size:16px}
 </script>
 <script>
 (function(){
-const SEC = {job:{n:"Werkstudent",c:"var(--job)"},alt:{n:"Mülakat Alt.",c:"var(--alt)"},code:{n:"Kod Pratiği",c:"var(--code)"},arch:{n:"Yazılım",c:"var(--arch)"},cyber:{n:"Siber",c:"var(--cyber)"}};
+const SEC = {job:{n:"Werkstudent",c:"var(--job)"},alt:{n:"Mülakat Alt.",c:"var(--alt)"},tez:{n:"Tez",c:"var(--tez)"},code:{n:"Kod Pratiği",c:"var(--code)"},arch:{n:"Yazılım",c:"var(--arch)"},cyber:{n:"Siber",c:"var(--cyber)"}};
 function parse(raw){
   return raw.split(/^@@ /m).slice(1).map(function(block){
     const lines = block.split("\n");
     const head = lines[0].split("|").map(function(x){return x.trim();});
-    const c = {s:head[0], t:head[1]||"", q:head.slice(2).join("|")||"", A:"", EX:"", CODE:"", SAY:"", HINT:"", SOL:"", PY:"", NOTE:"", WHY:"", O:[]};
+    const c = {s:head[0], t:head[1]||"", q:head.slice(2).join("|")||"", A:"", EX:"", CODE:"", SAY:"", HINT:"", SOL:"", PY:"", NOTE:"", WHY:"", TAG:"", O:[]};
     let cur = null;
     for (const ln of lines.slice(1)){
-      const m = ln.match(/^(A|EX|CODE|SAY|HINT|SOL|PY|NOTE|WHY|O):\s?(.*)$/);
+      const m = ln.match(/^(A|EX|CODE|SAY|HINT|SOL|PY|NOTE|WHY|TAG|O):\s?(.*)$/);
       if (m && m[1] === "O"){ c.O.push(m[2]); cur = null; continue; }
       if (m){ cur = m[1]; c[cur] = m[2]; continue; }
       if (cur) c[cur] += (c[cur] ? "\n" : "") + ln;
     }
-    ["A","EX","CODE","SAY","HINT","SOL","PY","NOTE","WHY"].forEach(function(k){ c[k] = c[k].replace(/\s+$/,""); });
+    ["A","EX","CODE","SAY","HINT","SOL","PY","NOTE","WHY","TAG"].forEach(function(k){ c[k] = c[k].replace(/\s+$/,""); });
     return c;
   });
 }
@@ -302,7 +305,7 @@ function render(){
   feed.innerHTML = l.map(function(c, i){
     const s = SEC[c.s] || {n:c.s, c:"var(--acc)"};
     return '<section class="card" data-id="'+esc(c.id)+'"><div class="in '+(st.mode==="quiz"?"quiz":"")+(c.s==="code"?" prob":"")+(c.s==="alt"?" wrapcode":"")+'" style="--c:'+s.c+'">'
-      + '<div class="meta"><span class="chip">'+esc(s.n)+'</span><span>'+esc(c.t)+'</span><span class="lv">'+esc(dueTx(c.id))+'</span><span class="num">'+(i+1)+'/'+l.length+'</span></div>'
+      + '<div class="meta"><span class="chip">'+esc(s.n)+'</span><span>'+esc(c.t)+'</span>'+(c.TAG ? '<span class="tag">'+esc(c.TAG)+'</span>' : '')+'<span class="lv">'+esc(dueTx(c.id))+'</span><span class="num">'+(i+1)+'/'+l.length+'</span></div>'
       + '<h2>'+inline(c.q)+'</h2>'
       + '<div class="reveal">👆 Önce kendin cevapla, sonra dokun</div>'
       + '<div class="body">' + rich(c.A)
@@ -313,7 +316,7 @@ function render(){
       + (c.SOL ? '<details class="sol"><summary>✅ Çözüm (Java)</summary><div><pre>'+esc(c.SOL)+'</pre></div></details>' : '')
       + (c.PY ? '<details class="py"><summary>🐍 Çözüm (Python)</summary><div><pre>'+esc(c.PY)+'</pre></div></details>' : '')
       + (c.EX ? '<div class="box ex"><b class="h">'+(c.s==="alt" ? "💡 Ne zaman · neden · gerçek hayat" : "🌍 Gerçek hayattan")+'</b>'+rich(c.EX)+'</div>' : '')
-      + (c.SAY ? '<div class="box say"><b class="h">🎤 Mülakatta böyle söyle</b>'+rich(c.SAY)+'</div>' : '')
+      + (c.SAY ? '<div class="box say"><b class="h">'+(c.s==="tez" ? "🧠 Merksatz" : "🎤 Mülakatta böyle söyle")+'</b>'+rich(c.SAY)+'</div>' : '')
       + (c.s!=="code" ? '<details class="mynote"'+(notes[c.id]?' open':'')+'><summary>📝 Notum</summary><div><textarea class="mine" placeholder="Kendi cümlelerinle not al, AI\'dan öğrendiklerini ekle…">'+esc(notes[c.id]||"")+'</textarea><span class="sy">'+esc(syncTxt)+'</span></div></details>' : '')
       + '</div>'
       + '<div class="act"><button class="r '+(st.rev[c.id]?"on":"")+'">↻ Tekrar</button><button class="k '+(st.known[c.id]?"on":"")+'">✓ Biliyorum</button></div>'
@@ -529,7 +532,8 @@ if (sync && sync.gist) syncNow();
 })();
 
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
-  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+  // şifreli kabuktan document.write ile açıldığında "load" olayı güvenilir değil; doğrudan kaydet
+  navigator.serviceWorker.register("sw.js").catch(() => {});
 }
 </script>
 </body>

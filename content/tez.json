@@ -1,0 +1,768 @@
+{
+  "section": "Tez",
+  "sprache": "de",
+  "erstellt": "2026-11-09",
+  "anzahl": 106,
+  "karten": [
+    {
+      "id": "tez-001",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was ist ein evolutionärer Algorithmus (EA)?",
+      "antwort": "Ein Optimierungsverfahren nach dem Vorbild der Evolution: Eine Population von Lösungskandidaten wird bewertet, die besseren werden ausgewählt, durch Mutation und Rekombination verändert und bilden die nächste Generation. Es braucht keine Ableitung, nur eine Bewertungsfunktion.",
+      "merksatz": "Bewerten – auswählen – verändern – wiederholen."
+    },
+    {
+      "id": "tez-002",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was ist ein Genom?",
+      "antwort": "Die Kodierung eines Lösungskandidaten, meist ein Vektor aus Zahlen. Bei uns kodiert ein Genom die Parameter (später die Netzgewichte) eines Designer-Agenten, nicht ein einzelnes Level."
+    },
+    {
+      "id": "tez-003",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was ist eine Fitnessfunktion?",
+      "antwort": "Die Funktion, die einem Kandidaten eine Bewertung zuordnet: Wie gut ist er? Sie ist das Ziel, auf das die Evolution optimiert. Bei uns wird sie aus Messgrößen des Solvers bzw. der Simulation berechnet, z. B. Abweichung von einer Zielschwierigkeit.",
+      "merksatz": "Die Fitness ist das, was die Evolution wirklich optimiert – nicht das, was man meint."
+    },
+    {
+      "id": "tez-004",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was sind Selektion, Mutation und Rekombination?",
+      "antwort": "Selektion wählt bessere Kandidaten als Eltern aus. Mutation verändert ein Genom zufällig ein wenig (z. B. Gauß-Rauschen auf Zahlen). Rekombination (Crossover) mischt die Genome zweier Eltern zu einem Kind."
+    },
+    {
+      "id": "tez-005",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was bedeutet Evaluationsbudget?",
+      "antwort": "Die maximale Anzahl an Fitnessbewertungen, z. B. 50.000 generierte und bewertete Level. Für einen fairen Vergleich bekommen alle Verfahren dasselbe Budget, weil die Bewertung der teure Teil ist.",
+      "merksatz": "Fair vergleichen heißt: gleiches Budget an Bewertungen."
+    },
+    {
+      "id": "tez-006",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was ist Neuroevolution?",
+      "antwort": "Die Gewichte (und ggf. die Struktur) eines neuronalen Netzes werden mit einem EA optimiert statt mit Gradientenabstieg. Vorteil: funktioniert auch, wenn es keine differenzierbare Belohnung gibt, z. B. wenn ein Solver ein ganzes Level bewertet."
+    },
+    {
+      "id": "tez-007",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was ist NEAT?",
+      "antwort": "NeuroEvolution of Augmenting Topologies (Stanley & Miikkulainen 2002): evolviert Gewichte und Struktur eines Netzes, beginnend mit kleinen Netzen, mit Speziation zum Schutz neuer Strukturen. Für unsere kleinen Netze reicht evtl. eine feste Topologie mit GA oder CMA-ES."
+    },
+    {
+      "id": "tez-008",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was ist CMA-ES?",
+      "antwort": "Covariance Matrix Adaptation Evolution Strategy: eine Evolutionsstrategie für reelle Vektoren, die die Verteilung der Mutationen (Mittelwert und Kovarianz) an den Erfolg anpasst. Sehr stark für kontinuierliche Optimierung mit wenigen hundert Parametern."
+    },
+    {
+      "id": "tez-009",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Was ist Mehrzieloptimierung (multi-objective)?",
+      "antwort": "Es werden mehrere, oft konkurrierende Ziele gleichzeitig optimiert, z. B. Schwierigkeit, Fairness und Spannungsrhythmus. Statt einer besten Lösung gibt es eine Menge von Kompromissen."
+    },
+    {
+      "id": "tez-010",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Was ist Pareto-Dominanz?",
+      "antwort": "Lösung A dominiert B, wenn A in keinem Ziel schlechter und in mindestens einem Ziel besser ist als B. Nicht dominierte Lösungen sind die besten Kompromisse.",
+      "merksatz": "Nirgends schlechter, irgendwo besser."
+    },
+    {
+      "id": "tez-011",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Was ist eine Pareto-Front?",
+      "antwort": "Die Menge aller nicht dominierten Lösungen. Sie zeigt die Kompromisse zwischen den Zielen: Man kann ein Ziel nur noch verbessern, indem man ein anderes verschlechtert."
+    },
+    {
+      "id": "tez-012",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Was ist NSGA-II?",
+      "antwort": "Ein elitärer evolutionärer Mehrzielalgorithmus (Deb et al. 2002). Eltern und Kinder werden zusammengelegt, nach Pareto-Rängen sortiert (fast non-dominated sorting) und innerhalb eines Rangs nach Crowding Distance ausgewählt. So entsteht eine gute und gleichmäßig verteilte Front.",
+      "merksatz": "Ränge für Qualität, Crowding Distance für Vielfalt."
+    },
+    {
+      "id": "tez-013",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Was ist Non-dominated Sorting?",
+      "antwort": "Die Population wird in Fronten zerlegt: Front 1 = nicht dominierte Lösungen, Front 2 = nicht dominiert, wenn man Front 1 entfernt, usw. Der Rang ist das wichtigste Selektionskriterium in NSGA-II."
+    },
+    {
+      "id": "tez-014",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Was ist die Crowding Distance?",
+      "antwort": "Ein Maß dafür, wie dicht eine Lösung von Nachbarn in ihrer Front umgeben ist (Summe der normierten Abstände in jedem Ziel). Lösungen in dünn besetzten Regionen werden bevorzugt, damit die Front breit bleibt."
+    },
+    {
+      "id": "tez-015",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Wie behandelt NSGA-II Nebenbedingungen (Constraints)?",
+      "antwort": "Mit Constrained Domination: Eine zulässige Lösung schlägt immer eine unzulässige; zwei unzulässige werden nach Größe der Verletzung verglichen. Bei uns z. B.: Level muss spielbar und gültig sein."
+    },
+    {
+      "id": "tez-016",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Was ist der Hypervolume-Indikator?",
+      "antwort": "Das Volumen des Zielraums, das eine Front relativ zu einem festen Referenzpunkt dominiert. Ein Wert misst Qualität und Ausbreitung zugleich und ist Pareto-konform. Ziele müssen dafür normiert sein.",
+      "merksatz": "Mehr dominierte Fläche = bessere Front."
+    },
+    {
+      "id": "tez-017",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Was ist das Many-Objective-Problem?",
+      "antwort": "Ab etwa vier oder mehr Zielen sind fast alle Lösungen gegenseitig nicht dominiert, die Pareto-Selektion verliert ihren Druck. NSGA-II wird dann schwächer; Alternativen sind z. B. NSGA-III oder das Zusammenfassen von Zielen."
+    },
+    {
+      "id": "tez-018",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Prüferfrage",
+      "frage": "Wie viele Zielfunktionen sind sinnvoll?",
+      "antwort": "Das hängt von der Umgebung ab. Ich würde mit drei bis vier Zielen starten, weil NSGA-II darüber schwächer wird. Die Anzahl der Ziele kann selbst Teil der Studie sein: Vergleich mit zwei, drei und vier Zielen."
+    },
+    {
+      "id": "tez-019",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Begriff",
+      "frage": "Was ist kooperative Koevolution?",
+      "antwort": "Ein Problem wird in Teile zerlegt, jeder Teil hat eine eigene Subpopulation (Potter & De Jong 1994). Zur Bewertung wird ein Individuum mit Kollaborateuren aus den anderen Subpopulationen zu einer Gesamtlösung zusammengesetzt.",
+      "merksatz": "Teile getrennt evolvieren, zusammen bewerten."
+    },
+    {
+      "id": "tez-020",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Begriff",
+      "frage": "Was ist ein Kollaborateur?",
+      "antwort": "Das Individuum aus einer anderen Subpopulation, mit dem man für die Bewertung kombiniert wird, z. B. das bisher beste oder ein zufälliges. Die Wahl beeinflusst stark, wie gut Koevolution funktioniert."
+    },
+    {
+      "id": "tez-021",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Begriff",
+      "frage": "Was ist das Credit-Assignment-Problem?",
+      "antwort": "Wenn ein Level gut ist: Welcher Agent hat das verdient? Bei zusammengesetzten Lösungen ist schwer zu sagen, wessen Beitrag den Erfolg verursacht hat. Das ist eine Kernschwierigkeit kooperativer Koevolution."
+    },
+    {
+      "id": "tez-022",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Begriff",
+      "frage": "Was ist Relative Overgeneralization?",
+      "antwort": "Ein typisches Problem kooperativer Koevolution: Subpopulationen konvergieren zu Lösungen, die mit vielen Partnern ordentlich funktionieren, statt zum besten gemeinsamen Optimum. Besonders bei stark gekoppelten Teilen, z. B. Gelände und Türme."
+    },
+    {
+      "id": "tez-023",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Begriff",
+      "frage": "Heterogen vs. homogen – was ist der Unterschied?",
+      "antwort": "Homogen: alle Agenten haben dieselbe Rolle und dasselbe Modell. Heterogen: jeder Agent hat eine eigene Aufgabe, eigene Eingaben und ggf. eigene Ziele, z. B. Wegedesigner, Wellendesigner, Ökonomiedesigner."
+    },
+    {
+      "id": "tez-024",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Prüferfrage",
+      "frage": "Was meinst du mit „monolithischem NSGA-II“?",
+      "antwort": "Eine Baseline ohne Zerlegung: Ein einziges Genom kodiert die Parameter aller Schichten, und ein NSGA-II optimiert diese eine Population auf allen Zielen gemeinsam. Besser formuliert: zentraler bzw. nicht zerlegter NSGA-II.",
+      "merksatz": "Gleiches Level, gleiches Budget – nur die Zerlegung unterscheidet sich."
+    },
+    {
+      "id": "tez-025",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Prüferfrage",
+      "frage": "Warum ist ein nicht zerlegter EA die richtige Baseline?",
+      "antwort": "Die Forschungsfrage fragt, ob die Zerlegung in Spezialisten etwas bringt. Dafür muss alles andere gleich sein: gleiche Repräsentation (Blackboard), gleiche Ziele, gleiches Budget. Kooperative Koevolution wird in der Literatur klassisch gegen einen nicht zerlegten EA verglichen."
+    },
+    {
+      "id": "tez-026",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Prüferfrage",
+      "frage": "Was passiert, wenn die Koevolution schlechter ist als der zentrale NSGA-II?",
+      "antwort": "Das ist auch ein Ergebnis. Dann analysiere ich, warum, z. B. durch Credit Assignment oder zu starke Kopplung der Schichten. Eine sauber begründete negative Antwort ist wissenschaftlich wertvoll."
+    },
+    {
+      "id": "tez-027",
+      "kategorie": "PCG",
+      "typ": "Begriff",
+      "frage": "Was ist PCG?",
+      "antwort": "Procedural Content Generation: algorithmische Erzeugung von Spielinhalten wie Levels, Karten oder Gegnerwellen, statt sie von Hand zu bauen."
+    },
+    {
+      "id": "tez-028",
+      "kategorie": "PCG",
+      "typ": "Begriff",
+      "frage": "Was ist suchbasiertes PCG (search-based PCG)?",
+      "antwort": "Inhalte werden durch eine Suche, meist einen EA, erzeugt, die eine Bewertungsfunktion optimiert (Togelius et al. 2011). Gegenstück: konstruktives PCG, das in einem Durchgang erzeugt, z. B. Rauschen oder Raumplatzierung mit Delaunay + MST."
+    },
+    {
+      "id": "tez-029",
+      "kategorie": "PCG",
+      "typ": "Begriff",
+      "frage": "Was ist PCGRL und warum wollen wir es nicht als Benchmark?",
+      "antwort": "PCGRL (Khalifa et al. 2020) formuliert Levelerzeugung als Reinforcement Learning auf kleinen Rasterspielen wie Binary, Zelda, Sokoban. Diese Toy-Benchmarks sind kaum echte Spiele; wir wollen echte, spielbare Level mit eingestellter Schwierigkeit in einer eigenen Sandbox."
+    },
+    {
+      "id": "tez-030",
+      "kategorie": "PCG",
+      "typ": "Begriff",
+      "frage": "Was ist Quality Diversity / MAP-Elites?",
+      "antwort": "Statt nur die besten Lösungen zu suchen, sucht QD viele unterschiedliche gute Lösungen. MAP-Elites (Mouret & Clune 2015) teilt den Raum der Verhaltensmerkmale in Zellen und behält in jeder Zelle die beste Lösung."
+    },
+    {
+      "id": "tez-031",
+      "kategorie": "PCG",
+      "typ": "Begriff",
+      "frage": "Was ist ein Verhaltensdeskriptor?",
+      "antwort": "Eine Beschreibung, wie sich ein Level spielt, nicht wie es aussieht, z. B. Länge des Weges, Anteil exponierter Zeit, Anzahl gewinnender Strategien. Damit misst man Diversität sinnvoll."
+    },
+    {
+      "id": "tez-032",
+      "kategorie": "PCG",
+      "typ": "Prüferfrage",
+      "frage": "Wie misst du Diversität?",
+      "antwort": "Über Verhaltensdeskriptoren: z. B. Abdeckung eines Gitters aus zwei bis drei Merkmalen oder mittlerer paarweiser Abstand der Level im Merkmalsraum. Zufällige Unterschiede der Seeds allein zählen nicht als Diversität."
+    },
+    {
+      "id": "tez-033",
+      "kategorie": "PCG",
+      "typ": "Begriff",
+      "frage": "Was ist simulationsbasierte Bewertung?",
+      "antwort": "Level werden während der Evolution von Code gespielt bzw. bewertet: Solver, Simulation oder Bot-Spieler. Menschen könnten nicht zehntausende Level spielen. Eine kleine Nutzerstudie prüft am Ende, ob die Bewertung zur menschlichen Erfahrung passt."
+    },
+    {
+      "id": "tez-034",
+      "kategorie": "Unsere Architektur",
+      "typ": "Unser Projekt",
+      "frage": "Was ist das Blackboard-Muster?",
+      "antwort": "Ein gemeinsames Datenobjekt (LevelData) enthält das ganze Level. Spezialisierte Agenten lesen es und schreiben ihre eigene Schicht. Klassische KI-Architektur (Hearsay-II). Regel bei uns: Jeder Agent schreibt nur seine eigene Schicht.",
+      "merksatz": "Eine Tafel, viele Spezialisten, jeder schreibt nur seinen Teil."
+    },
+    {
+      "id": "tez-035",
+      "kategorie": "Unsere Architektur",
+      "typ": "Prüferfrage",
+      "frage": "Warum Blackboard und nicht eine Pipeline oder Verhandlung?",
+      "antwort": "Spätere Agenten können auf frühere reagieren, z. B. Deckung auf Türme. Und die zentrale Baseline nutzt dasselbe LevelData, sodass im Experiment nur die Zerlegung variiert. Verhandlungen zwischen Agenten wären für eine Bachelorarbeit zu komplex."
+    },
+    {
+      "id": "tez-036",
+      "kategorie": "Unsere Architektur",
+      "typ": "Unser Projekt",
+      "frage": "Was ist ein Designer-Agent bei uns?",
+      "antwort": "Ein Modul, das eine Schicht des Levels erzeugt, z. B. Wege, Bauplätze, Ökonomie oder Wellen. Es ist zuerst ein handgeschriebener Platzhalter, später ein parametrisches bzw. neuronales Modell, dessen Parameter evolviert werden."
+    },
+    {
+      "id": "tez-037",
+      "kategorie": "Unsere Architektur",
+      "typ": "Unser Projekt",
+      "frage": "Warum gibt es handgeschriebene Platzhalter-Agenten?",
+      "antwort": "Das Spiel ist sofort spielbar, und sie sind die untere Baseline: Die Evolution muss besser sein als einfache Regeln. Später werden sie ersetzt bzw. ihre Parameter optimiert."
+    },
+    {
+      "id": "tez-038",
+      "kategorie": "Unsere Architektur",
+      "typ": "Prüferfrage",
+      "frage": "Warum evolvierst du Generatoren und nicht direkt Level?",
+      "antwort": "Ein evolviertes Level ist nur für diese eine Karte gut. Ein evolvierter Designer lernt eine Regel, die für jeden neuen Seed funktioniert. Deshalb wird jedes Genom auf mehreren Seeds bewertet, und am Ende wird auf ungesehenen Seeds getestet.",
+      "merksatz": "Wir lernen Regeln, nicht Einzelstücke."
+    },
+    {
+      "id": "tez-039",
+      "kategorie": "Unsere Architektur",
+      "typ": "Unser Projekt",
+      "frage": "Was macht der Solver?",
+      "antwort": "Er prüft schnell und deterministisch, ob ein Level spielbar ist und wie schwer es ist, ohne Grafik und Physik. Beim Bergspiel: Sichtlinien, Gefahrenkarte und Dijkstra für die Route mit dem geringsten erwarteten Schaden."
+    },
+    {
+      "id": "tez-040",
+      "kategorie": "Unsere Architektur",
+      "typ": "Unser Projekt",
+      "frage": "Was bedeutet „Retry until playable“?",
+      "antwort": "Der Generator erzeugt ein Level, lässt es bewerten und versucht es mit einem neuen Unter-Seed erneut, wenn es nicht spielbar oder ungültig ist. In der Evolution wird Spielbarkeit zur Nebenbedingung."
+    },
+    {
+      "id": "tez-041",
+      "kategorie": "Unsere Architektur",
+      "typ": "Unser Projekt",
+      "frage": "Was ist der Schwierigkeitsregler (Slack)?",
+      "antwort": "Ein Parameter wird aus der Bewertung abgeleitet, z. B. HP = erwarteter Schaden × (1 + Slack). Erkenntnis: Schnellere Türme allein machten das Spiel nicht schwerer, weil die HP mitwuchsen. Der eigentliche Regler ist der Slack.",
+      "merksatz": "Spieltempo und Schwierigkeit sind zwei verschiedene Achsen."
+    },
+    {
+      "id": "tez-042",
+      "kategorie": "Unsere Architektur",
+      "typ": "Unser Projekt",
+      "frage": "Warum ist die Levellogik engine-unabhängig?",
+      "antwort": "LevelData, Agenten und Bewertung nutzen kein Rendering und keine Physik. So können sie für die Experimente nach Python portiert werden (numpy, pymoo). Godot bleibt Viewer und spielbares Spiel; die Brücke ist ein Level-JSON."
+    },
+    {
+      "id": "tez-043",
+      "kategorie": "Unsere Architektur",
+      "typ": "Unser Projekt",
+      "frage": "Warum Seeds und Determinismus?",
+      "antwort": "Gleicher Seed ergibt gleiches Level. Nur so sind Experimente reproduzierbar und Fehler nachstellbar. Deshalb ist der globale Zufallsgenerator in der Levellogik verboten."
+    },
+    {
+      "id": "tez-044",
+      "kategorie": "Unsere Architektur",
+      "typ": "Prüferfrage",
+      "frage": "Warum Godot?",
+      "antwort": "Kostenlos, Open Source, schnell zu prototypen und headless lauffähig für Tests und Bots. Wichtig: Godot ist nur Viewer und spielbare Umgebung; die Experimente laufen später in Python."
+    },
+    {
+      "id": "tez-045",
+      "kategorie": "Testen und Validierung",
+      "typ": "Begriff",
+      "frage": "Was ist ein Stresstest?",
+      "antwort": "Ein Test, der das System mit sehr vielen oder extremen Eingaben belastet, um seltene Fehler zu finden. Bei uns: 240 feste Seeds aus dem ganzen Bereich 0 bis 999.999; jedes Level muss validate() bestehen.",
+      "merksatz": "Selten heißt bei 100.000 Bewertungen: hunderte Male."
+    },
+    {
+      "id": "tez-046",
+      "kategorie": "Testen und Validierung",
+      "typ": "Unser Projekt",
+      "frage": "Welchen Fehler hat der Stresstest gezeigt?",
+      "antwort": "Bei einem Bergrücken bis zum Kartenrand lief der Serpentinenweg aus der Karte heraus (etwa 1 von 600 Seeds). Tests mit Seeds 1–20 haben das nicht gefunden. Lösung: Versuch verwerfen, validate() prüft alle Positionen, Stresstest über den ganzen Seed-Bereich."
+    },
+    {
+      "id": "tez-047",
+      "kategorie": "Testen und Validierung",
+      "typ": "Begriff",
+      "frage": "Was ist ein Smoke-Test?",
+      "antwort": "Ein schneller Grundtest, ob das System überhaupt läuft, z. B. 20 Level erzeugen und Kennzahlen prüfen. Er findet grobe Fehler, aber keine seltenen."
+    },
+    {
+      "id": "tez-048",
+      "kategorie": "Testen und Validierung",
+      "typ": "Unser Projekt",
+      "frage": "Was macht validate()?",
+      "antwort": "Es prüft, ob alles, was die Agenten gespeichert haben, gültig ist, z. B. alle Positionen innerhalb der Karte. Der Generator gibt nie ein ungültiges Level zurück."
+    },
+    {
+      "id": "tez-049",
+      "kategorie": "Testen und Validierung",
+      "typ": "Unser Projekt",
+      "frage": "Wie hast du den Solver validiert?",
+      "antwort": "Die Sichtlinien des Solvers (Strahlen über die Höhenkarte) wurden mit den physikalischen Raycasts im Spiel auf 300 Zellen verglichen. Erst 73 % Übereinstimmung, dann Fehler gefunden (Turm verdeckte sich selbst), danach 93–98 %.",
+      "merksatz": "Ein Modell ist nur so gut wie seine Validierung."
+    },
+    {
+      "id": "tez-050",
+      "kategorie": "Testen und Validierung",
+      "typ": "Begriff",
+      "frage": "Was ist der Sim-to-Human-Gap?",
+      "antwort": "Der Unterschied zwischen der Schwierigkeit, die die Simulation vorhersagt, und der, die Menschen erleben. Beim Bergspiel groß, weil Reflexe nur geschätzt werden; beim Tower Defense klein, weil nur Entscheidungen zählen."
+    },
+    {
+      "id": "tez-051",
+      "kategorie": "Testen und Validierung",
+      "typ": "Begriff",
+      "frage": "Was heißt Kalibrierung hier?",
+      "antwort": "Die Annahmen des Solvers, z. B. Trefferwahrscheinlichkeiten je Untergrund, werden mit echten Playtest-Daten abgeglichen. Beispiel: Ich habe Zielzeit und Fluggeschwindigkeit geändert – das Spiel wurde schwerer, der Solver merkte es nicht."
+    },
+    {
+      "id": "tez-052",
+      "kategorie": "Testen und Validierung",
+      "typ": "Unser Projekt",
+      "frage": "Warum keine asserts in Headless-Tests?",
+      "antwort": "Ein fehlgeschlagenes assert lässt Godot im Debugger auf Eingabe warten – der Test hängt. Außerdem bricht Godot bei Skriptfehlern nicht ab, sondern läuft weiter. Darum sucht unser Testskript nach „SCRIPT ERROR“ und hat ein Zeitlimit."
+    },
+    {
+      "id": "tez-053",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "PowerGrid – worum geht es?",
+      "antwort": "Ein Kraftwerk muss über Masten und Kabel mit allen Dörfern verbunden werden. Das ist ein Steinerbaum-Problem; der Solver nutzt die KMB-Approximation (Kou, Markowsky, Berman). Vorteil: exakt berechenbare Schwierigkeit. Nachteil: eher ein Puzzle, wenig Spieltiefe."
+    },
+    {
+      "id": "tez-054",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Bergaufstieg – worum geht es?",
+      "antwort": "Third-Person-Aufstieg auf einen prozeduralen Berg unter Katapultbeschuss und Steinschlag. Fünf Agenten: Gelände, Weg, Türme, Steinschlag, Deckung. Der Solver berechnet eine Gefahrenkarte und mit Dijkstra die Route mit geringstem erwarteten Schaden für mehrere Spielerstärken."
+    },
+    {
+      "id": "tez-055",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Tower Defense – worum geht es?",
+      "antwort": "Gegner laufen auf verzweigten Wegen zur Burg; der Spieler baut auf festen Bauplätzen drei Turmtypen mit festen Preisen (Bogen 35, Magie 50, Bombe 65). Fünf Agenten: Gelände, Wege, Bauplätze, Ökonomie, Wellen. Spiel und Bewertung nutzen dieselbe deterministische Simulation; Schwierigkeit über Bots unterschiedlicher Stärke."
+    },
+    {
+      "id": "tez-056",
+      "kategorie": "Prototypen",
+      "typ": "Prüferfrage",
+      "frage": "Warum eignet sich Tower Defense besonders?",
+      "antwort": "Keine Reflexe, nur Entscheidungen. Deshalb können Spiel und Bewertung exakt denselben Code nutzen, und der Sim-to-Human-Gap kommt nur aus den Entscheidungen. Außerdem zerfällt das Level natürlich in Schichten mit konkurrierenden Zielen."
+    },
+    {
+      "id": "tez-057",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Was heißt „Spiel und Bewertung nutzen dieselbe Simulation“?",
+      "antwort": "Die Regeln existieren nur einmal als Tick-Simulation. Godot zeichnet nur und schickt Spieleraktionen als Befehle hinein; Bots nutzen dieselbe Simulation ohne Grafik. Was der Bot erlebt, ist exakt das Spiel."
+    },
+    {
+      "id": "tez-058",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Welche Ziele passen zu Tower Defense?",
+      "antwort": "Zielschwierigkeit (verlorene Leben), „Entscheidungen zählen“ (guter Bot gewinnt, schwacher verliert), mehrere unterschiedliche Gewinnstrategien, ökonomische Spannung und Rhythmus der Wellen."
+    },
+    {
+      "id": "tez-059",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Welche konkurrierenden Ziele gibt es? (Beispiele)",
+      "antwort": "Tower Defense: Wellen ↔ Ökonomie (knappes Geld plus starke Wellen ist unmöglich, zu viel Geld langweilig), Bauplätze ↔ Schwierigkeit (viele gute Plätze machen es leicht), Wald ↔ Bauplätze (dichter Wald lässt weniger Platz an der Straße), Verzweigungen ↔ Engpässe. Berg: Deckung ↔ Türme, Steinschlag kreuzt Serpentinen mehrfach."
+    },
+    {
+      "id": "tez-060",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Warum spielt die Reihenfolge der Agenten eine Rolle?",
+      "antwort": "Beim Bergspiel war Deckung vor Türmen nutzlos, weil sie blind platziert wurde. Mit Türme → Deckung reagiert die Deckung auf die Gefahr (Generate & Repair). Die Reihenfolge kann selbst eine zusätzliche Versuchsbedingung sein."
+    },
+    {
+      "id": "tez-061",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Warum Dichten statt Anzahlen als Parameter?",
+      "antwort": "Als der Berg größer wurde, wurden fünf Türme zu dünn und das Spiel leichter. „Ein Turm pro 60 m Weg“ funktioniert unabhängig von der Kartengröße."
+    },
+    {
+      "id": "tez-062",
+      "kategorie": "Versuchsdesign",
+      "typ": "Prüferfrage",
+      "frage": "Wie lautet deine Forschungsfrage?",
+      "antwort": "Liefert die Zerlegung der Levelgenerierung in heterogene, kooperativ koevolvierte Spezialisten-Agenten bessere Pareto-Fronten oder mehr Diversität als ein nicht zerlegter NSGA-II bei gleichem Evaluationsbudget?"
+    },
+    {
+      "id": "tez-063",
+      "kategorie": "Versuchsdesign",
+      "typ": "Prüferfrage",
+      "frage": "Welche Versuchsbedingungen vergleichst du?",
+      "antwort": "B0: handgeschriebene Platzhalter. B1: nicht zerlegter NSGA-II (ein Genom für alle Schichten). M1: heterogene kooperative Koevolution (eine Subpopulation pro Agent). Optional: MAP-Elites für Diversität und LLM-generierte Fitness."
+    },
+    {
+      "id": "tez-064",
+      "kategorie": "Versuchsdesign",
+      "typ": "Prüferfrage",
+      "frage": "Wie bewertest du die Ergebnisse?",
+      "antwort": "Die Endlösungen erzeugen Level auf ungesehenen Seeds. Dann: Hypervolume der gemeinsamen Front, Diversität im Merkmalsraum, Anteil spielbarer Level, Rechenzeit. Mehrere unabhängige Läufe pro Bedingung und Statistik."
+    },
+    {
+      "id": "tez-065",
+      "kategorie": "Versuchsdesign",
+      "typ": "Begriff",
+      "frage": "Welche Statistik verwendest du?",
+      "antwort": "10–30 unabhängige Läufe pro Bedingung, Mann-Whitney-U-Test (nichtparametrisch, keine Normalverteilung nötig) und die Effektstärke Vargha-Delaney A12 (Wahrscheinlichkeit, dass ein Lauf von A besser ist als einer von B)."
+    },
+    {
+      "id": "tez-066",
+      "kategorie": "Versuchsdesign",
+      "typ": "Begriff",
+      "frage": "Was ist eine Ablationsstudie?",
+      "antwort": "Man entfernt oder ändert gezielt eine Komponente und misst die Auswirkung. Bei uns z. B. andere Agentenreihenfolge, weniger Agenten oder weniger Ziele."
+    },
+    {
+      "id": "tez-067",
+      "kategorie": "Versuchsdesign",
+      "typ": "Prüferfrage",
+      "frage": "Ist eine Nutzerstudie nötig?",
+      "antwort": "Sinnvoll, aber klein: 5–10 Personen spielen Level aus den Bedingungen. Gemessen werden verlorene Leben bzw. Tode und Zeit, dazu ein kurzer Fragebogen. Damit prüfe ich, ob die simulierte Schwierigkeit zur erlebten passt."
+    },
+    {
+      "id": "tez-068",
+      "kategorie": "Versuchsdesign",
+      "typ": "Prüferfrage",
+      "frage": "Wie viel Rechenzeit brauchst du?",
+      "antwort": "Abhängig von der Bewertungszeit. Beim Tower Defense etwa 10 ms pro Partie. Mit mehreren Bots und Seeds pro Genom und 50.000 Bewertungen sind das Minuten bis Stunden pro Lauf; die großen Experimente laufen auf dem Unirechner."
+    },
+    {
+      "id": "tez-069",
+      "kategorie": "Versuchsdesign",
+      "typ": "Prüferfrage",
+      "frage": "Warum Evolution und nicht Reinforcement Learning?",
+      "antwort": "Am Whiteboard so entschieden. Evolution braucht keine differenzierbare Belohnung und kann ganze generierte Level direkt bewerten. Sie ist mit Mehrzielverfahren wie NSGA-II und mit Koevolution natürlich kombinierbar."
+    },
+    {
+      "id": "tez-070",
+      "kategorie": "Versuchsdesign",
+      "typ": "Prüferfrage",
+      "frage": "Wie verhinderst du, dass die Evolution den Solver austrickst?",
+      "antwort": "Indem alles, was ein Agent platziert, im Solver eine Kostenwirkung hat, und das Modell gegen das Spiel validiert ist. Außerdem wird auf ungesehenen Seeds getestet und mit Menschen nachgeprüft. Beim Tower Defense ist das Risiko kleiner, weil Spiel und Bewertung identisch sind.",
+      "merksatz": "Die Evolution findet jede Lücke in der Fitness."
+    },
+    {
+      "id": "tez-071",
+      "kategorie": "Versuchsdesign",
+      "typ": "Prüferfrage",
+      "frage": "Was ist dein eigener Beitrag?",
+      "antwort": "Nicht das Spiel, sondern die experimentelle Untersuchung: eine kontrollierte Sandbox mit zerlegbaren Schichten, die Formulierung der Ziele und der Vergleich zerlegter vs. nicht zerlegter Mehrzielevolution bei gleichem Budget."
+    },
+    {
+      "id": "tez-072",
+      "kategorie": "LLM und Fitness",
+      "typ": "Prüferfrage",
+      "frage": "Wie hast du die Prototypen so schnell gebaut?",
+      "antwort": "Mit LLM-Hilfe (Claude Code), aber schrittweise: Anforderungen in einer Art Interview festgelegt, jede Entscheidung begründet und dokumentiert, kleine Schritte mit Git, Tests, Playtests mit Messungen. Die Spiele sind die Testumgebung, nicht der Beitrag. Den LLM-Einsatz dokumentiere ich transparent."
+    },
+    {
+      "id": "tez-073",
+      "kategorie": "LLM und Fitness",
+      "typ": "Begriff",
+      "frage": "Was heißt „LLM schreibt Fitnessfunktionen“?",
+      "antwort": "Ein Sprachmodell bekommt eine natürlichsprachige Designvorgabe und die verfügbaren Messgrößen und schreibt daraus Code für eine Fitnessfunktion. Die Evolution optimiert damit; die Ergebnisse gehen an das LLM zurück, das die Funktion verbessert."
+    },
+    {
+      "id": "tez-074",
+      "kategorie": "LLM und Fitness",
+      "typ": "Begriff",
+      "frage": "Was ist Eureka?",
+      "antwort": "Ein Ansatz von NVIDIA (Ma et al., 2023): Ein LLM schreibt Reward-Funktionen für Reinforcement Learning als Code und verbessert sie iterativ anhand der Trainingsergebnisse. Das ist das bekannteste Vorbild für LLM-generierte Fitness."
+    },
+    {
+      "id": "tez-075",
+      "kategorie": "LLM und Fitness",
+      "typ": "Begriff",
+      "frage": "Was sind FunSearch und Evolution through Large Models (ELM)?",
+      "antwort": "Ansätze, bei denen ein LLM innerhalb einer evolutionären Suche Programme verändert, also als Mutationsoperator. FunSearch (DeepMind) fand so neue mathematische Konstruktionen; ELM (Lehman et al. 2022) evolvierte Programme mit LLM-Mutationen."
+    },
+    {
+      "id": "tez-076",
+      "kategorie": "LLM und Fitness",
+      "typ": "Begriff",
+      "frage": "Was ist „LLM as a Judge“?",
+      "antwort": "Ein LLM bewertet Inhalte direkt, z. B. ob ein Level interessant wirkt. Problem: teuer, langsam und schwer reproduzierbar für zehntausende Bewertungen. Eher geeignet für eine Endbewertung oder Stichproben."
+    },
+    {
+      "id": "tez-077",
+      "kategorie": "LLM und Fitness",
+      "typ": "Unser Projekt",
+      "frage": "Wie könnte LLM-Fitness in unserer Sandbox aussehen?",
+      "antwort": "Der Solver liefert schon viele Messgrößen (Schwierigkeit pro Spielerstärke, Rhythmus, Gewinnraten der Bots). Ein LLM schreibt aus Vorgaben wie „gegen Ende schwerer, mehrere Strategien gewinnen“ eine Fitness für jeden Agenten. Versuchsbedingung: handgeschriebene vs. LLM-generierte Fitness."
+    },
+    {
+      "id": "tez-078",
+      "kategorie": "LLM und Fitness",
+      "typ": "Prüferfrage",
+      "frage": "Welche Risiken hat LLM-generierte Fitness?",
+      "antwort": "Reproduzierbarkeit (Modelle ändern sich), API-Kosten, die Evolution kann Lücken der generierten Funktion ausnutzen, und die Frage, woran man eine gute Fitness misst. Man braucht ein unabhängiges Gütekriterium, z. B. menschliche Bewertung oder Zielverhalten."
+    },
+    {
+      "id": "tez-079",
+      "kategorie": "LLM und Fitness",
+      "typ": "Prüferfrage",
+      "frage": "Ist LLM-Fitness ein neues Thema oder eine Erweiterung?",
+      "antwort": "Beides ist möglich. Als Erweiterung: zusätzliche Bedingung neben handgeschriebenen Zielen, das Kernthema bleibt. Als Schwerpunkt: die Arbeit würde stärker untersuchen, wie gut LLMs Fitnessfunktionen entwerfen. Das kläre ich mit dem Betreuer."
+    },
+    {
+      "id": "tez-080",
+      "kategorie": "Typische Rückfragen",
+      "typ": "Prüferfrage",
+      "frage": "Warum heterogene Agenten und nicht ein großer Generator?",
+      "antwort": "Jede Schicht hat eigene Entscheidungen und eigene Qualitätskriterien. Spezialisten können kleiner, schneller zu lernen und besser interpretierbar sein. Ob das wirklich bessere Ergebnisse liefert, ist genau die Forschungsfrage."
+    },
+    {
+      "id": "tez-081",
+      "kategorie": "Typische Rückfragen",
+      "typ": "Prüferfrage",
+      "frage": "Wie viele Agenten sind sinnvoll?",
+      "antwort": "Derzeit fünf, eine pro natürlicher Schicht. Zu viele erhöhen die Kopplung und das Credit-Assignment-Problem. Ein sinnvoller Start sind drei bis vier aktive Agenten, z. B. Gelände fest lassen."
+    },
+    {
+      "id": "tez-082",
+      "kategorie": "Typische Rückfragen",
+      "typ": "Prüferfrage",
+      "frage": "Was ist an deinem Level „spielbar“?",
+      "antwort": "Mechanisch lösbar (Route existiert bzw. ein guter Bot gewinnt), alle Elemente gültig, Schwierigkeit im Zielbereich, kein Tod durch einen einzelnen Treffer. Ein Mensch kann es öffnen und spielen."
+    },
+    {
+      "id": "tez-083",
+      "kategorie": "Typische Rückfragen",
+      "typ": "Prüferfrage",
+      "frage": "Wie viel Spieltiefe braucht die Sandbox?",
+      "antwort": "So viel, dass Entscheidungen zählen und Ziele konkurrieren. Beim Tower Defense sorgen drei Turmtypen gegen zwei Gegnertypen schon für Schere-Stein-Papier. Upgrades oder mehr Gegner nur, wenn die Messungen zeigen, dass es zu wenige unterschiedliche Strategien gibt."
+    },
+    {
+      "id": "tez-084",
+      "kategorie": "Typische Rückfragen",
+      "typ": "Prüferfrage",
+      "frage": "Was machst du als Nächstes?",
+      "antwort": "Sandbox festlegen, Ziele im Solver implementieren und messen, Portierung nach Python mit Äquivalenztest, dann zuerst parametrische Agenten mit NSGA-II und Koevolution, danach Neuroevolution, dann die großen Experimente."
+    },
+    {
+      "id": "tez-085",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Prüferfrage",
+      "frage": "Warum addierst du die Ziele nicht einfach mit Gewichten zu einer Zahl?",
+      "antwort": "Eine gewichtete Summe verlangt, die Gewichte vorher festzulegen, und findet bei nicht konvexen Fronten manche Kompromisse gar nicht. Pareto-Verfahren wie NSGA-II liefern die ganze Front; die Abwägung trifft man danach mit Wissen über die Alternativen.",
+      "merksatz": "Erst alle guten Kompromisse finden, dann wählen."
+    },
+    {
+      "id": "tez-086",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Warum müssen Ziele normiert werden, und wie wählt man den Referenzpunkt?",
+      "antwort": "Ziele haben verschiedene Einheiten (z. B. Leben, Sekunden, Anteile). Ohne Normierung dominiert das Ziel mit dem größten Zahlenbereich den Hypervolume-Wert. Man normiert mit festen Grenzen für alle Bedingungen und setzt den Referenzpunkt etwas schlechter als den schlechtesten sinnvollen Wert – für alle Läufe gleich, sonst sind die Zahlen nicht vergleichbar."
+    },
+    {
+      "id": "tez-087",
+      "kategorie": "Mehrzieloptimierung",
+      "typ": "Begriff",
+      "frage": "Was ist NSGA-III?",
+      "antwort": "Die Weiterentwicklung von NSGA-II für viele Ziele (Deb und Jain 2014). Statt der Crowding Distance nutzt es Referenzrichtungen im Zielraum, um die Population gleichmäßig zu verteilen. Relevant, falls wir mehr als drei bis vier Ziele brauchen."
+    },
+    {
+      "id": "tez-088",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was ist der Unterschied zwischen Genotyp und Phänotyp?",
+      "antwort": "Der Genotyp ist die Kodierung (bei uns die Parameter eines Designer-Agenten), der Phänotyp das, was daraus entsteht und bewertet wird (das erzeugte Level). Da ein Genom auf mehreren Seeds verschiedene Level erzeugt, hat es bei uns mehrere Phänotypen; die Fitness ist ihr Durchschnitt."
+    },
+    {
+      "id": "tez-089",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was bedeutet Exploration vs. Exploitation?",
+      "antwort": "Exploration sucht in neuen Bereichen des Suchraums, Exploitation verbessert die bisher besten Lösungen. Zu viel Exploitation führt zu vorzeitiger Konvergenz, zu viel Exploration zu Zufallssuche. Mutationsstärke, Selektionsdruck und Diversitätsmaßnahmen (z. B. Crowding Distance) steuern das Gleichgewicht."
+    },
+    {
+      "id": "tez-090",
+      "kategorie": "Evolutionäre Algorithmen",
+      "typ": "Begriff",
+      "frage": "Was ist Elitismus?",
+      "antwort": "Die besten Individuen werden unverändert in die nächste Generation übernommen, damit gute Lösungen nicht durch Zufall verloren gehen. NSGA-II ist elitär: Eltern und Kinder werden gemeinsam sortiert und die besten Fronten behalten."
+    },
+    {
+      "id": "tez-091",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Begriff",
+      "frage": "Woher kommt die kooperative Koevolution?",
+      "antwort": "Potter und De Jong (1994, ausführlich 2000): Ein Problem wird in Teilkomponenten zerlegt, jede hat eine eigene Subpopulation, und ein Individuum wird bewertet, indem man es mit Kollaborateuren aus den anderen Subpopulationen zu einer vollständigen Lösung zusammensetzt."
+    },
+    {
+      "id": "tez-092",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Prüferfrage",
+      "frage": "Wie stellst du ein gleiches Budget sicher, wenn die Koevolution mehrere Populationen hat?",
+      "antwort": "Gezählt wird jede vollständige Level-Bewertung (Simulation mit Bots), egal in welcher Population sie entsteht. Bewertet die Koevolution ein Individuum mit mehreren Kollaborateuren, zählt jede Kombination. Beide Bedingungen stoppen bei derselben Zahl, z. B. 50.000 Bewertungen.",
+      "merksatz": "Gezählt werden Bewertungen, nicht Generationen."
+    },
+    {
+      "id": "tez-093",
+      "kategorie": "Kooperative Koevolution",
+      "typ": "Begriff",
+      "frage": "Kooperative vs. kompetitive Koevolution – was ist der Unterschied?",
+      "antwort": "Kooperativ: Die Populationen arbeiten an Teilen einer gemeinsamen Lösung und teilen eine Bewertung (unser Fall: Agenten bauen zusammen ein Level). Kompetitiv: Populationen spielen gegeneinander, z. B. Levels gegen Spieler-Bots (Wettrüsten). Kompetitiv wäre eine mögliche Erweiterung, ist aber nicht unser Plan."
+    },
+    {
+      "id": "tez-094",
+      "kategorie": "PCG",
+      "typ": "Begriff",
+      "frage": "Was ist Expressive-Range-Analyse?",
+      "antwort": "Eine Standardmethode, um einen Generator zu bewerten (Smith und Whitehead 2010): Man erzeugt viele Level, misst zwei Merkmale (z. B. Länge der Wege und Anzahl Verzweigungen) und zeichnet ihre Verteilung als Heatmap. So sieht man, welche Arten von Leveln der Generator kann und welche nie.",
+      "merksatz": "Was kann der Generator überhaupt erzeugen?"
+    },
+    {
+      "id": "tez-095",
+      "kategorie": "PCG",
+      "typ": "Begriff",
+      "frage": "Konstruktiv vs. Generate-and-Test – was ist der Unterschied?",
+      "antwort": "Ein konstruktiver Generator baut das Level in einem Durchgang und garantiert Gültigkeit durch seine Regeln. Generate-and-Test erzeugt, prüft und verwirft ungültige Versuche. Unsere Agenten sind konstruktiv; der Generator mit validate() und „Retry until playable“ ist Generate-and-Test."
+    },
+    {
+      "id": "tez-096",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Welche Weg-Topologien erzeugt der RoadDesigner?",
+      "antwort": "Zufällig pro Level: ein einziger Weg (selten, ca. 3 %), Fork (Weg teilt sich, Äste treffen sich erst an der Burg), Diamond (teilt sich und vereinigt sich wieder) und Kombinationen wie Diamond+Diamond oder Diamond+Fork. Jede Verzweigung verdoppelt die Zahl der Routen. Vereinigungspunkte sind natürliche Engpässe."
+    },
+    {
+      "id": "tez-097",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Wie wählt der SlotDesigner die Bauplätze?",
+      "antwort": "Kandidaten sind freie Wiesenzellen direkt neben einer Straße (keine Bäume, kein Wasser). Die Anzahl ist eine Dichte (Bauplätze pro Straßenzelle). Jeder Kandidat bekommt eine Punktzahl: wie viele Straßenzellen ein Turm dort erreicht; Zellen nahe an Verzweigungen zählen doppelt. Ausgewählt wird gierig, mit Mindestabstand. Das ist die Baseline, die Evolution kann die Regel verändern."
+    },
+    {
+      "id": "tez-098",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Wie funktioniert das Schere-Stein-Papier zwischen Türmen und Gegnern?",
+      "antwort": "Bogenschützen schießen schnell, aber Rüstung blockt 60 % ihres physischen Schadens. Magier ignorieren Rüstung, schießen aber langsamer. Bomben sind langsam und treffen alle Gegner im Radius. Schnelle Gegner haben wenig Leben, gepanzerte viel. Ein einziger Turmtyp reicht deshalb nicht immer."
+    },
+    {
+      "id": "tez-099",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Warum ist die Tick-Simulation deterministisch, und warum ganze Ticks?",
+      "antwort": "Die Simulation läuft in festen Schritten von 0,1 s, ohne Physik und ohne globalen Zufall; Türme und Gegner werden in fester Reihenfolge abgearbeitet. Alle Wellenzeiten sind ganze Ticks, so kommt ein als JSON gespeichertes Level exakt gleich zurück. Gleiches Level plus gleiche Befehle ergibt immer dasselbe Ergebnis – das wird getestet."
+    },
+    {
+      "id": "tez-100",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Warum laufen die Gegner auf einer geglätteten Linie und nicht auf Gitterzellen?",
+      "antwort": "Die Designer arbeiten auf dem Gitter (einfach, gut prüfbar). Für eine natürliche, kurvige Straße wird die Zellfolge mit Chaikin-Eckenschneiden geglättet. Diese Linie liegt in der Levellogik, und die Simulation bewegt die Gegner auf genau derselben Linie, die das Spiel zeichnet. So unterscheiden sich Bild und Bewertung nicht."
+    },
+    {
+      "id": "tez-101",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Was ist die Besitzregel (Ownership) im Blackboard?",
+      "antwort": "Jeder Agent schreibt nur seine eigene Schicht und liest die anderen. Beispiel: Der Wegedesigner darf das Gelände nicht abgraben; stattdessen bevorzugt seine Kostenfunktion tiefe, flache Zellen, und die Wege laufen von selbst durch Täler. Die Regel verhindert versteckte Abhängigkeiten und macht klar, welcher Agent wofür verantwortlich ist."
+    },
+    {
+      "id": "tez-102",
+      "kategorie": "Prototypen",
+      "typ": "Unser Projekt",
+      "frage": "Was zeigte die erste Messung mit der Simulation?",
+      "antwort": "Eine Partie ohne Türme dauert etwa 8 ms. Ein sehr einfacher Plan (freie Bauplätze abwechselnd mit Bogenschützen und Magiern füllen) gewann 8 von 10 Leveln und verlor 2, weil das Geld nur für 4 bzw. 7 Türme reichte. Die Platzhalter-Level schwanken also stark in der Schwierigkeit – genau dafür braucht es den Schwierigkeitsregler und die Evolution."
+    },
+    {
+      "id": "tez-103",
+      "kategorie": "Testen und Validierung",
+      "typ": "Unser Projekt",
+      "frage": "Welche Fehler haben die Tests im Tower Defense gefunden?",
+      "antwort": "Erstens: Im Dijkstra waren die Distanzen 32-Bit, die Kosten im Heap 64-Bit; durch Rundung wurden gültige Einträge übersprungen und erreichbare Zellen wirkten unerreichbar (fast alle Seeds scheiterten). Zweitens: Ein einzelner 64-Bit-Wert (Meeresspiegel) änderte sich beim JSON-Hin-und-Rück in der letzten Stelle; gelöst durch ganze Zentimeter. Beide fand der Smoke- bzw. JSON-Test sofort.",
+      "merksatz": "Gleitkommazahlen sind kleine Fallen."
+    },
+    {
+      "id": "tez-104",
+      "kategorie": "Versuchsdesign",
+      "typ": "Begriff",
+      "frage": "Was ist ein Bot-Spieler, und wie misst man damit „Entscheidungen zählen“?",
+      "antwort": "Ein Bot ist ein Programm, das das Level über dieselbe Simulation spielt, z. B. ein Zufallsbot, ein gieriger Bot und ein vorausplanender Bot. „Entscheidungen zählen“ heißt: Der starke Bot verliert deutlich weniger Leben als der schwache. Die Differenz der verlorenen Leben ist ein messbares Ziel (Skill-Gap)."
+    },
+    {
+      "id": "tez-105",
+      "kategorie": "Typische Rückfragen",
+      "typ": "Prüferfrage",
+      "frage": "Was sind die Grenzen der Gültigkeit deiner Ergebnisse (Threats to Validity)?",
+      "antwort": "Intern: Platzhalter-Baselines und Parameter können eine Bedingung bevorzugen; deshalb gleiches Budget, gleiche Seeds, viele Läufe. Konstrukt: Bots spielen nicht wie Menschen; deshalb die kleine Nutzerstudie. Extern: Ergebnisse gelten zunächst nur für diese Sandbox; Übertragbarkeit auf andere Spiele ist eine offene Frage."
+    },
+    {
+      "id": "tez-106",
+      "kategorie": "Typische Rückfragen",
+      "typ": "Prüferfrage",
+      "frage": "Macht die Evolution das Spiel tiefer?",
+      "antwort": "Nein. Die Agenten ordnen nur vorhandene Bausteine an (Wege, Bauplätze, Geld, Wellen). Die Level werden besser abgestimmt, vielfältiger und die Entscheidungen interessanter, aber neue Mechaniken wie Upgrades oder Gegnertypen muss man selbst einbauen. Jede neue Mechanik gibt den Agenten dann mehr Gestaltungsraum."
+    }
+  ]
+}
